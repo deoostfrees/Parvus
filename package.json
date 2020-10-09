@@ -1,6 +1,6 @@
 {
   "name": "parvus",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An accessible, open-source image lightbox with no dependencies.",
   "main": "dist/js/parvus.js",
   "style": "dist/css/parvus.css",
@@ -13,7 +13,7 @@
     "core-js": "^3.6.5",
     "node-sass": "^4.14.1",
     "postcss-preset-env": "^6.7.0",
-    "rollup": "^2.28.2",
+    "rollup": "^2.29.0",
     "rollup-plugin-license": "^2.2.0",
     "rollup-plugin-postcss": "^3.1.8",
     "rollup-plugin-terser": "^5.3.1",
