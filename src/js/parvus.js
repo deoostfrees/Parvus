@@ -227,7 +227,9 @@ export default function parvus (userOptions) {
 
     lightboxImage.addEventListener('transitionend', () => {
       // Reenable the user’s focus
-      lastFocus.focus()
+      lastFocus.focus({
+        preventScroll: true
+      })
 
       // Hide lightbox
       lightbox.setAttribute('aria-hidden', 'true')
