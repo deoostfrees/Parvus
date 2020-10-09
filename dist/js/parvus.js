@@ -2,7 +2,7 @@
  * Parvus
  *
  * @author de Oostfreese
- * @version 1.0.0
+ * @version 1.0.1
  * @url https://github.com/deoostfreese/parvus
  *
  * MIT license
@@ -219,7 +219,9 @@
       });
       lightboxImage.addEventListener('transitionend', () => {
         // Reenable the user’s focus
-        lastFocus.focus(); // Hide lightbox
+        lastFocus.focus({
+          preventScroll: true
+        }); // Hide lightbox
 
         lightbox.setAttribute('aria-hidden', 'true');
         lightboxImage.remove();
