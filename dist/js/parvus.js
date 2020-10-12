@@ -2,7 +2,7 @@
  * Parvus
  *
  * @author de Oostfreese
- * @version 1.0.1
+ * @version 1.1.0
  * @url https://github.com/deoostfreese/parvus
  *
  * MIT license
@@ -23,6 +23,7 @@
     let config = {};
     let lightbox = null;
     let lightboxOverlay = null;
+    let lightboxOverlayOpacity = 0;
     let lightboxImageContainer = null;
     let lightboxImage = null;
     let widthDifference;
@@ -256,7 +257,7 @@
         heightDifference = THUMBNAIL_SIZE.height / LIGHTBOX_IMAGE_SIZE.height;
         xDifference = THUMBNAIL_SIZE.left - LIGHTBOX_IMAGE_SIZE.left;
         yDifference = THUMBNAIL_SIZE.top - LIGHTBOX_IMAGE_SIZE.top;
-        lightboxImageContainer.style.opacity = '1';
+        lightboxImageContainer.style.opacity = 1;
         requestAnimationFrame(() => {
           lightboxImage.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
           lightboxImage.style.transition = 'transform 0s'; // Animate the difference reversal on the next tick
@@ -277,6 +278,7 @@
 
 
     const clearDrag = function clearDrag() {
+      lightboxOverlay.style.opacity = 1;
       lightboxImageContainer.style.transform = 'translate3d(0, 0, 0)';
       drag = {
         startY: 0,
@@ -422,6 +424,11 @@
 
     const doSwipe = function doSwipe() {
       if (Math.abs(drag.startY - drag.endY) > 0 && config.swipeClose) {
+        if (Math.abs(drag.startY - drag.endY) >= 0 && Math.abs(drag.startY - drag.endY) <= 100) {
+          lightboxOverlayOpacity = 1 - Math.round(drag.startY - drag.endY) / 100;
+        }
+
+        lightboxOverlay.style.opacity = lightboxOverlayOpacity;
         lightboxImageContainer.style.transform = `translate3d(0, -${Math.round(drag.startY - drag.endY)}px, 0)`;
         isDraggingY = true;
       }
