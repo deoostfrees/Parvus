@@ -2,7 +2,7 @@
  * Parvus
  *
  * @author de Oostfreese
- * @version 1.1.0
+ * @version 1.1.1
  * @url https://github.com/deoostfreese/parvus
  *
  * MIT license
@@ -129,7 +129,7 @@
       lightbox = document.createElement('div');
       lightbox.setAttribute('role', 'dialog');
       lightbox.setAttribute('aria-hidden', 'true');
-      lightbox.setAttribute('tabindex', '0');
+      lightbox.setAttribute('tabindex', '-1');
       lightbox.setAttribute('aria-label', config.lightboxLabel);
       lightbox.classList.add('parvus'); // Create the lightbox overlay container
 
