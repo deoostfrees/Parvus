@@ -96,7 +96,7 @@ The following options are available:
 
 | Function | Description |
 | --- | --- |
-| `open(el)` | Open Parvus |
+| `open(element)` | Open `element` (DOM element) |
 | `close()` | Close Parvus |
 | `add(element)` | Add `element` (DOM element) |
 | `remove(element)` | Remove `element` (DOM element) |
