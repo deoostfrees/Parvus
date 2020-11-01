@@ -2,7 +2,7 @@
 
 An accessible, open-source image lightbox with no dependencies.
 
-[Play on CodePen](https://codepen.io/deoostfreese/pen/ZEOEwaV)
+[Play on CodePen](https://codepen.io/deoostfreese/pen/GRqdEPY)
 
 ## Table of contents
 
