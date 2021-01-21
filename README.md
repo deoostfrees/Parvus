@@ -94,7 +94,7 @@ The following options are available:
 | swipeClose | bool | true | Swipe up to close Parvus |
 | threshold | number | 100 | Touch dragging threshold (in px) |
 | transitionDuration | number | 300 | Specifies how many milliseconds (ms) the transition effects takes to complete |
-| transitionTimingFunction | string | '...' | Specifies the speed curve of the transition effects |
+| transitionTimingFunction | string | "..." | Specifies the speed curve of the transition effects |
 
 ## API
 
