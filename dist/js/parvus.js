@@ -2,7 +2,7 @@
  * Parvus
  *
  * @author de Oostfreese
- * @version 1.1.2
+ * @version 1.2.0
  * @url https://github.com/deoostfreese/parvus
  *
  * MIT license
@@ -19,13 +19,14 @@
      *
      */
     const BROWSER_WINDOW = window;
-    const FOCUSABLE_ELEMENTS = ['button:not([disabled]):not([inert])', '[tabindex]:not([tabindex^=' - ']):not([inert])'];
+    const FOCUSABLE_ELEMENTS = ['button:not([disabled]):not([inert])', '[tabindex]:not([tabindex^="-"]):not([inert])'];
     let config = {};
     let lightbox = null;
     let lightboxOverlay = null;
     let lightboxOverlayOpacity = 0;
     let lightboxImageContainer = null;
     let lightboxImage = null;
+    let closeButton = null;
     let widthDifference;
     let heightDifference;
     let xDifference;
@@ -48,8 +49,11 @@
         selector: '.lightbox',
         lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
         lightboxLoadingIndicatorLabel: 'Image loading',
-        swipeClose: true,
+        lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="16 4 20 4 20 8" /><line x1="14" y1="10" x2="20" y2="4" /><polyline points="8 20 4 20 4 16" /><line x1="4" y1="20" x2="10" y2="14" /><polyline points="16 20 20 20 20 16" /><line x1="14" y1="14" x2="20" y2="20" /><polyline points="8 4 4 4 4 8" /><line x1="4" y1="4" x2="10" y2="10" /></svg>',
+        closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>',
+        closeButtonLabel: 'Close dialog window',
         scrollClose: true,
+        swipeClose: true,
         threshold: 100,
         transitionDuration: 300,
         transitionTimingFunction: 'cubic-bezier(0.2, 0, 0.2, 1)'
@@ -99,7 +103,11 @@
 
     const add = function add(el) {
       if (!el.classList.contains('parvus-zoom')) {
-        el.classList.add('parvus-zoom'); // Bind click event handler
+        el.classList.add('parvus-zoom');
+        const lightboxIndicatorIcon = document.createElement('div');
+        lightboxIndicatorIcon.className = 'parvus-zoom__indicator';
+        lightboxIndicatorIcon.innerHTML = config.lightboxIndicatorIcon;
+        el.appendChild(lightboxIndicatorIcon); // Bind click event handler
 
         el.addEventListener('click', triggerParvus);
       }
@@ -142,7 +150,16 @@
       lightboxImageContainer = document.createElement('div');
       lightboxImageContainer.classList.add('parvus__image'); // Add lightbox image container to lightbox container
 
-      lightbox.appendChild(lightboxImageContainer); // Add lightbox container to body
+      lightbox.appendChild(lightboxImageContainer); // Create the close button
+
+      closeButton = document.createElement('button');
+      closeButton.className = 'parvus__btn parvus__btn--close';
+      closeButton.setAttribute('type', 'button');
+      closeButton.setAttribute('aria-label', config.closeButtonLabel);
+      closeButton.innerHTML = config.closeButtonIcon;
+      closeButton.style.opacity = 0; // Add close button to lightbox container
+
+      lightbox.appendChild(closeButton); // Add lightbox container to body
 
       document.body.appendChild(lightbox);
     };
@@ -217,6 +234,8 @@
         lightboxImage.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
         lightboxOverlay.style.opacity = 0;
         lightboxOverlay.style.transition = `opacity ${config.transitionDuration}ms ${config.transitionTimingFunction}`;
+        closeButton.style.opacity = 0;
+        closeButton.style.transition = `opacity ${config.transitionDuration}ms ${config.transitionTimingFunction}`;
       });
       lightboxImage.addEventListener('transitionend', () => {
         // Reenable the user’s focus
@@ -267,6 +286,8 @@
             lightboxImage.style.transition = `transform ${config.transitionDuration}ms ${config.transitionTimingFunction}`;
             lightboxOverlay.style.opacity = 1;
             lightboxOverlay.style.transition = `opacity ${config.transitionDuration}ms ${config.transitionTimingFunction}`;
+            closeButton.style.opacity = 1;
+            closeButton.style.transition = `opacity ${config.transitionDuration}ms ${config.transitionTimingFunction}`;
           });
         });
       };
@@ -280,6 +301,7 @@
     const clearDrag = function clearDrag() {
       lightboxOverlay.style.opacity = 1;
       lightboxImageContainer.style.transform = 'translate3d(0, 0, 0)';
+      closeButton.style.opacity = 1;
       drag = {
         startY: 0,
         endY: 0
@@ -330,7 +352,7 @@
 
 
     const getFocusableChildren = function getFocusableChildren() {
-      return Array.prototype.slice.call(document.querySelectorAll(`.parvus, .parvus + ${FOCUSABLE_ELEMENTS.join(', .parvus ')}`)).filter(function (child) {
+      return Array.prototype.slice.call(document.querySelectorAll(`.parvus[aria-hidden="false"], .parvus[aria-hidden="false"] ${FOCUSABLE_ELEMENTS.join(', .parvus[aria-hidden="false"] ')}`)).filter(function (child) {
         return !!(child.offsetWidth || child.offsetHeight || child.getClientRects().length);
       });
     };
@@ -429,6 +451,7 @@
         }
 
         lightboxOverlay.style.opacity = lightboxOverlayOpacity;
+        closeButton.style.opacity = lightboxOverlayOpacity;
         lightboxImageContainer.style.transform = `translate3d(0, -${Math.round(drag.startY - drag.endY)}px, 0)`;
         isDraggingY = true;
       }

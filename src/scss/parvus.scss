@@ -4,6 +4,9 @@
 
   --overlay-background: #f9f4f1;
 
+  --button-background-color: hsl(228, 24%, 23%);
+  --button-color: hsl(0, 0%, 100%);
+
   --loader-color: #fff;
 
   --image-max-height: 85vh;
@@ -16,7 +19,6 @@
  */
 
 .parvus-zoom {
-  cursor: url('../images/zoom-in.svg') 18 18, zoom-in;
   display: block;
   transition: transform var(--transition-duration) var(--transition-timing-function);
   will-change: transform;
@@ -38,7 +40,6 @@
   align-items: center;
   bottom: 0;
   contain: strict;
-  cursor: url('../images/zoom-out.svg') 18 18, zoom-out;
   display: flex;
   justify-content: center;
   left: 0;
@@ -52,6 +53,36 @@
 
   &[aria-hidden='true'] {
     display: none;
+  }
+
+  &-zoom {
+    position: relative;
+
+
+    &__indicator {
+      align-items: center;
+      background-color: var(--button-background-color);
+      color: var(--button-color);
+      display: flex;
+      justify-content: center;
+      line-height: 1;
+      padding: 8px;
+      position: absolute;
+      right: 8px;
+      top: 8px;
+
+
+      & svg {
+        fill: none;
+        height: 24px;
+        pointer-events: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.5;
+        stroke: currentColor;
+        width: 24px;
+      }
+    }
   }
 
   &__overlay {
@@ -106,6 +137,38 @@
       right: 0;
       top: 0;
       z-index: 1;
+    }
+  }
+
+  &__btn {
+    appearance: none;
+    background-color: var(--button-background-color);
+    background-image: none;
+    border-radius: 0;
+    border: 1px solid transparent;
+    color: var(--button-color);
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    padding: 8px;
+    touch-action: manipulation;
+
+
+    &--close {
+      position: absolute;
+      right: 48px;
+      top: 48px;
+    }
+
+    & svg {
+      fill: none;
+      height: 32px;
+      pointer-events: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 1;
+      stroke: currentColor;
+      width: 32px;
     }
   }
 }
