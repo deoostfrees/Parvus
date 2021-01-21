@@ -1,10 +1,10 @@
 :root {
   --transition-duration: 300ms;
   --transition-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
-  --overlay-background: #f9f4f1;
+  --overlay-background: hsl(23, 40%, 96%);
   --button-background-color: hsl(228, 24%, 23%);
   --button-color: hsl(0, 0%, 100%);
-  --loader-color: #fff;
+  --loader-color: hsl(0, 0%, 100%);
   --image-max-height: 85vh;
   --image-max-width: 85vw; }
 
@@ -64,7 +64,7 @@
   .parvus[aria-hidden='true'] {
     display: none; }
   .parvus__overlay {
-    background-color: #f9f4f1;
+    background-color: hsl(23, 40%, 96%);
     background-color: var(--overlay-background);
     bottom: 0;
     left: 0;
@@ -99,7 +99,7 @@
       animation: spin 1s infinite;
       border-radius: 100%;
       border: 4px solid #949ba3;
-      border-top-color: #fff;
+      border-top-color: hsl(0, 0%, 100%);
       border-top-color: var(--loader-color);
       bottom: 0;
       content: '';
