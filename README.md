@@ -86,8 +86,12 @@ The following options are available:
 | selector | string | ".lightbox" | All elements with this class triggers Parvus |
 | lightboxLabel | string | "..." | ARIA label for screen readers |
 | lightboxLoadingIndicatorLabel | string | "..." | ARIA label for screen readers |
-| swipeClose | bool | true | Swipe up to close Parvus |
+| lightboxIndicatorIcon | string | "..." | SVG icon for the lightbox indicator |
+| closeButtonIcon | string | "..." | SVG icon for the close button |
+| closeButtonLabel | string | "..." | ARIA label for screen readers |
+| docClose | bool | true | Click outside to close Parvus |
 | scrollClose | bool | true | Scroll to close Parvus |
+| swipeClose | bool | true | Swipe up to close Parvus |
 | threshold | number | 100 | Touch dragging threshold (in px) |
 | transitionDuration | number | 300 | Specifies how many milliseconds (ms) the transition effects takes to complete |
 | transitionTimingFunction | string | '...' | Specifies the speed curve of the transition effects |

@@ -40,6 +40,7 @@ export default function parvus (userOptions) {
       lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="16 4 20 4 20 8" /><line x1="14" y1="10" x2="20" y2="4" /><polyline points="8 20 4 20 4 16" /><line x1="4" y1="20" x2="10" y2="14" /><polyline points="16 20 20 20 20 16" /><line x1="14" y1="14" x2="20" y2="20" /><polyline points="8 4 4 4 4 8" /><line x1="4" y1="4" x2="10" y2="10" /></svg>',
       closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>',
       closeButtonLabel: 'Close dialog window',
+      docClose: true,
       scrollClose: true,
       swipeClose: true,
       threshold: 100,
@@ -363,7 +364,7 @@ export default function parvus (userOptions) {
    *
    */
   const clickHandler = function clickHandler (event) {
-    if (!isDraggingY) {
+    if (event.target === closeButton || (!isDraggingY && event.target.classList.contains('parvus__overlay') && config.docClose)) {
       close()
     }
 
