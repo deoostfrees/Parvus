@@ -20,6 +20,7 @@
 
 .parvus-zoom {
   display: block;
+  position: relative;
   transition: transform var(--transition-duration) var(--transition-timing-function);
   will-change: transform;
 
@@ -27,6 +28,32 @@
 
     &:active {
       transform: scale(1.04);
+    }
+  }
+
+
+  &__indicator {
+    align-items: center;
+    background-color: var(--button-background-color);
+    color: var(--button-color);
+    display: flex;
+    justify-content: center;
+    line-height: 1;
+    padding: 8px;
+    position: absolute;
+    right: 8px;
+    top: 8px;
+
+
+    & svg {
+      fill: none;
+      height: 24px;
+      pointer-events: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 1.5;
+      stroke: currentColor;
+      width: 24px;
     }
   }
 }
@@ -53,36 +80,6 @@
 
   &[aria-hidden='true'] {
     display: none;
-  }
-
-  &-zoom {
-    position: relative;
-
-
-    &__indicator {
-      align-items: center;
-      background-color: var(--button-background-color);
-      color: var(--button-color);
-      display: flex;
-      justify-content: center;
-      line-height: 1;
-      padding: 8px;
-      position: absolute;
-      right: 8px;
-      top: 8px;
-
-
-      & svg {
-        fill: none;
-        height: 24px;
-        pointer-events: none;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-width: 1.5;
-        stroke: currentColor;
-        width: 24px;
-      }
-    }
   }
 
   &__overlay {
