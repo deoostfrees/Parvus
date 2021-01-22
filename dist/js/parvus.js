@@ -49,8 +49,8 @@
         selector: '.lightbox',
         lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
         lightboxLoadingIndicatorLabel: 'Image loading',
-        lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="16 4 20 4 20 8" /><line x1="14" y1="10" x2="20" y2="4" /><polyline points="8 20 4 20 4 16" /><line x1="4" y1="20" x2="10" y2="14" /><polyline points="16 20 20 20 20 16" /><line x1="14" y1="14" x2="20" y2="20" /><polyline points="8 4 4 4 4 8" /><line x1="4" y1="4" x2="10" y2="10" /></svg>',
-        closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>',
+        lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
+        closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6L6 18M6 6l12 12"/></svg>',
         closeButtonLabel: 'Close dialog window',
         docClose: true,
         scrollClose: true,
@@ -231,8 +231,8 @@
       const CLOSE_EVENT = new CustomEvent('close');
       lightbox.dispatchEvent(CLOSE_EVENT);
       requestAnimationFrame(() => {
-        lightboxImage.style.transition = `transform ${config.transitionDuration}ms ${config.transitionTimingFunction}`;
         lightboxImage.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
+        lightboxImage.style.transition = `transform ${config.transitionDuration}ms ${config.transitionTimingFunction}`;
         lightboxOverlay.style.opacity = 0;
         lightboxOverlay.style.transition = `opacity ${config.transitionDuration}ms ${config.transitionTimingFunction}`;
         closeButton.style.opacity = 0;
@@ -268,6 +268,7 @@
       lightboxImage.alt = THUMBNAIL.alt || '';
       lightboxImage.src = el.href;
       lightboxImageContainer.style.opacity = '0';
+      lightboxImage.style.opacity = '0';
       lightboxImageContainer.appendChild(lightboxImage);
 
       lightboxImage.onload = () => {
@@ -280,11 +281,12 @@
         lightboxImageContainer.style.opacity = 1;
         requestAnimationFrame(() => {
           lightboxImage.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
-          lightboxImage.style.transition = 'transform 0s'; // Animate the difference reversal on the next tick
+          lightboxImage.style.transition = 'transform 0s, opacity 0s'; // Animate the difference reversal on the next tick
 
           requestAnimationFrame(() => {
             lightboxImage.style.transform = '';
-            lightboxImage.style.transition = `transform ${config.transitionDuration}ms ${config.transitionTimingFunction}`;
+            lightboxImage.style.opacity = 1;
+            lightboxImage.style.transition = `transform ${config.transitionDuration}ms ${config.transitionTimingFunction}, opacity ${config.transitionDuration}ms ${config.transitionTimingFunction}`;
             lightboxOverlay.style.opacity = 1;
             lightboxOverlay.style.transition = `opacity ${config.transitionDuration}ms ${config.transitionTimingFunction}`;
             closeButton.style.opacity = 1;

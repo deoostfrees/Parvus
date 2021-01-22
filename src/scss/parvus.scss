@@ -7,7 +7,8 @@
   --button-background-color: hsl(228, 24%, 23%);
   --button-color: hsl(0, 0%, 100%);
 
-  --loader-color: hsl(0, 0%, 100%);
+  --loader-background-color: hsl(23, 40%, 96%);
+  --loader-color: hsl(228, 24%, 23%);
 
   --image-max-height: 85vh;
   --image-max-width: 85vw;
@@ -125,7 +126,7 @@
     &::before {
       animation: spin 1s infinite;
       border-radius: 100%;
-      border: 4px solid #949ba3;
+      border: 4px solid var(--loader-background-color);
       border-top-color: var(--loader-color);
       bottom: 0;
       content: '';
