@@ -197,7 +197,13 @@
       loadingIndicator.setAttribute('role', 'progressbar');
       loadingIndicator.setAttribute('aria-label', config.lightboxLoadingIndicatorLabel); // Add loading indicator to container
 
-      lightbox.appendChild(loadingIndicator); // Show lightbox
+      lightbox.appendChild(loadingIndicator); // Hide all non lightbox elements from assistive technology
+
+      const nonLightboxEls = document.querySelectorAll('body > *:not([aria-hidden="true"])');
+      nonLightboxEls.forEach(nonLightboxEl => {
+        nonLightboxEl.setAttribute('aria-hidden', 'true');
+        nonLightboxEl.classList.add('parvus-hidden');
+      }); // Show lightbox
 
       lightbox.setAttribute('aria-hidden', 'false');
       lightbox.focus(); // Load image
@@ -229,7 +235,13 @@
 
 
       const CLOSE_EVENT = new CustomEvent('close');
-      lightbox.dispatchEvent(CLOSE_EVENT);
+      lightbox.dispatchEvent(CLOSE_EVENT); // Show all non lightbox elements from assistive technology
+
+      const nonLightboxEls = document.querySelectorAll('.parvus-hidden');
+      nonLightboxEls.forEach(nonLightboxEl => {
+        nonLightboxEl.removeAttribute('aria-hidden');
+        nonLightboxEl.classList.remove('parvus-hidden');
+      });
       requestAnimationFrame(() => {
         lightboxImage.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
         lightboxImage.style.transition = `transform ${config.transitionDuration}ms ${config.transitionTimingFunction}`;
