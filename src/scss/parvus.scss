@@ -40,21 +40,21 @@
     display: flex;
     justify-content: center;
     line-height: 1;
-    padding: 8px;
+    padding: 0.5rem;
     position: absolute;
-    right: 8px;
-    top: 8px;
+    right: 0.5rem;
+    top: 0.5rem;
 
 
     & svg {
       fill: none;
-      height: 24px;
+      height: 1.5rem;
       pointer-events: none;
       stroke-linecap: round;
       stroke-linejoin: round;
       stroke-width: 1.5;
       stroke: currentColor;
-      width: 24px;
+      width: 1.5rem;
     }
   }
 }
@@ -69,9 +69,10 @@
   bottom: 0;
   contain: strict;
   display: flex;
+  font-size: 1.125rem;
   justify-content: center;
   left: 0;
-  line-height: 1.5;
+  line-height: 1.667;
   overflow: hidden;
   position: fixed;
   right: 0;
@@ -115,18 +116,18 @@
 
   &__loader {
     display: inline-block;
-    height: 100px;
+    height: 6.25rem;
     left: 50%;
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 100px;
+    width: 6.25rem;
 
 
     &::before {
       animation: spin 1s infinite;
       border-radius: 100%;
-      border: 4px solid var(--loader-background-color);
+      border: 0.25rem solid var(--loader-background-color);
       border-top-color: var(--loader-color);
       bottom: 0;
       content: '';
@@ -143,30 +144,30 @@
     background-color: var(--button-background-color);
     background-image: none;
     border-radius: 0;
-    border: 1px solid transparent;
+    border: 0.0625rem solid transparent;
     color: var(--button-color);
     cursor: pointer;
     display: flex;
     font: inherit;
-    padding: 8px;
+    padding: 0.5rem;
     touch-action: manipulation;
 
 
     &--close {
       position: absolute;
-      right: 48px;
-      top: 48px;
+      right: 1rem;
+      top: 1rem;
     }
 
     & svg {
       fill: none;
-      height: 32px;
+      height: 2rem;
       pointer-events: none;
       stroke-linecap: round;
       stroke-linejoin: round;
       stroke-width: 1;
       stroke: currentColor;
-      width: 32px;
+      width: 2rem;
     }
   }
 }
