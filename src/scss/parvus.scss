@@ -27,15 +27,6 @@
 .parvus-zoom {
   display: block;
   position: relative;
-  transition: transform var(--transition-duration) var(--transition-timing-function);
-  will-change: transform;
-
-  @media screen and (prefers-reduced-motion: no-preference) {
-
-    &:active {
-      transform: scale(1.04);
-    }
-  }
 
 
   &__indicator {
