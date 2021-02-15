@@ -2,10 +2,15 @@
   --transition-duration: 300ms;
   --transition-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
 
-  --overlay-background: hsl(23, 40%, 96%);
+  --overlay-color: hsl(23, 40%, 96%);
+  --overlay-text: hsl(228, 24%, 23%);
 
-  --button-background-color: hsl(228, 24%, 23%);
-  --button-color: hsl(0, 0%, 100%);
+  --button-color: hsl(228, 24%, 23%);
+  --button-text: hsl(0, 0%, 100%);
+
+  --focus-text: hsl(228, 24%, 23%);
+  --focus-color: hsl(51, 100%, 85%);
+  --focus-outline-color: hsl(228, 24%, 23%);
 
   --loader-background-color: hsl(23, 40%, 96%);
   --loader-color: hsl(228, 24%, 23%);
@@ -35,8 +40,8 @@
 
   &__indicator {
     align-items: center;
-    background-color: var(--button-background-color);
-    color: var(--button-color);
+    background-color: var(--button-color);
+    color: var(--button-text);
     display: flex;
     justify-content: center;
     line-height: 1;
@@ -56,6 +61,10 @@
       stroke: currentColor;
       width: 1.5rem;
     }
+  }
+
+  & img {
+    display: block;
   }
 }
 
@@ -85,7 +94,7 @@
   }
 
   &__overlay {
-    background-color: var(--overlay-background);
+    background-color: var(--overlay-color);
     bottom: 0;
     left: 0;
     position: absolute;
@@ -141,11 +150,11 @@
 
   &__btn {
     appearance: none;
-    background-color: var(--button-background-color);
+    background-color: var(--button-color);
     background-image: none;
     border-radius: 0;
     border: 0.0625rem solid transparent;
-    color: var(--button-color);
+    color: var(--button-text);
     cursor: pointer;
     display: flex;
     font: inherit;
@@ -177,4 +186,20 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/**
+ * Focus
+ *
+ */
+
+.parvus-zoom:focus,
+.parvus :focus {
+  outline: 0;
+}
+
+.parvus-zoom:focus-visible,
+.parvus :focus-visible {
+  outline: 0.125rem dashed var(--focus-outline-color);
+  outline-offset: 0.125rem;
 }
