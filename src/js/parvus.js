@@ -6,7 +6,7 @@ export default function parvus (userOptions) {
   const BROWSER_WINDOW = window
   const FOCUSABLE_ELEMENTS = [
     'button:not([disabled]):not([inert])',
-    '[tabindex]:not([tabindex^="-"]):not([inert])'
+    '[tabindex]:not([tabindex="-1"]):not([inert])'
   ]
   let config = {}
   let lightbox = null
@@ -396,7 +396,7 @@ export default function parvus (userOptions) {
    * @return {Array<Element>}
    */
   const getFocusableChildren = function getFocusableChildren () {
-    return Array.prototype.slice.call(document.querySelectorAll(`.parvus[aria-hidden="false"], .parvus[aria-hidden="false"] ${FOCUSABLE_ELEMENTS.join(', .parvus[aria-hidden="false"] ')}`)).filter(function (child) {
+    return Array.prototype.slice.call(document.querySelectorAll(`.parvus[aria-hidden="false"] ${FOCUSABLE_ELEMENTS.join(', .parvus[aria-hidden="false"] ')}`)).filter(function (child) {
       return !!(
         child.offsetWidth ||
         child.offsetHeight ||
