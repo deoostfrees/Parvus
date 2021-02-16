@@ -363,7 +363,7 @@ export default function parvus (userOptions) {
     const MOVEMENT_Y = drag.endY - drag.startY
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
 
-    if (MOVEMENT_Y < 0 && MOVEMENT_Y_DISTANCE > config.threshold && config.swipeClose) {
+    if (MOVEMENT_Y_DISTANCE > config.threshold && config.swipeClose) {
       close()
     }
   }
@@ -506,14 +506,18 @@ export default function parvus (userOptions) {
    *
    */
   const doSwipe = function doSwipe () {
-    if (Math.abs(drag.startY - drag.endY) > 0 && config.swipeClose) {
-      if (Math.abs(drag.startY - drag.endY) >= 0 && Math.abs(drag.startY - drag.endY) <= 100) {
-        lightboxOverlayOpacity = 1 - (Math.round(drag.startY - drag.endY) / 100)
+    if (config.swipeClose) {
+      const MOVEMENT_Y = drag.endY - drag.startY
+      const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
+
+      if (MOVEMENT_Y_DISTANCE <= 100) {
+        lightboxOverlayOpacity = 1 - (MOVEMENT_Y_DISTANCE / 100)
       }
 
       lightboxOverlay.style.opacity = lightboxOverlayOpacity
       closeButton.style.opacity = lightboxOverlayOpacity
-      lightboxImageContainer.style.transform = `translate3d(0, -${Math.round(drag.startY - drag.endY)}px, 0)`
+
+      lightboxImageContainer.style.transform = `translate3d(0, ${Math.round(MOVEMENT_Y)}px, 0)`
 
       isDraggingY = true
     }
