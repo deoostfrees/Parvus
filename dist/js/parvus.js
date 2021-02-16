@@ -19,7 +19,7 @@
      *
      */
     const BROWSER_WINDOW = window;
-    const FOCUSABLE_ELEMENTS = ['button:not([disabled]):not([inert])', '[tabindex]:not([tabindex="-1"]):not([inert])'];
+    const FOCUSABLE_ELEMENTS = ['button:not([disabled]):not([inert])', '[tabindex]:not([tabindex^="-"]):not([inert])'];
     let config = {};
     let lightbox = null;
     let lightboxOverlay = null;
@@ -206,7 +206,7 @@
       }); // Show lightbox
 
       lightbox.setAttribute('aria-hidden', 'false');
-      lightbox.focus(); // Load image
+      setFocusToFirstItem(); // Load image
 
       load(el); // Create and dispatch a new event
 
@@ -367,9 +367,19 @@
 
 
     const getFocusableChildren = function getFocusableChildren() {
-      return Array.prototype.slice.call(document.querySelectorAll(`.parvus[aria-hidden="false"] ${FOCUSABLE_ELEMENTS.join(', .parvus[aria-hidden="false"] ')}`)).filter(function (child) {
+      return Array.prototype.slice.call(lightbox.querySelectorAll(`${FOCUSABLE_ELEMENTS.join(', ')}`)).filter(function (child) {
         return !!(child.offsetWidth || child.offsetHeight || child.getClientRects().length);
       });
+    };
+    /**
+     * Set focus to first item
+     *
+     */
+
+
+    const setFocusToFirstItem = function setFocusToFirstItem() {
+      const FOCUSABLE_CHILDREN = getFocusableChildren();
+      FOCUSABLE_CHILDREN[0].focus();
     };
     /**
      * Keydown event handler
