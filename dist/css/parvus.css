@@ -129,7 +129,12 @@
     .parvus__btn--close {
       position: absolute;
       right: 1rem;
-      top: 1rem; }
+      top: 1rem;
+      will-change: transform; }
+      @media screen and (prefers-reduced-motion: no-preference) {
+        .parvus__btn--close {
+          transition: transform 300ms cubic-bezier(0.2, 0, 0.2, 1);
+          transition: transform var(--transition-duration) var(--transition-timing-function); } }
     .parvus__btn svg {
       fill: none;
       height: 2rem;
@@ -139,6 +144,9 @@
       stroke-width: 1;
       stroke: currentColor;
       width: 2rem; }
+  @media screen and (prefers-reduced-motion: no-preference) {
+    .parvus--is-closing .parvus__btn--close {
+      transform: translateY(-300%); } }
 
 @keyframes spin {
   to {
