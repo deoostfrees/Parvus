@@ -24,6 +24,8 @@ export default function parvus (userOptions) {
   let isDraggingY = false
   let pointerDown = false
   let lastFocus = null
+  let transitionDuration = null
+  let isReducedMotion = true
 
   /**
    * Merge default options with user options
@@ -41,10 +43,11 @@ export default function parvus (userOptions) {
       closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6L6 18M6 6l12 12"/></svg>',
       closeButtonLabel: 'Close dialog window',
       docClose: true,
-      scrollClose: true,
+      scrollClose: false,
       swipeClose: true,
       threshold: 100,
       transitionDuration: 300,
+      reducedTransitionDuration: 1,
       transitionTimingFunction: 'cubic-bezier(0.2, 0, 0.2, 1)'
     }
 
@@ -55,13 +58,23 @@ export default function parvus (userOptions) {
 
   /**
    * Check prefers reduced motion
+   * https://developer.mozilla.org/en-US/docs/Web/API/MediaQueryList
    *
    */
   const MOTIONQUERY = window.matchMedia('(prefers-reduced-motion)')
 
   const reducedMotionCheck = function reducedMotionCheck () {
-    return MOTIONQUERY.matches
+    if (MOTIONQUERY.matches) {
+      isReducedMotion = true
+      transitionDuration = config.reducedTransitionDuration
+    } else {
+      isReducedMotion = false
+      transitionDuration = config.transitionDuration
+    }
   }
+
+  // Check for any OS level changes to the preference
+  MOTIONQUERY.addEventListener('change', reducedMotionCheck)
 
   /**
    * Init
@@ -70,6 +83,8 @@ export default function parvus (userOptions) {
   const init = function init (userOptions) {
     // Merge user options into defaults
     config = mergeOptions(userOptions)
+
+    reducedMotionCheck()
 
     // Check if the lightbox already exists
     if (!lightbox) {
@@ -176,10 +191,6 @@ export default function parvus (userOptions) {
     // Save user’s focus
     lastFocus = document.activeElement
 
-    if (reducedMotionCheck()) {
-      config.transitionDuration = 1
-    }
-
     // Use `history.pushState()` to make sure the 'Back' button behavior
     // that aligns with the user's expectations
     const STATE_OBJ = {
@@ -192,15 +203,6 @@ export default function parvus (userOptions) {
 
     bindEvents()
 
-    // Create loading indicator
-    loadingIndicator = document.createElement('div')
-    loadingIndicator.className = 'parvus__loader'
-    loadingIndicator.setAttribute('role', 'progressbar')
-    loadingIndicator.setAttribute('aria-label', config.lightboxLoadingIndicatorLabel)
-
-    // Add loading indicator to container
-    lightbox.appendChild(loadingIndicator)
-
     // Hide all non lightbox elements from assistive technology
     const nonLightboxEls = document.querySelectorAll('body > *:not([aria-hidden="true"])')
 
@@ -208,6 +210,8 @@ export default function parvus (userOptions) {
       nonLightboxEl.setAttribute('aria-hidden', 'true')
       nonLightboxEl.classList.add('parvus-hidden')
     })
+
+    lightbox.classList.add('parvus--is-opening')
 
     // Show lightbox
     lightbox.setAttribute('aria-hidden', 'false')
@@ -260,10 +264,10 @@ export default function parvus (userOptions) {
 
     requestAnimationFrame(() => {
       lightboxImage.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
-      lightboxImage.style.transition = `transform ${config.transitionDuration}ms ${config.transitionTimingFunction}`
+      lightboxImage.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}`
 
       lightboxOverlay.style.opacity = 0
-      lightboxOverlay.style.transition = `opacity ${config.transitionDuration}ms ${config.transitionTimingFunction}`
+      lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
     })
 
     lightboxImage.addEventListener('transitionend', () => {
@@ -293,6 +297,15 @@ export default function parvus (userOptions) {
     if (!el.href.match(/\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i)) {
       return
     }
+
+    // Create loading indicator
+    loadingIndicator = document.createElement('div')
+    loadingIndicator.className = 'parvus__loader'
+    loadingIndicator.setAttribute('role', 'progressbar')
+    loadingIndicator.setAttribute('aria-label', config.lightboxLoadingIndicatorLabel)
+
+    // Add loading indicator to container
+    lightbox.appendChild(loadingIndicator)
 
     lightboxImage = document.createElement('img')
 
@@ -331,11 +344,18 @@ export default function parvus (userOptions) {
         requestAnimationFrame(() => {
           lightboxImage.style.transform = ''
           lightboxImage.style.opacity = 1
-          lightboxImage.style.transition = `transform ${config.transitionDuration}ms ${config.transitionTimingFunction}, opacity ${config.transitionDuration}ms ${config.transitionTimingFunction}`
+          lightboxImage.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
 
           lightboxOverlay.style.opacity = 1
-          lightboxOverlay.style.transition = `opacity ${config.transitionDuration}ms ${config.transitionTimingFunction}`
+          lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
         })
+      })
+
+      lightboxOverlay.addEventListener('transitionend', () => {
+        lightbox.classList.remove('parvus--is-opening')
+      },
+      {
+        once: true
       })
     }
   }
@@ -507,7 +527,7 @@ export default function parvus (userOptions) {
    *
    */
   const doSwipe = function doSwipe () {
-    if (config.swipeClose) {
+    if (config.swipeClose && !isReducedMotion) {
       const MOVEMENT_Y = drag.endY - drag.startY
       const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
 
