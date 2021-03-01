@@ -150,6 +150,7 @@
       // Create the lightbox container
       lightbox = document.createElement('div');
       lightbox.setAttribute('role', 'dialog');
+      lightbox.setAttribute('aria-modal', 'true');
       lightbox.setAttribute('aria-hidden', 'true');
       lightbox.setAttribute('tabindex', '-1');
       lightbox.setAttribute('aria-label', config.lightboxLabel);
