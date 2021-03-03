@@ -31,12 +31,25 @@ if (process.env.BUILDJS) {
       {
         format: 'umd',
         file: './dist/js/parvus.js',
-        name: 'parvus'
+        name: 'Parvus'
+      },
+      {
+        format: 'es',
+        file: './dist/js/parvus.esm.js',
+        name: 'Parvus'
       },
       {
         format: 'umd',
         file: './dist/js/parvus.min.js',
-        name: 'parvus',
+        name: 'Parvus',
+        plugins: [
+          terser()
+        ]
+      },
+      {
+        format: 'es',
+        file: './dist/js/parvus.esm.min.js',
+        name: 'Parvus',
         plugins: [
           terser()
         ]
