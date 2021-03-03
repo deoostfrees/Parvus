@@ -1,4 +1,4 @@
-export default function parvus (userOptions) {
+export default function Parvus (userOptions) {
   /**
    * Global variables
    *
@@ -654,15 +654,15 @@ export default function parvus (userOptions) {
 
   init(userOptions)
 
-  parvus.init = init
-  parvus.open = open
-  parvus.close = close
-  parvus.add = add
-  parvus.remove = remove
-  parvus.destroy = destroy
-  parvus.isOpen = isOpen
-  parvus.on = on
-  parvus.off = off
+  Parvus.init = init
+  Parvus.open = open
+  Parvus.close = close
+  Parvus.add = add
+  Parvus.remove = remove
+  Parvus.destroy = destroy
+  Parvus.isOpen = isOpen
+  Parvus.on = on
+  Parvus.off = off
 
-  return parvus
+  return Parvus
 }
