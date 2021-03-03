@@ -10,10 +10,10 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.parvus = factory());
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Parvus = factory());
 }(this, (function () { 'use strict';
 
-  function parvus(userOptions) {
+  function Parvus(userOptions) {
     /**
      * Global variables
      *
@@ -610,18 +610,18 @@
     };
 
     init(userOptions);
-    parvus.init = init;
-    parvus.open = open;
-    parvus.close = close;
-    parvus.add = add;
-    parvus.remove = remove;
-    parvus.destroy = destroy;
-    parvus.isOpen = isOpen;
-    parvus.on = on;
-    parvus.off = off;
-    return parvus;
+    Parvus.init = init;
+    Parvus.open = open;
+    Parvus.close = close;
+    Parvus.add = add;
+    Parvus.remove = remove;
+    Parvus.destroy = destroy;
+    Parvus.isOpen = isOpen;
+    Parvus.on = on;
+    Parvus.off = off;
+    return Parvus;
   }
 
-  return parvus;
+  return Parvus;
 
 })));
