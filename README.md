@@ -19,7 +19,7 @@ An accessible, open-source image lightbox with no dependencies.
 ## Features
 
 - Accessible
-- APIs
+- API
 - Events
 
 ## Get Parvus
@@ -144,3 +144,5 @@ Parvus supports the following browser (all the latest versions):
 - Edge
 - Firefox
 - Safari
+
+Use the [`:focus-visible` polyfill](https://github.com/WICG/focus-visible) to support Safari and other Browsers.
