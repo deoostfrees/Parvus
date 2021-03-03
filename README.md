@@ -2,10 +2,11 @@
 
 An accessible, open-source image lightbox with no dependencies.
 
-[Play on CodePen](https://codepen.io/deoostfreese/pen/GRqdEPY)
+[Open in CodePen](https://codepen.io/collection/DwLBpz)
 
 ## Table of contents
 
+- [Features](#features)
 - [Get Parvus](#get-parvus)
   - [Download](#download)
   - [Package managers](#package-managers)
@@ -15,6 +16,12 @@ An accessible, open-source image lightbox with no dependencies.
 - [Events](#events)
 - [Browser support](#browser-support)
 
+## Features
+
+- Accessible
+- APIs
+- Events
+
 ## Get Parvus
 
 ### Download
@@ -22,8 +29,6 @@ An accessible, open-source image lightbox with no dependencies.
 CSS: `dist/css/parvus.min.css` minified, or `dist/css/parvus.css` un-minified
 
 JavaScript: `dist/js/parvus.min.js` minified, or `dist/js/parvus.js` un-minified
-
-Images: `dist/images/zoom-in.svg` and `dist/images/zoom-out.svg`
 
 ### Package managers
 
@@ -66,7 +71,7 @@ The standard way of using Parvus is a linked thumbnail image with the class name
 Initialize the script by running:
 
 ```js
-const prvs = new parvus()
+const prvs = new Parvus()
 ```
 
 ## Options
@@ -74,7 +79,7 @@ const prvs = new parvus()
 You can pass an object with custom options as an argument.
 
 ```js
-const prvs = new parvus({
+const prvs = new Parvus({
   scrollClose: false
 })
 ```
@@ -112,7 +117,7 @@ The following options are available:
 Bind events with the `.on()` and `.off()` methods.
 
 ```js
-const prvs = new parvus()
+const prvs = new Parvus()
 
 const listener = function listener () {
   console.log('eventName happened')
