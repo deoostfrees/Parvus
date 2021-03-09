@@ -296,7 +296,7 @@ export default function Parvus (userOptions) {
    */
   const load = function load (el) {
     if (!el.href.match(/\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i)) {
-      return
+      throw new Error('Please use an image file ending on the linked thumbnail image. Supported file endings: png|jpe?g|gif|bmp|webp|svg');
     }
 
     // Create loading indicator
