@@ -59,8 +59,6 @@ Parvus is also available on npm.
 
 `npm install parvus --save`
 
-Import the library in your JavaScript codebase:
-
 ## Usage
 
 The standard way of using Parvus is a linked thumbnail image with the class name `lightbox` to a larger image:
@@ -83,7 +81,7 @@ You can pass an object with custom options as an argument.
 
 ```js
 const prvs = new Parvus({
-  lang: 'en',
+  lang: 'de',
   i18n: {
     en: {
       lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
