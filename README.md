@@ -86,20 +86,43 @@ const prvs = new Parvus({
 
 The following options are available:
 
-| Property | Type | Default | Description |
-| --- | --- | --- | --- |
-| selector | string | ".lightbox" | All elements with this class triggers Parvus |
-| lightboxLabel | string | "..." | ARIA label for screen readers |
-| lightboxLoadingIndicatorLabel | string | "..." | ARIA label for screen readers |
-| lightboxIndicatorIcon | string | "..." | SVG icon for the lightbox indicator |
-| closeButtonIcon | string | "..." | SVG icon for the close button |
-| closeButtonLabel | string | "..." | ARIA label for screen readers |
-| docClose | bool | true | Click outside to close Parvus |
-| scrollClose | bool | false | Scroll to close Parvus |
-| swipeClose | bool | true | Swipe up to close Parvus |
-| threshold | number | 100 | Touch dragging threshold (in px) |
-| transitionDuration | number | 300 | Specifies how many milliseconds (ms) the transition effects takes to complete |
-| transitionTimingFunction | string | "..." | Specifies the speed curve of the transition effects |
+```js
+// All elements with this class triggers Parvus
+selector: '.lightbox',
+
+// Click outside to close Parvus
+docClose: true,
+
+// Scroll to close Parvus
+scrollClose: false,
+
+// Swipe up to close Parvus
+swipeClose: true,
+
+// Touch dragging threshold (in px)
+threshold: 100,
+
+// Specifies how many milliseconds (ms) the transition effects takes to complete
+transitionDuration: 300,
+
+// Specifies the speed curve of the transition effects
+transitionTimingFunction: 'cubic-bezier(0.2, 0, 0.2, 1)',
+
+// Icons
+lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
+
+closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+
+// Internationalization
+lang: 'en',
+i18n: {
+  en: {
+    lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
+    lightboxLoadingIndicatorLabel: 'Image loading',
+    closeButtonLabel: 'Close dialog window'
+  }
+}
+```
 
 ## API
 
