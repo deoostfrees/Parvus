@@ -59,7 +59,8 @@ function Parvus(userOptions) {
           lightboxLoadingIndicatorLabel: 'Image loading',
           closeButtonLabel: 'Close dialog window'
         }
-      }
+      },
+      fileTypes: /\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i
     };
     return { ...OPTIONS,
       ...userOptions
@@ -115,6 +116,10 @@ function Parvus(userOptions) {
 
 
   const add = function add(el) {
+    if (!el.href.match(config.fileTypes)) {
+      throw new Error(`Please use an image file ending on the linked thumbnail image. Supported file endings: ${config.fileTypes}`);
+    }
+
     if (!el.classList.contains('parvus-zoom')) {
       el.classList.add('parvus-zoom');
       const lightboxIndicatorIcon = document.createElement('div');
@@ -271,11 +276,7 @@ function Parvus(userOptions) {
 
 
   const load = function load(el) {
-    if (!el.href.match(/\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i)) {
-      throw new Error('Please use an image file ending on the linked thumbnail image. Supported file endings: png|jpe?g|gif|bmp|webp|svg');
-    } // Create loading indicator
-
-
+    // Create loading indicator
     loadingIndicator = document.createElement('div');
     loadingIndicator.className = 'parvus__loader';
     loadingIndicator.setAttribute('role', 'progressbar');
