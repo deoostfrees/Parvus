@@ -37,18 +37,23 @@ export default function Parvus (userOptions) {
     // Default options
     const OPTIONS = {
       selector: '.lightbox',
-      lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
-      lightboxLoadingIndicatorLabel: 'Image loading',
-      lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
-      closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6L6 18M6 6l12 12"/></svg>',
-      closeButtonLabel: 'Close dialog window',
       docClose: true,
       scrollClose: false,
       swipeClose: true,
       threshold: 100,
       transitionDuration: 300,
       reducedTransitionDuration: 1,
-      transitionTimingFunction: 'cubic-bezier(0.2, 0, 0.2, 1)'
+      transitionTimingFunction: 'cubic-bezier(0.2, 0, 0.2, 1)',
+      lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
+      closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+      lang: 'en',
+      i18n: {
+        en: {
+          lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
+          lightboxLoadingIndicatorLabel: 'Image loading',
+          closeButtonLabel: 'Close dialog window'
+        }
+      }
     }
 
     return {
@@ -146,7 +151,7 @@ export default function Parvus (userOptions) {
     lightbox.setAttribute('aria-modal', 'true')
     lightbox.setAttribute('aria-hidden', 'true')
     lightbox.setAttribute('tabindex', '-1')
-    lightbox.setAttribute('aria-label', config.lightboxLabel)
+    lightbox.setAttribute('aria-label', config.i18n[config.lang].lightboxLabel)
     lightbox.classList.add('parvus')
 
     // Create the lightbox overlay container
@@ -169,7 +174,7 @@ export default function Parvus (userOptions) {
     closeButton = document.createElement('button')
     closeButton.className = 'parvus__btn parvus__btn--close'
     closeButton.setAttribute('type', 'button')
-    closeButton.setAttribute('aria-label', config.closeButtonLabel)
+    closeButton.setAttribute('aria-label', config.i18n[config.lang].closeButtonLabel)
     closeButton.innerHTML = config.closeButtonIcon
 
     // Add close button to lightbox container
@@ -296,14 +301,14 @@ export default function Parvus (userOptions) {
    */
   const load = function load (el) {
     if (!el.href.match(/\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i)) {
-      throw new Error('Please use an image file ending on the linked thumbnail image. Supported file endings: png|jpe?g|gif|bmp|webp|svg');
+      throw new Error('Please use an image file ending on the linked thumbnail image. Supported file endings: png|jpe?g|gif|bmp|webp|svg')
     }
 
     // Create loading indicator
     loadingIndicator = document.createElement('div')
     loadingIndicator.className = 'parvus__loader'
     loadingIndicator.setAttribute('role', 'progressbar')
-    loadingIndicator.setAttribute('aria-label', config.lightboxLoadingIndicatorLabel)
+    loadingIndicator.setAttribute('aria-label', config.i18n[config.lang].lightboxLoadingIndicatorLabel)
 
     // Add loading indicator to container
     lightbox.appendChild(loadingIndicator)
@@ -469,7 +474,7 @@ export default function Parvus (userOptions) {
    * Wheel event handler
    *
    */
-  const wheelHandler = function wheelHandler (event) {
+  const wheelHandler = function wheelHandler () {
     close()
   }
 
