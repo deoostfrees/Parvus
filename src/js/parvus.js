@@ -53,7 +53,8 @@ export default function Parvus (userOptions) {
           lightboxLoadingIndicatorLabel: 'Image loading',
           closeButtonLabel: 'Close dialog window'
         }
-      }
+      },
+      fileTypes: /\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i
     }
 
     return {
@@ -111,6 +112,10 @@ export default function Parvus (userOptions) {
    * @param {HTMLElement} el - Element to add
    */
   const add = function add (el) {
+    if (!el.href.match(config.fileTypes)) {
+      throw new Error(`Please use an image file ending on the linked thumbnail image. Supported file endings: ${config.fileTypes}`)
+    }
+
     if (!el.classList.contains('parvus-zoom')) {
       el.classList.add('parvus-zoom')
 
@@ -300,10 +305,6 @@ export default function Parvus (userOptions) {
    * @param {number} index - Index to load
    */
   const load = function load (el) {
-    if (!el.href.match(/\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i)) {
-      throw new Error('Please use an image file ending on the linked thumbnail image. Supported file endings: png|jpe?g|gif|bmp|webp|svg')
-    }
-
     // Create loading indicator
     loadingIndicator = document.createElement('div')
     loadingIndicator.className = 'parvus__loader'

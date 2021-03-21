@@ -134,7 +134,10 @@ The following options are available:
       lightboxLoadingIndicatorLabel: 'Image loading',
       closeButtonLabel: 'Close dialog window'
     }
-  }
+  },
+
+  // Regular expression for supported image file types
+  fileTypes: /\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i
 }
 ```
 
