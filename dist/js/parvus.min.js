@@ -2,7 +2,7 @@
  * Parvus
  *
  * @author de Oostfreese
- * @version 1.2.2
+ * @version 1.3.0
  * @url https://github.com/deoostfreese/parvus
  *
  * MIT license
