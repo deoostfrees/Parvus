@@ -292,7 +292,7 @@ export default function Parvus (userOptions) {
       // Hide lightbox
       lightbox.setAttribute('aria-hidden', 'true')
 
-      lightboxImage.remove()
+      lightboxImageContainer.innerHTML = ''
     },
     {
       once: true
@@ -305,6 +305,11 @@ export default function Parvus (userOptions) {
    * @param {number} index - Index to load
    */
   const load = function load (el) {
+    const FIGURE = document.createElement('figure')
+    const FIGURECAPTION = document.createElement('figurecaption')
+    const THUMBNAIL = el.querySelector('img')
+    const THUMBNAIL_SIZE = el.getBoundingClientRect()
+
     // Create loading indicator
     loadingIndicator = document.createElement('div')
     loadingIndicator.className = 'parvus__loader'
@@ -314,10 +319,8 @@ export default function Parvus (userOptions) {
     // Add loading indicator to container
     lightbox.appendChild(loadingIndicator)
 
+    // Create new image
     lightboxImage = document.createElement('img')
-
-    const THUMBNAIL = el.querySelector('img')
-    const THUMBNAIL_SIZE = el.getBoundingClientRect()
 
     lightboxImage.alt = THUMBNAIL.alt || ''
     lightboxImage.src = el.href
@@ -325,12 +328,21 @@ export default function Parvus (userOptions) {
 
     lightboxImage.style.opacity = '0'
 
-    lightboxImageContainer.appendChild(lightboxImage)
+    FIGURE.appendChild(lightboxImage)
+
+    // Add caption if available
+    if (el.hasAttribute('data-caption') && el.getAttribute('data-caption') !== '') {
+      FIGURECAPTION.innerHTML = el.getAttribute('data-caption')
+
+      FIGURE.appendChild(FIGURECAPTION)
+    }
+
+    lightboxImageContainer.appendChild(FIGURE)
 
     lightboxImage.onload = () => {
-      lightbox.removeChild(loadingIndicator)
-
       const LIGHTBOX_IMAGE_SIZE = lightboxImage.getBoundingClientRect()
+
+      lightbox.removeChild(loadingIndicator)
 
       widthDifference = THUMBNAIL_SIZE.width / LIGHTBOX_IMAGE_SIZE.width
       heightDifference = THUMBNAIL_SIZE.height / LIGHTBOX_IMAGE_SIZE.height
