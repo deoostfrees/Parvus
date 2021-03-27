@@ -11,6 +11,9 @@ An accessible, open-source image lightbox with no dependencies.
   - [Download](#download)
   - [Package managers](#package-managers)
 - [Usage](#usage)
+  - [Caption](#caption)
+  - [Gallery](#gallery)
+  - [scrset](#scrset)
 - [Options](#options)
 - [API](#api)
 - [Events](#events)
@@ -73,6 +76,40 @@ Initialize the script by running:
 
 ```js
 const prvs = new Parvus()
+```
+
+### Caption
+
+```html
+<a href="path/to/image.jpg" class="lightbox" data-caption="I'm a caption">
+  <img src="path/to/thumbnail.jpg" alt="">
+</a>
+```
+
+### Gallery
+
+```html
+<a href="path/to/image.jpg" class="lightbox" data-group="Berlin">
+  <img src="path/to/thumbnail.jpg" alt="">
+</a>
+
+<a href="path/to/image.jpg" class="lightbox" data-group="Berlin">
+  <img src="path/to/thumbnail.jpg" alt="">
+</a>
+
+//...
+
+<a href="path/to/image.jpg" class="lightbox" data-group="Kassel">
+  <img src="path/to/thumbnail.jpg" alt="">
+</a>
+```
+
+### scrset
+
+```html
+<a href="path/to/image.jpg" class="lightbox" data-srcset="path/to/large.jpg 1200w, path/to/medium.jpg 1000w, path/to/small.jpg 700w">
+  <img src="path/to/thumbnail.jpg" alt="">
+</a>
 ```
 
 ## Options
