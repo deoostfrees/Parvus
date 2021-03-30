@@ -203,12 +203,12 @@
  *
  */
 
-.parvus-zoom:focus,
+.parvus-trigger:focus,
 .parvus :focus {
   outline: 0;
 }
 
-.parvus-zoom:focus-visible,
+.parvus-trigger:focus-visible,
 .parvus :focus-visible {
   outline: 0.125rem dashed var(--focus-outline-color);
   outline-offset: 0.125rem;

@@ -128,6 +128,8 @@ export default function Parvus (userOptions) {
       el.appendChild(lightboxIndicatorIcon)
     }
 
+    el.classList.add('parvus-trigger')
+
     // Bind click event handler
     el.addEventListener('click', triggerParvus)
   }
