@@ -116,19 +116,21 @@ function Parvus(userOptions) {
 
 
   const add = function add(el) {
-    if (!el.href.match(config.fileTypes)) {
-      throw new Error(`Please use an image file ending on the linked thumbnail image. Supported file endings: ${config.fileTypes}`);
+    if (!(el.tagName === 'A' && el.hasAttribute('href') && el.href.match(config.fileTypes)) && !(el.tagName === 'BUTTON' && el.hasAttribute('data-target') && el.getAttribute('data-target').match(config.fileTypes))) {
+      console.log(el, `Use a link with the 'href' attribute or a button with the 'data-target' attribute. Both attributes must have a path to the image file. Supported image file types: ${config.fileTypes}.`);
+      return;
     }
 
-    if (!el.classList.contains('parvus-zoom')) {
+    if (el.querySelector('img') !== null) {
       el.classList.add('parvus-zoom');
       const lightboxIndicatorIcon = document.createElement('div');
       lightboxIndicatorIcon.className = 'parvus-zoom__indicator';
       lightboxIndicatorIcon.innerHTML = config.lightboxIndicatorIcon;
-      el.appendChild(lightboxIndicatorIcon); // Bind click event handler
+      el.appendChild(lightboxIndicatorIcon);
+    } // Bind click event handler
 
-      el.addEventListener('click', triggerParvus);
-    }
+
+    el.addEventListener('click', triggerParvus);
   };
   /**
    * Remove element
@@ -289,8 +291,20 @@ function Parvus(userOptions) {
     lightbox.appendChild(loadingIndicator); // Create new image
 
     lightboxImage = document.createElement('img');
-    lightboxImage.alt = THUMBNAIL.alt || '';
-    lightboxImage.src = el.href;
+
+    if (el.tagName === 'A') {
+      lightboxImage.src = el.href;
+
+      if (THUMBNAIL) {
+        lightboxImage.alt = THUMBNAIL.alt || '';
+      } else {
+        lightboxImage.alt = el.getAttribute('data-alt') || '';
+      }
+    } else {
+      lightboxImage.alt = el.getAttribute('data-alt') || '';
+      lightboxImage.src = el.getAttribute('data-target');
+    }
+
     lightboxImageContainer.style.opacity = '0';
     lightboxImage.style.opacity = '0';
     FIGURE.appendChild(lightboxImage); // Add caption if available

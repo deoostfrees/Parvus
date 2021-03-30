@@ -72,6 +72,22 @@ The standard way of using Parvus is a linked thumbnail image with the class name
 </a>
 ```
 
+You can also use a text link. Set the `data-alt` attribute for the alternative text of the image.
+
+```html
+<a href="path/to/image.jpg" class="lightbox" data-alt="">
+  Open Image
+</a>
+```
+
+You can also use a button. Set the `data-alt` attribute for the alternative text of the image.
+
+```html
+<button type="button" class="lightbox" data-target="path/to/image.jpg" data-alt="">
+  Open image
+</button>
+```
+
 Initialize the script by running:
 
 ```js
@@ -174,7 +190,7 @@ The following options are available:
   },
 
   // Regular expression for supported image file types
-  fileTypes: /\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i
+  fileTypes: /\.(png|jpe?g|webp|avif|svg)(\?.*)?$/i
 }
 ```
 
