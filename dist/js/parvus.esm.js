@@ -127,8 +127,9 @@ function Parvus(userOptions) {
       lightboxIndicatorIcon.className = 'parvus-zoom__indicator';
       lightboxIndicatorIcon.innerHTML = config.lightboxIndicatorIcon;
       el.appendChild(lightboxIndicatorIcon);
-    } // Bind click event handler
+    }
 
+    el.classList.add('parvus-trigger'); // Bind click event handler
 
     el.addEventListener('click', triggerParvus);
   };
