@@ -14,22 +14,32 @@ function Parvus(userOptions) {
    */
   const BROWSER_WINDOW = window;
   const FOCUSABLE_ELEMENTS = ['button:not([disabled]):not([inert])', '[tabindex]:not([tabindex^="-"]):not([inert])'];
+  const GROUP_ATTS = {
+    gallery: [],
+    slider: null,
+    sliderElements: [],
+    elementsLength: 0,
+    currentIndex: 0,
+    x: 0
+  };
+  const GROUPS = {};
+  let newGroup = null;
+  let activeGroup = null;
   let config = {};
   let lightbox = null;
   let lightboxOverlay = null;
   let lightboxOverlayOpacity = 0;
-  let lightboxImageContainer = null;
   let lightboxImage = null;
   let closeButton = null;
   let widthDifference;
   let heightDifference;
   let xDifference;
   let yDifference;
-  let loadingIndicator = null;
   let drag = {};
   let isDraggingY = false;
   let pointerDown = false;
   let lastFocus = null;
+  let offset = null;
   let transitionDuration = null;
   let isReducedMotion = true;
   /**
@@ -109,6 +119,28 @@ function Parvus(userOptions) {
     });
   };
   /**
+   * Get group from element
+   *
+   * @param {HTMLElement} el
+   * @return {string}
+   */
+
+
+  const getGroup = function getGroup(el) {
+    return el.hasAttribute('data-group') ? el.getAttribute('data-group') : 'default';
+  };
+  /**
+   * Copy an object. (The secure way)
+   *
+   * @param {object} object
+   * @return {object}
+   */
+
+
+  const copyObject = function copyObject(object) {
+    return JSON.parse(JSON.stringify(object));
+  };
+  /**
    * Add element
    *
    * @param {HTMLElement} el - Element to add
@@ -121,17 +153,33 @@ function Parvus(userOptions) {
       return;
     }
 
-    if (el.querySelector('img') !== null) {
-      el.classList.add('parvus-zoom');
-      const lightboxIndicatorIcon = document.createElement('div');
-      lightboxIndicatorIcon.className = 'parvus-zoom__indicator';
-      lightboxIndicatorIcon.innerHTML = config.lightboxIndicatorIcon;
-      el.appendChild(lightboxIndicatorIcon);
+    newGroup = getGroup(el);
+
+    if (!Object.prototype.hasOwnProperty.call(GROUPS, newGroup)) {
+      GROUPS[newGroup] = copyObject(GROUP_ATTS);
+      createSlider();
+    } // Check if element already exists
+
+
+    if (GROUPS[newGroup].gallery.indexOf(el) === -1) {
+      GROUPS[newGroup].gallery.push(el);
+      GROUPS[newGroup].elementsLength++;
+
+      if (el.querySelector('img') !== null) {
+        el.classList.add('parvus-zoom');
+        const lightboxIndicatorIcon = document.createElement('div');
+        lightboxIndicatorIcon.className = 'parvus-zoom__indicator';
+        lightboxIndicatorIcon.innerHTML = config.lightboxIndicatorIcon;
+        el.appendChild(lightboxIndicatorIcon);
+      }
+
+      el.classList.add('parvus-trigger'); // Bind click event handler
+
+      el.addEventListener('click', triggerParvus);
+      createSlide(el);
+    } else {
+      console.log('Ups, element already added.');
     }
-
-    el.classList.add('parvus-trigger'); // Bind click event handler
-
-    el.addEventListener('click', triggerParvus);
   };
   /**
    * Remove element
@@ -167,12 +215,7 @@ function Parvus(userOptions) {
     lightboxOverlay.classList.add('parvus__overlay');
     lightboxOverlay.style.opacity = 0; // Add lightbox overlay container to lightbox container
 
-    lightbox.appendChild(lightboxOverlay); // Create the lightbox image container
-
-    lightboxImageContainer = document.createElement('div');
-    lightboxImageContainer.classList.add('parvus__image'); // Add lightbox image container to lightbox container
-
-    lightbox.appendChild(lightboxImageContainer); // Create the close button
+    lightbox.appendChild(lightboxOverlay); // Create the close button
 
     closeButton = document.createElement('button');
     closeButton.className = 'parvus__btn parvus__btn--close';
@@ -185,13 +228,48 @@ function Parvus(userOptions) {
     document.body.appendChild(lightbox);
   };
   /**
-   * Open Parvus
+   * Create a slider
    *
-   * @param {HTMLElement} el - Element to open
    */
 
 
-  const open = function open(el) {
+  const createSlider = function createSlider() {
+    GROUPS[newGroup].slider = document.createElement('div');
+    GROUPS[newGroup].slider.className = 'parvus__slider'; // Hide slider
+
+    GROUPS[newGroup].slider.setAttribute('aria-hidden', 'true');
+    lightbox.appendChild(GROUPS[newGroup].slider);
+  };
+  /**
+   * Create a slide
+   *
+   */
+
+
+  const createSlide = function createSlide(el) {
+    const SLIDER_ELEMENT = document.createElement('div');
+    const SLIDER_ELEMENT_CONTENT = document.createElement('div');
+    SLIDER_ELEMENT.className = 'parvus__slide';
+    SLIDER_ELEMENT.style.position = 'absolute';
+    SLIDER_ELEMENT.style.left = `${GROUPS[newGroup].x * 100}%`; // Hide slide
+
+    SLIDER_ELEMENT.setAttribute('aria-hidden', 'true');
+    createImage(el, SLIDER_ELEMENT_CONTENT); // Add slide content container to slider element
+
+    SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT); // Add slider element to slider
+
+    GROUPS[newGroup].slider.appendChild(SLIDER_ELEMENT);
+    GROUPS[newGroup].sliderElements.push(SLIDER_ELEMENT);
+    ++GROUPS[newGroup].x;
+  };
+  /**
+   * Open Parvus
+   *
+   * @param {number} index - Index to load
+   */
+
+
+  const open = function open(index) {
     if (isOpen()) {
       throw new Error('Ups, I\'m aleady open.');
     } // Save user’s focus
@@ -204,7 +282,9 @@ function Parvus(userOptions) {
       parvus: 'close'
     };
     const URL = window.location.href;
-    history.pushState(STATE_OBJ, 'Image', URL);
+    history.pushState(STATE_OBJ, 'Image', URL); // Set current index
+
+    GROUPS[activeGroup].currentIndex = index;
     bindEvents(); // Hide all non lightbox elements from assistive technology
 
     const nonLightboxEls = document.querySelectorAll('body > *:not([aria-hidden="true"])');
@@ -215,9 +295,26 @@ function Parvus(userOptions) {
     lightbox.classList.add('parvus--is-opening'); // Show lightbox
 
     lightbox.setAttribute('aria-hidden', 'false');
-    setFocusToFirstItem(); // Load image
+    setFocusToFirstItem();
+    requestAnimationFrame(() => {
+      lightboxOverlay.style.opacity = 1;
+      lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
+    });
+    lightboxOverlay.addEventListener('transitionend', () => {
+      lightbox.classList.remove('parvus--is-opening');
+    }, {
+      once: true
+    }); // Show slider
 
-    load(el); // Create and dispatch a new event
+    GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false'); // Load slide
+
+    loadSlide(GROUPS[activeGroup].currentIndex);
+    updateOffset(); // Load image
+
+    loadImage(GROUPS[activeGroup].currentIndex); // Preload previous and next slide
+
+    preload(GROUPS[activeGroup].currentIndex + 1);
+    preload(GROUPS[activeGroup].currentIndex - 1); // Create and dispatch a new event
 
     const OPEN_EVENT = new CustomEvent('open');
     lightbox.dispatchEvent(OPEN_EVENT);
@@ -253,23 +350,54 @@ function Parvus(userOptions) {
     });
     lightbox.classList.add('parvus--is-closing');
     requestAnimationFrame(() => {
-      lightboxImage.style.opacity = 0;
-      lightboxImage.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
       lightboxOverlay.style.opacity = 0;
       lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
     });
-    lightboxImage.addEventListener('transitionend', () => {
-      // Reenable the user’s focus
+    lightboxOverlay.addEventListener('transitionend', () => {
+      // Don't forget to cleanup our current element
+      leaveSlide(GROUPS[activeGroup].currentIndex); // Reenable the user’s focus
+
       lastFocus.focus({
         preventScroll: true
       });
-      lightbox.classList.remove('parvus--is-closing'); // Hide lightbox
+      lightbox.classList.remove('parvus--is-closing'); // Hide slider
+
+      GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'true'); // Hide lightbox
 
       lightbox.setAttribute('aria-hidden', 'true');
-      lightboxImageContainer.innerHTML = '';
     }, {
       once: true
     });
+  };
+  /**
+   * Preload slide
+   *
+   * @param {number} index - Index to preload
+   */
+
+
+  const preload = function preload(index) {
+    if (GROUPS[activeGroup].sliderElements[index] === undefined) {
+      return;
+    } // TODO
+
+  };
+  /**
+   * Load slide
+   * Will be called when opening the lightbox or moving index
+   *
+   * @param {number} index - Index to load
+   */
+
+
+  const loadSlide = function loadSlide(index) {
+    if (GROUPS[activeGroup].sliderElements[index] === undefined) {
+      return;
+    } // Add active slide class
+
+
+    GROUPS[activeGroup].sliderElements[index].classList.add('parvus__slide--is-active');
+    GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false');
   };
   /**
    * Load Image
@@ -278,23 +406,15 @@ function Parvus(userOptions) {
    */
 
 
-  const load = function load(el) {
+  const createImage = function createImage(el, container) {
     const FIGURE = document.createElement('figure');
     const FIGURECAPTION = document.createElement('figurecaption');
-    const THUMBNAIL = el.querySelector('img');
-    const THUMBNAIL_SIZE = el.getBoundingClientRect(); // Create loading indicator
-
-    loadingIndicator = document.createElement('div');
-    loadingIndicator.className = 'parvus__loader';
-    loadingIndicator.setAttribute('role', 'progressbar');
-    loadingIndicator.setAttribute('aria-label', config.i18n[config.lang].lightboxLoadingIndicatorLabel); // Add loading indicator to container
-
-    lightbox.appendChild(loadingIndicator); // Create new image
+    const THUMBNAIL = el.querySelector('img'); // Create new image
 
     lightboxImage = document.createElement('img');
 
     if (el.tagName === 'A') {
-      lightboxImage.src = el.href;
+      lightboxImage.setAttribute('data-src', el.href);
 
       if (THUMBNAIL) {
         lightboxImage.alt = THUMBNAIL.alt || '';
@@ -303,11 +423,9 @@ function Parvus(userOptions) {
       }
     } else {
       lightboxImage.alt = el.getAttribute('data-alt') || '';
-      lightboxImage.src = el.getAttribute('data-target');
+      lightboxImage.setAttribute('data-src', el.getAttribute('data-target'));
     }
 
-    lightboxImageContainer.style.opacity = '0';
-    lightboxImage.style.opacity = '0';
     FIGURE.appendChild(lightboxImage); // Add caption if available
 
     if (el.hasAttribute('data-caption') && el.getAttribute('data-caption') !== '') {
@@ -315,37 +433,87 @@ function Parvus(userOptions) {
       FIGURE.appendChild(FIGURECAPTION);
     }
 
-    lightboxImageContainer.appendChild(FIGURE);
+    container.appendChild(FIGURE);
+  };
+  /**
+   * Load Image
+   *
+   * @param {number} index - Index to load
+   */
 
-    lightboxImage.onload = () => {
-      const LIGHTBOX_IMAGE_SIZE = lightboxImage.getBoundingClientRect();
-      lightbox.removeChild(loadingIndicator);
-      widthDifference = THUMBNAIL_SIZE.width / LIGHTBOX_IMAGE_SIZE.width;
-      heightDifference = THUMBNAIL_SIZE.height / LIGHTBOX_IMAGE_SIZE.height;
-      xDifference = THUMBNAIL_SIZE.left - LIGHTBOX_IMAGE_SIZE.left;
-      yDifference = THUMBNAIL_SIZE.top - LIGHTBOX_IMAGE_SIZE.top;
-      lightboxImageContainer.style.opacity = 1; // Set image width and height
 
-      lightboxImage.setAttribute('width', lightboxImage.naturalWidth);
-      lightboxImage.setAttribute('height', lightboxImage.naturalHeight);
+  const loadImage = function loadImage(index) {
+    const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[index];
+    const IMAGE = IMAGE_CONTAINER.querySelector('img');
+    const THUMBNAIL = GROUPS[activeGroup].gallery[index];
+    const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
+    const LOADING_INDICATOR = document.createElement('div');
+    console.log(THUMBNAIL);
+
+    if (!IMAGE.hasAttribute('data-src')) {
+      return;
+    }
+
+    IMAGE.style.opacity = 0; // Create loading indicator
+
+    LOADING_INDICATOR.className = 'parvus__loader';
+    LOADING_INDICATOR.setAttribute('role', 'progressbar');
+    LOADING_INDICATOR.setAttribute('aria-label', config.i18n[config.lang].lightboxLOADING_INDICATORLabel); // Add loading indicator to container
+
+    IMAGE_CONTAINER.appendChild(LOADING_INDICATOR);
+
+    IMAGE.onload = () => {
+      const IMAGE_SIZE = IMAGE.getBoundingClientRect();
+      IMAGE_CONTAINER.removeChild(LOADING_INDICATOR);
+      widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
+      heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
+      xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
+      yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top; // Set image width and height
+
+      IMAGE.setAttribute('width', IMAGE.naturalWidth);
+      IMAGE.setAttribute('height', IMAGE.naturalHeight);
       requestAnimationFrame(() => {
-        lightboxImage.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
-        lightboxImage.style.transition = 'transform 0s, opacity 0s'; // Animate the difference reversal on the next tick
+        IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
+        IMAGE.style.transition = 'transform 0s, opacity 0s'; // Animate the difference reversal on the next tick
 
         requestAnimationFrame(() => {
-          lightboxImage.style.transform = '';
-          lightboxImage.style.opacity = 1;
-          lightboxImage.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
-          lightboxOverlay.style.opacity = 1;
-          lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
+          IMAGE.style.transform = '';
+          IMAGE.style.opacity = 1;
+          IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
         });
       });
-      lightboxOverlay.addEventListener('transitionend', () => {
-        lightbox.classList.remove('parvus--is-opening');
-      }, {
-        once: true
-      });
     };
+
+    IMAGE.setAttribute('src', IMAGE.getAttribute('data-src'));
+    IMAGE.removeAttribute('data-src');
+  };
+  /**
+   * Leave slide
+   * Will be called before moving index
+   *
+   * @param {number} index - Index to leave
+   */
+
+
+  const leaveSlide = function leaveSlide(index) {
+    if (GROUPS[activeGroup].sliderElements[index] === undefined) {
+      return;
+    } // Remove active slide class
+
+
+    GROUPS[activeGroup].sliderElements[index].classList.remove('parvus__slide--is-active');
+    GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'true');
+  };
+  /**
+   * Update offset
+   *
+   */
+
+
+  const updateOffset = function updateOffset() {
+    activeGroup = activeGroup !== null ? activeGroup : newGroup;
+    offset = -GROUPS[activeGroup].currentIndex * lightbox.offsetWidth;
+    GROUPS[activeGroup].slider.style.transform = `translate3d(${offset}px, 0, 0)`;
   };
   /**
    * Clear drag after touchend event
@@ -355,7 +523,7 @@ function Parvus(userOptions) {
 
   const clearDrag = function clearDrag() {
     lightboxOverlay.style.opacity = 1;
-    lightboxImageContainer.style.transform = 'translate3d(0, 0, 0)';
+    GROUPS[activeGroup].slider.style.transform = 'translate3d(0, 0, 0)';
     lightbox.classList.remove('parvus--is-closing');
     drag = {
       startY: 0,
@@ -384,7 +552,8 @@ function Parvus(userOptions) {
 
   const triggerParvus = function triggerParvus(event) {
     event.preventDefault();
-    open(this);
+    activeGroup = getGroup(this);
+    open(GROUPS[activeGroup].gallery.indexOf(this));
   };
   /**
    * Click event handler
@@ -469,7 +638,7 @@ function Parvus(userOptions) {
     isDraggingY = false;
     pointerDown = true;
     drag.startY = event.touches[0].pageY;
-    lightboxImageContainer.classList.add('parvus__image--is-dragging');
+    GROUPS[activeGroup].slider.classList.add('parvus__image--is-dragging');
   };
   /**
    * Touchmove event handler
@@ -495,7 +664,7 @@ function Parvus(userOptions) {
   const touchendHandler = function touchendHandler(event) {
     event.stopPropagation();
     pointerDown = false;
-    lightboxImageContainer.classList.remove('parvus__image--is-dragging');
+    GROUPS[activeGroup].slider.classList.remove('parvus__image--is-dragging');
 
     if (drag.endY) {
       updateAfterDrag();
@@ -520,7 +689,7 @@ function Parvus(userOptions) {
 
       lightbox.classList.add('parvus--is-closing');
       lightboxOverlay.style.opacity = lightboxOverlayOpacity;
-      lightboxImageContainer.style.transform = `translate3d(0, ${Math.round(MOVEMENT_Y)}px, 0)`;
+      GROUPS[activeGroup].slider.style.transform = `translate3d(0, ${Math.round(MOVEMENT_Y)}px, 0)`;
       isDraggingY = true;
     }
   };
