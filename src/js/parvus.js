@@ -277,8 +277,8 @@ export default function Parvus (userOptions) {
     lightbox.classList.add('parvus--is-closing')
 
     requestAnimationFrame(() => {
-      lightboxImage.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
-      lightboxImage.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}`
+      lightboxImage.style.opacity = 0
+      lightboxImage.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
 
       lightboxOverlay.style.opacity = 0
       lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
