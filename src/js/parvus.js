@@ -8,22 +8,34 @@ export default function Parvus (userOptions) {
     'button:not([disabled]):not([inert])',
     '[tabindex]:not([tabindex^="-"]):not([inert])'
   ]
+  const GROUP_ATTS = {
+    gallery: [],
+    slider: null,
+    sliderElements: [],
+    elementsLength: 0,
+    currentIndex: 0,
+    x: 0
+  }
+  const GROUPS = {}
+  let newGroup = null
+  let activeGroup = null
   let config = {}
   let lightbox = null
   let lightboxOverlay = null
   let lightboxOverlayOpacity = 0
-  let lightboxImageContainer = null
   let lightboxImage = null
   let closeButton = null
   let widthDifference
   let heightDifference
   let xDifference
   let yDifference
-  let loadingIndicator = null
   let drag = {}
+  let isDraggingX = false
   let isDraggingY = false
   let pointerDown = false
   let lastFocus = null
+  let offset = null
+  let offsetTmp = null
   let transitionDuration = null
   let isReducedMotion = true
 
@@ -107,6 +119,26 @@ export default function Parvus (userOptions) {
   }
 
   /**
+   * Get group from element
+   *
+   * @param {HTMLElement} el
+   * @return {string}
+   */
+  const getGroup = function getGroup (el) {
+    return el.hasAttribute('data-group') ? el.getAttribute('data-group') : 'default'
+  }
+
+  /**
+   * Copy an object. (The secure way)
+   *
+   * @param {object} object
+   * @return {object}
+   */
+  const copyObject = function copyObject (object) {
+    return JSON.parse(JSON.stringify(object))
+  }
+
+  /**
    * Add element
    *
    * @param {HTMLElement} el - Element to add
@@ -117,21 +149,39 @@ export default function Parvus (userOptions) {
       return
     }
 
-    if (el.querySelector('img') !== null) {
-      el.classList.add('parvus-zoom')
+    newGroup = getGroup(el)
 
-      const lightboxIndicatorIcon = document.createElement('div')
+    if (!Object.prototype.hasOwnProperty.call(GROUPS, newGroup)) {
+      GROUPS[newGroup] = copyObject(GROUP_ATTS)
 
-      lightboxIndicatorIcon.className = 'parvus-zoom__indicator'
-      lightboxIndicatorIcon.innerHTML = config.lightboxIndicatorIcon
-
-      el.appendChild(lightboxIndicatorIcon)
+      createSlider()
     }
 
-    el.classList.add('parvus-trigger')
+    // Check if element already exists
+    if (GROUPS[newGroup].gallery.indexOf(el) === -1) {
+      GROUPS[newGroup].gallery.push(el)
+      GROUPS[newGroup].elementsLength++
 
-    // Bind click event handler
-    el.addEventListener('click', triggerParvus)
+      if (el.querySelector('img') !== null) {
+        el.classList.add('parvus-zoom')
+
+        const lightboxIndicatorIcon = document.createElement('div')
+
+        lightboxIndicatorIcon.className = 'parvus-zoom__indicator'
+        lightboxIndicatorIcon.innerHTML = config.lightboxIndicatorIcon
+
+        el.appendChild(lightboxIndicatorIcon)
+      }
+
+      el.classList.add('parvus-trigger')
+
+      // Bind click event handler
+      el.addEventListener('click', triggerParvus)
+
+      createSlide(el)
+    } else {
+      console.log('Ups, element already added.')
+    }
   }
 
   /**
@@ -171,13 +221,6 @@ export default function Parvus (userOptions) {
     // Add lightbox overlay container to lightbox container
     lightbox.appendChild(lightboxOverlay)
 
-    // Create the lightbox image container
-    lightboxImageContainer = document.createElement('div')
-    lightboxImageContainer.classList.add('parvus__image')
-
-    // Add lightbox image container to lightbox container
-    lightbox.appendChild(lightboxImageContainer)
-
     // Create the close button
     closeButton = document.createElement('button')
     closeButton.className = 'parvus__btn parvus__btn--close'
@@ -193,11 +236,52 @@ export default function Parvus (userOptions) {
   }
 
   /**
+   * Create a slider
+   *
+   */
+  const createSlider = function createSlider () {
+    GROUPS[newGroup].slider = document.createElement('div')
+    GROUPS[newGroup].slider.className = 'parvus__slider'
+
+    // Hide slider
+    GROUPS[newGroup].slider.setAttribute('aria-hidden', 'true')
+
+    lightbox.appendChild(GROUPS[newGroup].slider)
+  }
+
+  /**
+   * Create a slide
+   *
+   */
+  const createSlide = function createSlide (el) {
+    const SLIDER_ELEMENT = document.createElement('div')
+    const SLIDER_ELEMENT_CONTENT = document.createElement('div')
+
+    SLIDER_ELEMENT.className = 'parvus__slide'
+    SLIDER_ELEMENT.style.position = 'absolute'
+    SLIDER_ELEMENT.style.left = `${GROUPS[newGroup].x * 100}%`
+
+    // Hide slide
+    SLIDER_ELEMENT.setAttribute('aria-hidden', 'true')
+
+    createImage(el, SLIDER_ELEMENT_CONTENT)
+
+    // Add slide content container to slider element
+    SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT)
+
+    // Add slider element to slider
+    GROUPS[newGroup].slider.appendChild(SLIDER_ELEMENT)
+    GROUPS[newGroup].sliderElements.push(SLIDER_ELEMENT)
+
+    ++GROUPS[newGroup].x
+  }
+
+  /**
    * Open Parvus
    *
-   * @param {HTMLElement} el - Element to open
+   * @param {number} index - Index to load
    */
-  const open = function open (el) {
+  const open = function open (index) {
     if (isOpen()) {
       throw new Error('Ups, I\'m aleady open.')
     }
@@ -214,6 +298,9 @@ export default function Parvus (userOptions) {
     const URL = window.location.href
 
     history.pushState(STATE_OBJ, 'Image', URL)
+
+    // Set current index
+    GROUPS[activeGroup].currentIndex = index
 
     bindEvents()
 
@@ -232,8 +319,32 @@ export default function Parvus (userOptions) {
 
     setFocusToFirstItem()
 
+    requestAnimationFrame(() => {
+      lightboxOverlay.style.opacity = 1
+      lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
+    })
+
+    lightboxOverlay.addEventListener('transitionend', () => {
+      lightbox.classList.remove('parvus--is-opening')
+    },
+    {
+      once: true
+    })
+
+    // Show slider
+    GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false')
+
+    // Load slide
+    loadSlide(GROUPS[activeGroup].currentIndex)
+
+    updateOffset()
+
     // Load image
-    load(el)
+    loadImage(GROUPS[activeGroup].currentIndex)
+
+    // Preload previous and next slide
+    preload(GROUPS[activeGroup].currentIndex + 1)
+    preload(GROUPS[activeGroup].currentIndex - 1)
 
     // Create and dispatch a new event
     const OPEN_EVENT = new CustomEvent('open')
@@ -277,14 +388,16 @@ export default function Parvus (userOptions) {
     lightbox.classList.add('parvus--is-closing')
 
     requestAnimationFrame(() => {
-      lightboxImage.style.opacity = 0
-      lightboxImage.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
+
 
       lightboxOverlay.style.opacity = 0
       lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
     })
 
-    lightboxImage.addEventListener('transitionend', () => {
+    lightboxOverlay.addEventListener('transitionend', () => {
+      // Don't forget to cleanup our current element
+      leaveSlide(GROUPS[activeGroup].currentIndex)
+
       // Reenable the user’s focus
       lastFocus.focus({
         preventScroll: true
@@ -292,10 +405,11 @@ export default function Parvus (userOptions) {
 
       lightbox.classList.remove('parvus--is-closing')
 
+      // Hide slider
+      GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'true')
+
       // Hide lightbox
       lightbox.setAttribute('aria-hidden', 'true')
-
-      lightboxImageContainer.innerHTML = ''
     },
     {
       once: true
@@ -303,30 +417,49 @@ export default function Parvus (userOptions) {
   }
 
   /**
+   * Preload slide
+   *
+   * @param {number} index - Index to preload
+   */
+  const preload = function preload (index) {
+    if (GROUPS[activeGroup].sliderElements[index] === undefined) {
+      return
+    }
+
+    // TODO
+  }
+
+  /**
+   * Load slide
+   * Will be called when opening the lightbox or moving index
+   *
+   * @param {number} index - Index to load
+   */
+  const loadSlide = function loadSlide (index) {
+    if (GROUPS[activeGroup].sliderElements[index] === undefined) {
+      return
+    }
+
+    // Add active slide class
+    GROUPS[activeGroup].sliderElements[index].classList.add('parvus__slide--is-active')
+    GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false')
+  }
+
+  /**
    * Load Image
    *
    * @param {number} index - Index to load
    */
-  const load = function load (el) {
+  const createImage = function createImage (el, container) {
     const FIGURE = document.createElement('figure')
     const FIGURECAPTION = document.createElement('figurecaption')
     const THUMBNAIL = el.querySelector('img')
-    const THUMBNAIL_SIZE = el.getBoundingClientRect()
-
-    // Create loading indicator
-    loadingIndicator = document.createElement('div')
-    loadingIndicator.className = 'parvus__loader'
-    loadingIndicator.setAttribute('role', 'progressbar')
-    loadingIndicator.setAttribute('aria-label', config.i18n[config.lang].lightboxLoadingIndicatorLabel)
-
-    // Add loading indicator to container
-    lightbox.appendChild(loadingIndicator)
 
     // Create new image
     lightboxImage = document.createElement('img')
 
     if (el.tagName === 'A') {
-      lightboxImage.src = el.href
+      lightboxImage.setAttribute('data-src', el.href)
 
       if (THUMBNAIL) {
         lightboxImage.alt = THUMBNAIL.alt || ''
@@ -335,12 +468,8 @@ export default function Parvus (userOptions) {
       }
     } else {
       lightboxImage.alt = el.getAttribute('data-alt') || ''
-      lightboxImage.src = el.getAttribute('data-target')
+      lightboxImage.setAttribute('data-src', el.getAttribute('data-target'))
     }
-
-    lightboxImageContainer.style.opacity = '0'
-
-    lightboxImage.style.opacity = '0'
 
     FIGURE.appendChild(lightboxImage)
 
@@ -351,46 +480,95 @@ export default function Parvus (userOptions) {
       FIGURE.appendChild(FIGURECAPTION)
     }
 
-    lightboxImageContainer.appendChild(FIGURE)
+    container.appendChild(FIGURE)
+  }
 
-    lightboxImage.onload = () => {
-      const LIGHTBOX_IMAGE_SIZE = lightboxImage.getBoundingClientRect()
+  /**
+   * Load Image
+   *
+   * @param {number} index - Index to load
+   */
+  const loadImage = function loadImage (index) {
+    const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[index]
+    const IMAGE = IMAGE_CONTAINER.querySelector('img')
+    const THUMBNAIL = GROUPS[activeGroup].gallery[index]
+    const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect()
+    const LOADING_INDICATOR = document.createElement('div')
 
-      lightbox.removeChild(loadingIndicator)
+    console.log(THUMBNAIL)
 
-      widthDifference = THUMBNAIL_SIZE.width / LIGHTBOX_IMAGE_SIZE.width
-      heightDifference = THUMBNAIL_SIZE.height / LIGHTBOX_IMAGE_SIZE.height
-      xDifference = THUMBNAIL_SIZE.left - LIGHTBOX_IMAGE_SIZE.left
-      yDifference = THUMBNAIL_SIZE.top - LIGHTBOX_IMAGE_SIZE.top
+    if (!IMAGE.hasAttribute('data-src')) {
+      return
+    }
 
-      lightboxImageContainer.style.opacity = 1
+    IMAGE.style.opacity = 0
+
+    // Create loading indicator
+    LOADING_INDICATOR.className = 'parvus__loader'
+    LOADING_INDICATOR.setAttribute('role', 'progressbar')
+    LOADING_INDICATOR.setAttribute('aria-label', config.i18n[config.lang].lightboxLOADING_INDICATORLabel)
+
+    // Add loading indicator to container
+    IMAGE_CONTAINER.appendChild(LOADING_INDICATOR)
+
+    IMAGE.onload = () => {
+      const IMAGE_SIZE = IMAGE.getBoundingClientRect()
+
+      IMAGE_CONTAINER.removeChild(LOADING_INDICATOR)
+
+      widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
+      heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
+      xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
+      yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
 
       // Set image width and height
-      lightboxImage.setAttribute('width', lightboxImage.naturalWidth)
-      lightboxImage.setAttribute('height', lightboxImage.naturalHeight)
+      IMAGE.setAttribute('width', IMAGE.naturalWidth)
+      IMAGE.setAttribute('height', IMAGE.naturalHeight)
 
       requestAnimationFrame(() => {
-        lightboxImage.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
-        lightboxImage.style.transition = 'transform 0s, opacity 0s'
+        IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
+        IMAGE.style.transition = 'transform 0s, opacity 0s'
 
         // Animate the difference reversal on the next tick
         requestAnimationFrame(() => {
-          lightboxImage.style.transform = ''
-          lightboxImage.style.opacity = 1
-          lightboxImage.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
-
-          lightboxOverlay.style.opacity = 1
-          lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
+          IMAGE.style.transform = ''
+          IMAGE.style.opacity = 1
+          IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
         })
       })
-
-      lightboxOverlay.addEventListener('transitionend', () => {
-        lightbox.classList.remove('parvus--is-opening')
-      },
-      {
-        once: true
-      })
     }
+
+    IMAGE.setAttribute('src', IMAGE.getAttribute('data-src'))
+    IMAGE.removeAttribute('data-src')
+  }
+
+  /**
+   * Leave slide
+   * Will be called before moving index
+   *
+   * @param {number} index - Index to leave
+   */
+  const leaveSlide = function leaveSlide (index) {
+    if (GROUPS[activeGroup].sliderElements[index] === undefined) {
+      return
+    }
+
+    // Remove active slide class
+    GROUPS[activeGroup].sliderElements[index].classList.remove('parvus__slide--is-active')
+    GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'true')
+  }
+
+  /**
+   * Update offset
+   *
+   */
+  const updateOffset = function updateOffset () {
+    activeGroup = activeGroup !== null ? activeGroup : newGroup
+
+    offset = -GROUPS[activeGroup].currentIndex * lightbox.offsetWidth
+
+    GROUPS[activeGroup].slider.style.transform = `translate3d(${offset}px, 0, 0)`
+    offsetTmp = offset
   }
 
   /**
@@ -399,7 +577,7 @@ export default function Parvus (userOptions) {
    */
   const clearDrag = function clearDrag () {
     lightboxOverlay.style.opacity = 1
-    lightboxImageContainer.style.transform = 'translate3d(0, 0, 0)'
+    GROUPS[activeGroup].slider.style.transform = 'translate3d(0, 0, 0)'
 
     lightbox.classList.remove('parvus--is-closing')
 
@@ -429,7 +607,9 @@ export default function Parvus (userOptions) {
   const triggerParvus = function triggerParvus (event) {
     event.preventDefault()
 
-    open(this)
+    activeGroup = getGroup(this)
+
+    open(GROUPS[activeGroup].gallery.indexOf(this))
   }
 
   /**
@@ -518,7 +698,7 @@ export default function Parvus (userOptions) {
 
     drag.startY = event.touches[0].pageY
 
-    lightboxImageContainer.classList.add('parvus__image--is-dragging')
+    GROUPS[activeGroup].slider.classList.add('parvus__image--is-dragging')
   }
 
   /**
@@ -546,7 +726,7 @@ export default function Parvus (userOptions) {
 
     pointerDown = false
 
-    lightboxImageContainer.classList.remove('parvus__image--is-dragging')
+    GROUPS[activeGroup].slider.classList.remove('parvus__image--is-dragging')
 
     if (drag.endY) {
       updateAfterDrag()
@@ -571,7 +751,7 @@ export default function Parvus (userOptions) {
       lightbox.classList.add('parvus--is-closing')
       lightboxOverlay.style.opacity = lightboxOverlayOpacity
 
-      lightboxImageContainer.style.transform = `translate3d(0, ${Math.round(MOVEMENT_Y)}px, 0)`
+      GROUPS[activeGroup].slider.style.transform = `translate3d(0, ${Math.round(MOVEMENT_Y)}px, 0)`
 
       isDraggingY = true
     }
