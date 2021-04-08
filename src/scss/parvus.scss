@@ -109,6 +109,10 @@
 
     @media screen and (prefers-reduced-motion: no-preference) {
 
+      &:not(&--is-dragging) {
+        transition: transform var(--transition-duration) var(--transition-timing-function);
+      }
+
       &--animate:not(&--is-dragging) {
         transition-duration: var(--transition-duration);
         transition-property: transform;
@@ -116,11 +120,11 @@
       }
     }
 
-    &--is-draggable [data-type] {
+    &--is-draggable {
       cursor: grab;
     }
 
-    &--is-dragging [data-type] {
+    &--is-dragging {
       cursor: grabbing;
     }
   }
@@ -144,11 +148,8 @@
       }
     }
 
-    @media screen and (prefers-reduced-motion: no-preference) {
-
-      &:not(&--is-dragging) {
-        transition: transform var(--transition-duration) var(--transition-timing-function);
-      }
+    & figure {
+      margin: 0;
     }
 
     & img {

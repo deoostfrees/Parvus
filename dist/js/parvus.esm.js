@@ -36,10 +36,12 @@ function Parvus(userOptions) {
   let xDifference;
   let yDifference;
   let drag = {};
+  let isDraggingX = false;
   let isDraggingY = false;
   let pointerDown = false;
   let lastFocus = null;
   let offset = null;
+  let offsetTmp = null;
   let transitionDuration = null;
   let isReducedMotion = true;
   /**
@@ -177,6 +179,10 @@ function Parvus(userOptions) {
 
       el.addEventListener('click', triggerParvus);
       createSlide(el);
+
+      if (isOpen() && newGroup === activeGroup) {
+        updateConfig();
+      }
     } else {
       console.log('Ups, element already added.');
     }
@@ -272,8 +278,9 @@ function Parvus(userOptions) {
   const open = function open(index) {
     if (isOpen()) {
       throw new Error('Ups, I\'m aleady open.');
-    } // Save user’s focus
+    }
 
+    updateConfig(); // Save user’s focus
 
     lastFocus = document.activeElement; // Use `history.pushState()` to make sure the 'Back' button behavior
     // that aligns with the user's expectations
@@ -514,6 +521,7 @@ function Parvus(userOptions) {
     activeGroup = activeGroup !== null ? activeGroup : newGroup;
     offset = -GROUPS[activeGroup].currentIndex * lightbox.offsetWidth;
     GROUPS[activeGroup].slider.style.transform = `translate3d(${offset}px, 0, 0)`;
+    offsetTmp = offset;
   };
   /**
    * Clear drag after touchend event
@@ -537,12 +545,40 @@ function Parvus(userOptions) {
 
 
   const updateAfterDrag = function updateAfterDrag() {
+    const MOVEMENT_X = drag.endX - drag.startX;
     const MOVEMENT_Y = drag.endY - drag.startY;
+    const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X);
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
 
-    if (MOVEMENT_Y_DISTANCE > config.threshold && config.swipeClose) {
+    if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > config.threshold && GROUPS[activeGroup].currentIndex > 0) ; else if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > config.threshold && GROUPS[activeGroup].currentIndex !== GROUPS[activeGroup].elementsLength - 1) ; else if (MOVEMENT_Y_DISTANCE > config.threshold && config.swipeClose) {
       close();
+    } else {
+      updateOffset();
     }
+  };
+  /**
+   * Update Config
+   *
+   */
+
+
+  const updateConfig = function updateConfig() {
+    if (config.swipeClose && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable') || GROUPS[activeGroup].elementsLength > 1 && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable')) {
+      GROUPS[activeGroup].slider.classList.add('parvus__slider--is-draggable');
+    }
+    /* Hide buttons if necessary
+    if (!config.nav || GROUPS[activeGroup].elementsLength === 1 || (config.nav === 'auto' && isTouchDevice())) {
+      prevButton.setAttribute('aria-hidden', 'true')
+      prevButton.disabled = true
+      nextButton.setAttribute('aria-hidden', 'true')
+      nextButton.disabled = true
+    } else {
+      prevButton.setAttribute('aria-hidden', 'false')
+      prevButton.disabled = false
+      nextButton.setAttribute('aria-hidden', 'false')
+      nextButton.disabled = false
+    }*/
+
   };
   /**
    * Click event handler to trigger Parvus
@@ -562,7 +598,7 @@ function Parvus(userOptions) {
 
 
   const clickHandler = function clickHandler(event) {
-    if (event.target === closeButton || !isDraggingY && event.target.classList.contains('parvus__overlay') && config.docClose) {
+    if (event.target === closeButton || !isDraggingY && !isDraggingX && event.target.classList.contains('parvus__slide') && config.docClose) {
       close();
     }
 
@@ -628,6 +664,54 @@ function Parvus(userOptions) {
     close();
   };
   /**
+   * Mousedown event handler
+   *
+   */
+
+
+  const mousedownHandler = function mousedownHandler(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    isDraggingX = false;
+    isDraggingY = false;
+    pointerDown = true;
+    drag.startX = event.pageX;
+    drag.startY = event.pageY;
+    GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging');
+  };
+  /**
+   * Mousemove event handler
+   *
+   */
+
+
+  const mousemoveHandler = function mousemoveHandler(event) {
+    event.preventDefault();
+
+    if (pointerDown) {
+      drag.endX = event.pageX;
+      drag.endY = event.pageY;
+      doSwipe();
+    }
+  };
+  /**
+   * Mouseup event handler
+   *
+   */
+
+
+  const mouseupHandler = function mouseupHandler(event) {
+    event.stopPropagation();
+    pointerDown = false;
+    GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
+
+    if (drag.endX) {
+      updateAfterDrag();
+    }
+
+    clearDrag();
+  };
+  /**
    * Touchstart event handler
    *
    */
@@ -635,10 +719,12 @@ function Parvus(userOptions) {
 
   const touchstartHandler = function touchstartHandler(event) {
     event.stopPropagation();
+    isDraggingX = false;
     isDraggingY = false;
     pointerDown = true;
+    drag.startX = event.touches[0].pageX;
     drag.startY = event.touches[0].pageY;
-    GROUPS[activeGroup].slider.classList.add('parvus__image--is-dragging');
+    GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging');
   };
   /**
    * Touchmove event handler
@@ -651,6 +737,7 @@ function Parvus(userOptions) {
 
     if (pointerDown) {
       event.preventDefault();
+      drag.endX = event.touches[0].pageX;
       drag.endY = event.touches[0].pageY;
       doSwipe();
     }
@@ -664,9 +751,9 @@ function Parvus(userOptions) {
   const touchendHandler = function touchendHandler(event) {
     event.stopPropagation();
     pointerDown = false;
-    GROUPS[activeGroup].slider.classList.remove('parvus__image--is-dragging');
+    GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
 
-    if (drag.endY) {
+    if (drag.endX) {
       updateAfterDrag();
     }
 
@@ -679,18 +766,29 @@ function Parvus(userOptions) {
 
 
   const doSwipe = function doSwipe() {
-    if (config.swipeClose && !isReducedMotion) {
-      const MOVEMENT_Y = drag.endY - drag.startY;
-      const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
+    const MOVEMENT_X = drag.startX - drag.endX;
+    const MOVEMENT_Y = drag.endY - drag.startY;
 
-      if (MOVEMENT_Y_DISTANCE <= 100) {
-        lightboxOverlayOpacity = 1 - MOVEMENT_Y_DISTANCE / 100;
+    if (Math.abs(MOVEMENT_X) > 0 && !isDraggingY && GROUPS[activeGroup].elementsLength > 1) {
+      // Horizontal swipe
+      GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`;
+      isDraggingX = true;
+      isDraggingY = false;
+    } else if (Math.abs(MOVEMENT_Y) > 0 && !isDraggingX && config.swipeClose) {
+      // Vertical swipe
+      if (config.swipeClose && !isReducedMotion) {
+        const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
+
+        if (MOVEMENT_Y_DISTANCE <= 100) {
+          lightboxOverlayOpacity = 1 - MOVEMENT_Y_DISTANCE / 100;
+        }
+
+        lightbox.classList.add('parvus--is-closing');
+        lightboxOverlay.style.opacity = lightboxOverlayOpacity;
+        GROUPS[activeGroup].slider.style.transform = `translate3d(0, ${Math.round(MOVEMENT_Y)}px, 0)`;
+        isDraggingX = false;
+        isDraggingY = true;
       }
-
-      lightbox.classList.add('parvus--is-closing');
-      lightboxOverlay.style.opacity = lightboxOverlayOpacity;
-      GROUPS[activeGroup].slider.style.transform = `translate3d(0, ${Math.round(MOVEMENT_Y)}px, 0)`;
-      isDraggingY = true;
     }
   };
   /**
@@ -716,7 +814,12 @@ function Parvus(userOptions) {
       lightbox.addEventListener('touchstart', touchstartHandler);
       lightbox.addEventListener('touchmove', touchmoveHandler);
       lightbox.addEventListener('touchend', touchendHandler);
-    }
+    } // Mouse events
+
+
+    lightbox.addEventListener('mousedown', mousedownHandler);
+    lightbox.addEventListener('mouseup', mouseupHandler);
+    lightbox.addEventListener('mousemove', mousemoveHandler);
   };
   /**
    * Unbind events
@@ -741,7 +844,12 @@ function Parvus(userOptions) {
       lightbox.removeEventListener('touchstart', touchstartHandler);
       lightbox.removeEventListener('touchmove', touchmoveHandler);
       lightbox.removeEventListener('touchend', touchendHandler);
-    }
+    } // Mouse events
+
+
+    lightbox.removeEventListener('mousedown', mousedownHandler);
+    lightbox.removeEventListener('mouseup', mouseupHandler);
+    lightbox.removeEventListener('mousemove', mousemoveHandler);
   };
   /**
    * Destroy Parvus
