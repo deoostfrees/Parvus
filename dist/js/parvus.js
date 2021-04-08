@@ -501,6 +501,48 @@
       IMAGE.removeAttribute('data-src');
     };
     /**
+     * Select the previous slide
+     *
+     */
+
+
+    const previous = function previous() {
+      if (!isOpen()) {
+        return;
+      }
+
+      if (GROUPS[activeGroup].currentIndex > 0) {
+        leaveSlide(GROUPS[activeGroup].currentIndex); // TODO
+
+        --GROUPS[activeGroup].currentIndex;
+        loadSlide(GROUPS[activeGroup].currentIndex);
+        loadImage(GROUPS[activeGroup].currentIndex);
+        updateOffset();
+        preload(GROUPS[activeGroup].currentIndex - 1);
+      }
+    };
+    /**
+     * Select the next slide
+     *
+     */
+
+
+    const next = function next() {
+      if (!isOpen()) {
+        return;
+      }
+
+      if (GROUPS[activeGroup].currentIndex < GROUPS[activeGroup].elementsLength - 1) {
+        leaveSlide(GROUPS[activeGroup].currentIndex); // TODO
+
+        ++GROUPS[activeGroup].currentIndex;
+        loadSlide(GROUPS[activeGroup].currentIndex);
+        loadImage(GROUPS[activeGroup].currentIndex);
+        updateOffset();
+        preload(GROUPS[activeGroup].currentIndex + 1);
+      }
+    };
+    /**
      * Leave slide
      * Will be called before moving index
      *
@@ -536,10 +578,14 @@
 
 
     const clearDrag = function clearDrag() {
-      lightboxOverlay.style.opacity = 1;
-      GROUPS[activeGroup].slider.style.transform = 'translate3d(0, 0, 0)';
-      lightbox.classList.remove('parvus--is-closing');
+      if (isDraggingY) {
+        lightboxOverlay.style.opacity = 1;
+        lightbox.classList.remove('parvus--is-closing');
+      }
+
       drag = {
+        startX: 0,
+        endX: 0,
         startY: 0,
         endY: 0
       };
@@ -556,7 +602,11 @@
       const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X);
       const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
 
-      if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > config.threshold && GROUPS[activeGroup].currentIndex > 0) ; else if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > config.threshold && GROUPS[activeGroup].currentIndex !== GROUPS[activeGroup].elementsLength - 1) ; else if (MOVEMENT_Y_DISTANCE > config.threshold && config.swipeClose) {
+      if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > config.threshold && GROUPS[activeGroup].currentIndex > 0) {
+        previous();
+      } else if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > config.threshold && GROUPS[activeGroup].currentIndex !== GROUPS[activeGroup].elementsLength - 1) {
+        next();
+      } else if (MOVEMENT_Y_DISTANCE > config.threshold && config.swipeClose) {
         close();
       } else {
         updateOffset();
@@ -573,7 +623,7 @@
         GROUPS[activeGroup].slider.classList.add('parvus__slider--is-draggable');
       }
       /* Hide buttons if necessary
-      if (!config.nav || GROUPS[activeGroup].elementsLength === 1 || (config.nav === 'auto' && isTouchDevice())) {
+      if (GROUPS[activeGroup].elementsLength === 1 || (config.nav === 'auto' && isTouchDevice())) {
         prevButton.setAttribute('aria-hidden', 'true')
         prevButton.disabled = true
         nextButton.setAttribute('aria-hidden', 'true')
@@ -791,7 +841,7 @@
 
           lightbox.classList.add('parvus--is-closing');
           lightboxOverlay.style.opacity = lightboxOverlayOpacity;
-          GROUPS[activeGroup].slider.style.transform = `translate3d(0, ${Math.round(MOVEMENT_Y)}px, 0)`;
+          GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`;
           isDraggingX = false;
           isDraggingY = true;
         }
