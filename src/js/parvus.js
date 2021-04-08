@@ -549,6 +549,50 @@ export default function Parvus (userOptions) {
   }
 
   /**
+   * Select the previous slide
+   *
+   */
+  const previous = function previous () {
+    if (!isOpen()) {
+      return
+    }
+
+    if (GROUPS[activeGroup].currentIndex > 0) {
+      leaveSlide(GROUPS[activeGroup].currentIndex)
+
+      // TODO
+      --GROUPS[activeGroup].currentIndex
+
+      loadSlide(GROUPS[activeGroup].currentIndex)
+      loadImage(GROUPS[activeGroup].currentIndex)
+      updateOffset()
+      preload(GROUPS[activeGroup].currentIndex - 1)
+    }
+  }
+
+  /**
+   * Select the next slide
+   *
+   */
+  const next = function next () {
+    if (!isOpen()) {
+      return
+    }
+
+    if (GROUPS[activeGroup].currentIndex < GROUPS[activeGroup].elementsLength - 1) {
+      leaveSlide(GROUPS[activeGroup].currentIndex)
+
+      // TODO
+      ++GROUPS[activeGroup].currentIndex
+
+      loadSlide(GROUPS[activeGroup].currentIndex)
+      loadImage(GROUPS[activeGroup].currentIndex)
+      updateOffset()
+      preload(GROUPS[activeGroup].currentIndex + 1)
+    }
+  }
+
+  /**
    * Leave slide
    * Will be called before moving index
    *
@@ -582,12 +626,15 @@ export default function Parvus (userOptions) {
    *
    */
   const clearDrag = function clearDrag () {
-    lightboxOverlay.style.opacity = 1
-    GROUPS[activeGroup].slider.style.transform = 'translate3d(0, 0, 0)'
+    if (isDraggingY) {
+      lightboxOverlay.style.opacity = 1
 
-    lightbox.classList.remove('parvus--is-closing')
+      lightbox.classList.remove('parvus--is-closing')
+    }
 
     drag = {
+      startX: 0,
+      endX: 0,
       startY: 0,
       endY: 0
     }
@@ -604,9 +651,9 @@ export default function Parvus (userOptions) {
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
 
     if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > config.threshold && GROUPS[activeGroup].currentIndex > 0) {
-      //previous()
+      previous()
     } else if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > config.threshold && GROUPS[activeGroup].currentIndex !== GROUPS[activeGroup].elementsLength - 1) {
-      //next()
+      next()
     } else if (MOVEMENT_Y_DISTANCE > config.threshold && config.swipeClose) {
       close()
     } else {
@@ -624,7 +671,7 @@ export default function Parvus (userOptions) {
     }
 
     /* Hide buttons if necessary
-    if (!config.nav || GROUPS[activeGroup].elementsLength === 1 || (config.nav === 'auto' && isTouchDevice())) {
+    if (GROUPS[activeGroup].elementsLength === 1 || (config.nav === 'auto' && isTouchDevice())) {
       prevButton.setAttribute('aria-hidden', 'true')
       prevButton.disabled = true
       nextButton.setAttribute('aria-hidden', 'true')
@@ -854,7 +901,7 @@ export default function Parvus (userOptions) {
         lightbox.classList.add('parvus--is-closing')
         lightboxOverlay.style.opacity = lightboxOverlayOpacity
 
-        GROUPS[activeGroup].slider.style.transform = `translate3d(0, ${Math.round(MOVEMENT_Y)}px, 0)`
+        GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`
 
         isDraggingX = false
         isDraggingY = true
