@@ -197,20 +197,20 @@
     cursor: pointer;
     display: flex;
     font: inherit;
-    padding: 0.5rem;
+    padding: 0.3125rem;
     touch-action: manipulation;
+    will-change: transform;
     z-index: 7;
+
+    @media screen and (prefers-reduced-motion: no-preference) {
+      transition: transform var(--transition-duration) var(--transition-timing-function);
+    }
 
 
     &--close {
       position: absolute;
       right: 1rem;
       top: 1rem;
-      will-change: transform;
-
-      @media screen and (prefers-reduced-motion: no-preference) {
-        transition: transform var(--transition-duration) var(--transition-timing-function);
-      }
     }
 
     &--previous {
@@ -253,6 +253,22 @@
       @media screen and (prefers-reduced-motion: no-preference) {
 
         transform: translateY(-300%);
+      }
+    }
+
+    & .parvus__btn--previous {
+
+      @media screen and (prefers-reduced-motion: no-preference) {
+
+        transform: translateX(-300%);
+      }
+    }
+
+    & .parvus__btn--next {
+
+      @media screen and (prefers-reduced-motion: no-preference) {
+
+        transform: translateX(300%);
       }
     }
   }
