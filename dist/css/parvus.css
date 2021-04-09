@@ -145,17 +145,17 @@
     cursor: pointer;
     display: flex;
     font: inherit;
-    padding: 0.5rem;
+    padding: 0.3125rem;
     touch-action: manipulation;
+    will-change: transform;
     z-index: 7; }
+    @media screen and (prefers-reduced-motion: no-preference) {
+      .parvus__btn {
+        transition: transform var(--transition-duration) var(--transition-timing-function); } }
     .parvus__btn--close {
       position: absolute;
       right: 1rem;
-      top: 1rem;
-      will-change: transform; }
-      @media screen and (prefers-reduced-motion: no-preference) {
-        .parvus__btn--close {
-          transition: transform var(--transition-duration) var(--transition-timing-function); } }
+      top: 1rem; }
     .parvus__btn--previous {
       left: 1rem;
       position: absolute;
@@ -180,6 +180,12 @@
   @media screen and (prefers-reduced-motion: no-preference) {
     .parvus--is-opening .parvus__btn--close, .parvus--is-closing .parvus__btn--close {
       transform: translateY(-300%); } }
+  @media screen and (prefers-reduced-motion: no-preference) {
+    .parvus--is-opening .parvus__btn--previous, .parvus--is-closing .parvus__btn--previous {
+      transform: translateX(-300%); } }
+  @media screen and (prefers-reduced-motion: no-preference) {
+    .parvus--is-opening .parvus__btn--next, .parvus--is-closing .parvus__btn--next {
+      transform: translateX(300%); } }
 
 @keyframes spin {
   to {
