@@ -177,6 +177,8 @@ The following options are available:
 
   // Icons
   lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
+  previousButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18" /></svg>',
+  nextButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="9 6 15 12 9 18" /></svg>',
   closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6L6 18M6 6l12 12"/></svg>',
 
   // Internationalization
@@ -185,6 +187,8 @@ The following options are available:
     en: {
       lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
       lightboxLoadingIndicatorLabel: 'Image loading',
+      previousButtonLabel: 'Previous image',
+      nextButtonLabel: 'Next image',
       closeButtonLabel: 'Close dialog window'
     }
   },
@@ -200,10 +204,12 @@ The following options are available:
 | --- | --- |
 | `open(element)` | Open `element` (DOM element) |
 | `close()` | Close Parvus |
+| `previous()` | Show previous image |
+| `next()` | Show next image |
 | `add(element)` | Add `element` (DOM element) |
 | `remove(element)` | Remove `element` (DOM element) |
-| `isOpen()` | Check if Parvus is open |
 | `destroy()` | Destroy Parvus |
+| `isOpen()` | Check if Parvus is open |
 
 ## Events
 
