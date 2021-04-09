@@ -156,6 +156,16 @@
       @media screen and (prefers-reduced-motion: no-preference) {
         .parvus__btn--close {
           transition: transform var(--transition-duration) var(--transition-timing-function); } }
+    .parvus__btn--previous {
+      left: 1rem;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%); }
+    .parvus__btn--next {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%); }
     .parvus__btn svg {
       fill: none;
       height: 2rem;
@@ -165,6 +175,8 @@
       stroke-width: 1;
       stroke: currentColor;
       width: 2rem; }
+    .parvus__btn[disabled] {
+      display: none; }
   @media screen and (prefers-reduced-motion: no-preference) {
     .parvus--is-opening .parvus__btn--close, .parvus--is-closing .parvus__btn--close {
       transform: translateY(-300%); } }
