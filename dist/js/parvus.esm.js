@@ -30,6 +30,8 @@ function Parvus(userOptions) {
   let lightboxOverlay = null;
   let lightboxOverlayOpacity = 0;
   let lightboxImage = null;
+  let previousButton = null;
+  let nextButton = null;
   let closeButton = null;
   let widthDifference;
   let heightDifference;
@@ -63,12 +65,16 @@ function Parvus(userOptions) {
       reducedTransitionDuration: 1,
       transitionTimingFunction: 'cubic-bezier(0.2, 0, 0.2, 1)',
       lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
+      previousButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18" /></svg>',
+      nextButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="9 6 15 12 9 18" /></svg>',
       closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6L6 18M6 6l12 12"/></svg>',
       lang: 'en',
       i18n: {
         en: {
           lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
           lightboxLoadingIndicatorLabel: 'Image loading',
+          prevButtonLabel: 'Previous image',
+          nextButtonLabel: 'Next image',
           closeButtonLabel: 'Close dialog window'
         }
       },
@@ -229,7 +235,23 @@ function Parvus(userOptions) {
     closeButton.setAttribute('aria-label', config.i18n[config.lang].closeButtonLabel);
     closeButton.innerHTML = config.closeButtonIcon; // Add close button to lightbox container
 
-    lightbox.appendChild(closeButton); // Add lightbox container to body
+    lightbox.appendChild(closeButton); // Create the previous button
+
+    previousButton = document.createElement('button');
+    previousButton.className = 'parvus__btn parvus__btn--previous';
+    previousButton.setAttribute('type', 'button');
+    previousButton.setAttribute('aria-label', config.i18n[config.lang].previousButtonLabel);
+    previousButton.innerHTML = config.previousButtonIcon; // Add previous button to lightbox container
+
+    lightbox.appendChild(previousButton); // Create the next button
+
+    nextButton = document.createElement('button');
+    nextButton.className = 'parvus__btn parvus__btn--next';
+    nextButton.setAttribute('type', 'button');
+    nextButton.setAttribute('aria-label', config.i18n[config.lang].nextButtonLabel);
+    nextButton.innerHTML = config.nextButtonIcon; // Add next button to lightbox container
+
+    lightbox.appendChild(nextButton); // Add lightbox container to body
 
     document.body.appendChild(lightbox);
   };
@@ -615,20 +637,20 @@ function Parvus(userOptions) {
   const updateConfig = function updateConfig() {
     if (config.swipeClose && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable') || GROUPS[activeGroup].elementsLength > 1 && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable')) {
       GROUPS[activeGroup].slider.classList.add('parvus__slider--is-draggable');
-    }
-    /* Hide buttons if necessary
-    if (GROUPS[activeGroup].elementsLength === 1 || (config.nav === 'auto' && isTouchDevice())) {
-      prevButton.setAttribute('aria-hidden', 'true')
-      prevButton.disabled = true
-      nextButton.setAttribute('aria-hidden', 'true')
-      nextButton.disabled = true
-    } else {
-      prevButton.setAttribute('aria-hidden', 'false')
-      prevButton.disabled = false
-      nextButton.setAttribute('aria-hidden', 'false')
-      nextButton.disabled = false
-    }*/
+    } // Hide buttons if necessary
 
+
+    if (GROUPS[activeGroup].elementsLength === 1 || config.nav === 'auto' && isTouchDevice()) {
+      previousButton.setAttribute('aria-hidden', 'true');
+      previousButton.disabled = true;
+      nextButton.setAttribute('aria-hidden', 'true');
+      nextButton.disabled = true;
+    } else {
+      previousButton.setAttribute('aria-hidden', 'false');
+      previousButton.disabled = false;
+      nextButton.setAttribute('aria-hidden', 'false');
+      nextButton.disabled = false;
+    }
   };
   /**
    * Click event handler to trigger Parvus
@@ -648,7 +670,11 @@ function Parvus(userOptions) {
 
 
   const clickHandler = function clickHandler(event) {
-    if (event.target === closeButton || !isDraggingY && !isDraggingX && event.target.classList.contains('parvus__slide') && config.docClose) {
+    if (event.target === previousButton) {
+      previous();
+    } else if (event.target === nextButton) {
+      next();
+    } else if (event.target === closeButton || !isDraggingY && !isDraggingX && event.target.classList.contains('parvus__slide') && config.docClose) {
       close();
     }
 
@@ -702,6 +728,14 @@ function Parvus(userOptions) {
       // `ESC` Key: Close Parvus
       event.preventDefault();
       close();
+    } else if (event.code === 'ArrowLeft') {
+      // `PREV` Key: Show the previous slide
+      event.preventDefault();
+      previous();
+    } else if (event.code === 'ArrowRight') {
+      // `NEXT` Key: Show the next slide
+      event.preventDefault();
+      next();
     }
   };
   /**
@@ -818,27 +852,24 @@ function Parvus(userOptions) {
   const doSwipe = function doSwipe() {
     const MOVEMENT_X = drag.startX - drag.endX;
     const MOVEMENT_Y = drag.endY - drag.startY;
+    const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
 
-    if (Math.abs(MOVEMENT_X) > 0 && !isDraggingY && GROUPS[activeGroup].elementsLength > 1) {
+    if (Math.abs(MOVEMENT_X) > 0 && !isDraggingY && GROUPS[activeGroup].elementsLength > 1 && !isReducedMotion) {
       // Horizontal swipe
       GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`;
       isDraggingX = true;
       isDraggingY = false;
-    } else if (Math.abs(MOVEMENT_Y) > 0 && !isDraggingX && config.swipeClose) {
+    } else if (Math.abs(MOVEMENT_Y) > 0 && !isDraggingX && config.swipeClose && !isReducedMotion) {
       // Vertical swipe
-      if (config.swipeClose && !isReducedMotion) {
-        const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
-
-        if (MOVEMENT_Y_DISTANCE <= 100) {
-          lightboxOverlayOpacity = 1 - MOVEMENT_Y_DISTANCE / 100;
-        }
-
-        lightbox.classList.add('parvus--is-closing');
-        lightboxOverlay.style.opacity = lightboxOverlayOpacity;
-        GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`;
-        isDraggingX = false;
-        isDraggingY = true;
+      if (MOVEMENT_Y_DISTANCE <= 100) {
+        lightboxOverlayOpacity = 1 - MOVEMENT_Y_DISTANCE / 100;
       }
+
+      lightbox.classList.add('parvus--is-closing');
+      lightboxOverlay.style.opacity = lightboxOverlayOpacity;
+      GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`;
+      isDraggingX = false;
+      isDraggingY = true;
     }
   };
   /**

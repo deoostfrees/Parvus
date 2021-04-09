@@ -213,6 +213,20 @@
       }
     }
 
+    &--previous {
+      left: 1rem;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    &--next {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
     & svg {
       fill: none;
       height: 2rem;
@@ -222,6 +236,10 @@
       stroke-width: 1;
       stroke: currentColor;
       width: 2rem;
+    }
+
+    &[disabled] {
+      display: none;
     }
   }
 
