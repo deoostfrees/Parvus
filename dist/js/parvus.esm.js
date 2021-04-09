@@ -62,7 +62,7 @@ function Parvus(userOptions) {
       swipeClose: true,
       threshold: 100,
       transitionDuration: 300,
-      reducedTransitionDuration: 1,
+      reducedTransitionDuration: 0.1,
       transitionTimingFunction: 'cubic-bezier(0.2, 0, 0.2, 1)',
       lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
       previousButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18" /></svg>',
@@ -78,7 +78,7 @@ function Parvus(userOptions) {
           closeButtonLabel: 'Close dialog window'
         }
       },
-      fileTypes: /\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i
+      fileTypes: /\.(png|jpe?g|webp|avif|svg)(\?.*)?$/i
     };
     return { ...OPTIONS,
       ...userOptions
@@ -996,6 +996,8 @@ function Parvus(userOptions) {
   Parvus.init = init;
   Parvus.open = open;
   Parvus.close = close;
+  Parvus.previous = previous;
+  Parvus.next = next;
   Parvus.add = add;
   Parvus.remove = remove;
   Parvus.destroy = destroy;
