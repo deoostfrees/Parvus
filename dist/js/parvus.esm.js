@@ -376,7 +376,8 @@ function Parvus(userOptions) {
     });
     lightbox.classList.add('parvus--is-closing');
     requestAnimationFrame(() => {
-      lightboxOverlay.style.opacity = 0.1;
+      lightboxOverlay.style.opacity = 0.1; // Set to 0.1 because otherwise event listener 'transitionend' does not fire if is vertical dragging
+
       lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
     });
     lightboxOverlay.addEventListener('transitionend', () => {
@@ -612,11 +613,11 @@ function Parvus(userOptions) {
     const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X);
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
 
-    if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE >= config.threshold && GROUPS[activeGroup].currentIndex > 0) {
+    if (isDraggingX && MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE >= config.threshold && GROUPS[activeGroup].currentIndex > 0) {
       previous();
-    } else if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE >= config.threshold && GROUPS[activeGroup].currentIndex !== GROUPS[activeGroup].elementsLength - 1) {
+    } else if (isDraggingX && MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE >= config.threshold && GROUPS[activeGroup].currentIndex !== GROUPS[activeGroup].elementsLength - 1) {
       next();
-    } else if (MOVEMENT_Y_DISTANCE > 0) {
+    } else if (isDraggingY && MOVEMENT_Y_DISTANCE > 0) {
       if (MOVEMENT_Y_DISTANCE >= config.threshold && config.swipeClose) {
         close();
       } else {
