@@ -372,11 +372,8 @@
         if (history.state.parvus === 'close') {
           history.back();
         }
-      } // Create and dispatch a new event
+      } // Show all non lightbox elements from assistive technology
 
-
-      const CLOSE_EVENT = new CustomEvent('close');
-      lightbox.dispatchEvent(CLOSE_EVENT); // Show all non lightbox elements from assistive technology
 
       const nonLightboxEls = document.querySelectorAll('.parvus-hidden');
       nonLightboxEls.forEach(nonLightboxEl => {
@@ -385,7 +382,7 @@
       });
       lightbox.classList.add('parvus--is-closing');
       requestAnimationFrame(() => {
-        lightboxOverlay.style.opacity = 0;
+        lightboxOverlay.style.opacity = 0.1;
         lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
       });
       lightboxOverlay.addEventListener('transitionend', () => {
@@ -394,15 +391,18 @@
 
         lastFocus.focus({
           preventScroll: true
-        });
-        lightbox.classList.remove('parvus--is-closing'); // Hide slider
+        }); // Hide slider
 
         GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'true'); // Hide lightbox
 
         lightbox.setAttribute('aria-hidden', 'true');
+        lightbox.classList.remove('parvus--is-closing');
       }, {
         once: true
-      });
+      }); // Create and dispatch a new event
+
+      const CLOSE_EVENT = new CustomEvent('close');
+      lightbox.dispatchEvent(CLOSE_EVENT);
     };
     /**
      * Preload slide
@@ -483,7 +483,6 @@
       const THUMBNAIL = GROUPS[activeGroup].gallery[index];
       const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
       const LOADING_INDICATOR = document.createElement('div');
-      console.log(THUMBNAIL);
 
       if (!IMAGE.hasAttribute('data-src')) {
         return;
@@ -600,11 +599,6 @@
 
 
     const clearDrag = function clearDrag() {
-      if (isDraggingY) {
-        lightboxOverlay.style.opacity = 1;
-        lightbox.classList.remove('parvus--is-closing');
-      }
-
       drag = {
         startX: 0,
         endX: 0,
@@ -624,12 +618,18 @@
       const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X);
       const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
 
-      if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > config.threshold && GROUPS[activeGroup].currentIndex > 0) {
+      if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE >= config.threshold && GROUPS[activeGroup].currentIndex > 0) {
         previous();
-      } else if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > config.threshold && GROUPS[activeGroup].currentIndex !== GROUPS[activeGroup].elementsLength - 1) {
+      } else if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE >= config.threshold && GROUPS[activeGroup].currentIndex !== GROUPS[activeGroup].elementsLength - 1) {
         next();
-      } else if (MOVEMENT_Y_DISTANCE > config.threshold && config.swipeClose) {
-        close();
+      } else if (MOVEMENT_Y_DISTANCE > 0) {
+        if (MOVEMENT_Y_DISTANCE >= config.threshold && config.swipeClose) {
+          close();
+        } else {
+          lightboxOverlay.style.opacity = 1;
+          lightbox.classList.remove('parvus--is-closing');
+          updateOffset();
+        }
       } else {
         updateOffset();
       }
@@ -646,7 +646,7 @@
       } // Hide buttons if necessary
 
 
-      if (GROUPS[activeGroup].elementsLength === 1 || config.nav === 'auto' && isTouchDevice()) {
+      if (GROUPS[activeGroup].elementsLength === 1) {
         previousButton.setAttribute('aria-hidden', 'true');
         previousButton.disabled = true;
         nextButton.setAttribute('aria-hidden', 'true');
@@ -795,7 +795,7 @@
       pointerDown = false;
       GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
 
-      if (drag.endX) {
+      if (drag.endX || drag.endY) {
         updateAfterDrag();
       }
 
@@ -843,14 +843,14 @@
       pointerDown = false;
       GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
 
-      if (drag.endX) {
+      if (drag.endX || drag.endY) {
         updateAfterDrag();
       }
 
       clearDrag();
     };
     /**
-     * Decide whether to do vertical swipe
+     * Decide whether to do horizontal of vertical swipe
      *
      */
 
