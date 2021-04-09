@@ -238,6 +238,8 @@ export default function Parvus (userOptions) {
     closeButton.setAttribute('aria-label', config.i18n[config.lang].closeButtonLabel)
     closeButton.innerHTML = config.closeButtonIcon
 
+    closeButton.style.opacity = 0
+
     // Add close button to lightbox container
     lightbox.appendChild(closeButton)
 
@@ -248,6 +250,8 @@ export default function Parvus (userOptions) {
     previousButton.setAttribute('aria-label', config.i18n[config.lang].previousButtonLabel)
     previousButton.innerHTML = config.previousButtonIcon
 
+    previousButton.style.opacity = 0
+
     // Add previous button to lightbox container
     lightbox.appendChild(previousButton)
 
@@ -257,6 +261,8 @@ export default function Parvus (userOptions) {
     nextButton.setAttribute('type', 'button')
     nextButton.setAttribute('aria-label', config.i18n[config.lang].nextButtonLabel)
     nextButton.innerHTML = config.nextButtonIcon
+
+    nextButton.style.opacity = 0
 
     // Add next button to lightbox container
     lightbox.appendChild(nextButton)
@@ -344,23 +350,23 @@ export default function Parvus (userOptions) {
       nonLightboxEl.classList.add('parvus-hidden')
     })
 
-    lightbox.classList.add('parvus--is-opening')
-
     // Show lightbox
     lightbox.setAttribute('aria-hidden', 'false')
 
     setFocusToFirstItem()
 
     requestAnimationFrame(() => {
+      closeButton.style.opacity = 1
+      closeButton.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}, transform ${transitionDuration}ms ${config.transitionTimingFunction}`
+
+      previousButton.style.opacity = 1
+      previousButton.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}, transform ${transitionDuration}ms ${config.transitionTimingFunction}`
+
+      nextButton.style.opacity = 1
+      nextButton.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}, transform ${transitionDuration}ms ${config.transitionTimingFunction}`
+
       lightboxOverlay.style.opacity = 1
       lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
-    })
-
-    lightboxOverlay.addEventListener('transitionend', () => {
-      lightbox.classList.remove('parvus--is-opening')
-    },
-    {
-      once: true
     })
 
     // Show slider
@@ -437,6 +443,10 @@ export default function Parvus (userOptions) {
       lightbox.setAttribute('aria-hidden', 'true')
 
       lightbox.classList.remove('parvus--is-closing')
+
+      closeButton.style.opacity = 0
+      previousButton.style.opacity = 0
+      nextButton.style.opacity = 0
     },
     {
       once: true

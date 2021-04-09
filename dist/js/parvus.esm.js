@@ -233,7 +233,8 @@ function Parvus(userOptions) {
     closeButton.className = 'parvus__btn parvus__btn--close';
     closeButton.setAttribute('type', 'button');
     closeButton.setAttribute('aria-label', config.i18n[config.lang].closeButtonLabel);
-    closeButton.innerHTML = config.closeButtonIcon; // Add close button to lightbox container
+    closeButton.innerHTML = config.closeButtonIcon;
+    closeButton.style.opacity = 0; // Add close button to lightbox container
 
     lightbox.appendChild(closeButton); // Create the previous button
 
@@ -241,7 +242,8 @@ function Parvus(userOptions) {
     previousButton.className = 'parvus__btn parvus__btn--previous';
     previousButton.setAttribute('type', 'button');
     previousButton.setAttribute('aria-label', config.i18n[config.lang].previousButtonLabel);
-    previousButton.innerHTML = config.previousButtonIcon; // Add previous button to lightbox container
+    previousButton.innerHTML = config.previousButtonIcon;
+    previousButton.style.opacity = 0; // Add previous button to lightbox container
 
     lightbox.appendChild(previousButton); // Create the next button
 
@@ -249,7 +251,8 @@ function Parvus(userOptions) {
     nextButton.className = 'parvus__btn parvus__btn--next';
     nextButton.setAttribute('type', 'button');
     nextButton.setAttribute('aria-label', config.i18n[config.lang].nextButtonLabel);
-    nextButton.innerHTML = config.nextButtonIcon; // Add next button to lightbox container
+    nextButton.innerHTML = config.nextButtonIcon;
+    nextButton.style.opacity = 0; // Add next button to lightbox container
 
     lightbox.appendChild(nextButton); // Add lightbox container to body
 
@@ -320,19 +323,19 @@ function Parvus(userOptions) {
     nonLightboxEls.forEach(nonLightboxEl => {
       nonLightboxEl.setAttribute('aria-hidden', 'true');
       nonLightboxEl.classList.add('parvus-hidden');
-    });
-    lightbox.classList.add('parvus--is-opening'); // Show lightbox
+    }); // Show lightbox
 
     lightbox.setAttribute('aria-hidden', 'false');
     setFocusToFirstItem();
     requestAnimationFrame(() => {
+      closeButton.style.opacity = 1;
+      closeButton.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}, transform ${transitionDuration}ms ${config.transitionTimingFunction}`;
+      previousButton.style.opacity = 1;
+      previousButton.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}, transform ${transitionDuration}ms ${config.transitionTimingFunction}`;
+      nextButton.style.opacity = 1;
+      nextButton.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}, transform ${transitionDuration}ms ${config.transitionTimingFunction}`;
       lightboxOverlay.style.opacity = 1;
       lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
-    });
-    lightboxOverlay.addEventListener('transitionend', () => {
-      lightbox.classList.remove('parvus--is-opening');
-    }, {
-      once: true
     }); // Show slider
 
     GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false'); // Load slide
@@ -392,6 +395,9 @@ function Parvus(userOptions) {
 
       lightbox.setAttribute('aria-hidden', 'true');
       lightbox.classList.remove('parvus--is-closing');
+      closeButton.style.opacity = 0;
+      previousButton.style.opacity = 0;
+      nextButton.style.opacity = 0;
     }, {
       once: true
     }); // Create and dispatch a new event
