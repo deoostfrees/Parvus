@@ -169,6 +169,9 @@ The following options are available:
   // Touch dragging threshold (in px)
   threshold: 100,
 
+  // Focus thumbnail from the last active slide after closing instead focus last active element before opening
+  backFocus: true,
+
   // Specifies how many milliseconds (ms) the transition effects takes to complete
   transitionDuration: 300,
 

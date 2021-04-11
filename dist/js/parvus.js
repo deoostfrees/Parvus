@@ -67,6 +67,7 @@
         scrollClose: false,
         swipeClose: true,
         threshold: 100,
+        backFocus: true,
         transitionDuration: 300,
         reducedTransitionDuration: 0.1,
         transitionTimingFunction: 'cubic-bezier(0.2, 0, 0.2, 1)',
@@ -393,6 +394,7 @@
         // Don't forget to cleanup our current element
         leaveSlide(GROUPS[activeGroup].currentIndex); // Reenable the user’s focus
 
+        lastFocus = config.backFocus ? GROUPS[activeGroup].gallery[GROUPS[activeGroup].currentIndex] : lastFocus;
         lastFocus.focus({
           preventScroll: true
         }); // Hide slider
