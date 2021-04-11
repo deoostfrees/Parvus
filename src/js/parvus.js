@@ -453,6 +453,7 @@ export default function Parvus (userOptions) {
       lightbox.setAttribute('aria-hidden', 'true')
 
       lightbox.classList.remove('parvus--is-closing')
+      lightbox.classList.remove('parvus--is-vertical-closing')
 
       // Remove the hack to prevent animation during opening
       GROUPS[activeGroup].slider.classList.remove('parvus__slider--animate')
