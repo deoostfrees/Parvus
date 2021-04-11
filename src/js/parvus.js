@@ -376,7 +376,7 @@ export default function Parvus (userOptions) {
     // Hack to prevent animation during opening
     setTimeout(() => {
       GROUPS[activeGroup].slider.classList.add('parvus__slider--animate')
-    }, 1000)
+    }, transitionDuration)
 
     // Create and dispatch a new event
     const OPEN_EVENT = new CustomEvent('open')
