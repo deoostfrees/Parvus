@@ -35,7 +35,6 @@
     let lightbox = null;
     let lightboxOverlay = null;
     let lightboxOverlayOpacity = 0;
-    let lightboxImage = null;
     let previousButton = null;
     let nextButton = null;
     let closeButton = null;
@@ -240,8 +239,7 @@
       closeButton.className = 'parvus__btn parvus__btn--close';
       closeButton.setAttribute('type', 'button');
       closeButton.setAttribute('aria-label', config.i18n[config.lang].closeButtonLabel);
-      closeButton.innerHTML = config.closeButtonIcon;
-      closeButton.style.opacity = 0; // Add close button to lightbox container
+      closeButton.innerHTML = config.closeButtonIcon; // Add close button to lightbox container
 
       lightbox.appendChild(closeButton); // Create the previous button
 
@@ -249,8 +247,7 @@
       previousButton.className = 'parvus__btn parvus__btn--previous';
       previousButton.setAttribute('type', 'button');
       previousButton.setAttribute('aria-label', config.i18n[config.lang].previousButtonLabel);
-      previousButton.innerHTML = config.previousButtonIcon;
-      previousButton.style.opacity = 0; // Add previous button to lightbox container
+      previousButton.innerHTML = config.previousButtonIcon; // Add previous button to lightbox container
 
       lightbox.appendChild(previousButton); // Create the next button
 
@@ -258,8 +255,7 @@
       nextButton.className = 'parvus__btn parvus__btn--next';
       nextButton.setAttribute('type', 'button');
       nextButton.setAttribute('aria-label', config.i18n[config.lang].nextButtonLabel);
-      nextButton.innerHTML = config.nextButtonIcon;
-      nextButton.style.opacity = 0; // Add next button to lightbox container
+      nextButton.innerHTML = config.nextButtonIcon; // Add next button to lightbox container
 
       lightbox.appendChild(nextButton); // Add lightbox container to body
 
@@ -330,17 +326,13 @@
       nonLightboxEls.forEach(nonLightboxEl => {
         nonLightboxEl.setAttribute('aria-hidden', 'true');
         nonLightboxEl.classList.add('parvus-hidden');
-      }); // Show lightbox
+      });
+      lightbox.classList.add('parvus--is-opening'); // Show lightbox
 
       lightbox.setAttribute('aria-hidden', 'false');
       setFocusToFirstItem();
       requestAnimationFrame(() => {
-        closeButton.style.opacity = 1;
-        closeButton.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}, transform ${transitionDuration}ms ${config.transitionTimingFunction}`;
-        previousButton.style.opacity = 1;
-        previousButton.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}, transform ${transitionDuration}ms ${config.transitionTimingFunction}`;
-        nextButton.style.opacity = 1;
-        nextButton.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}, transform ${transitionDuration}ms ${config.transitionTimingFunction}`;
+        lightbox.classList.remove('parvus--is-opening');
         lightboxOverlay.style.opacity = 1;
         lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
       }); // Show slider
@@ -350,10 +342,14 @@
       loadSlide(GROUPS[activeGroup].currentIndex);
       updateOffset(); // Load image
 
-      loadImage(GROUPS[activeGroup].currentIndex); // Preload previous and next slide
+      loadImage(GROUPS[activeGroup].currentIndex, true); // Preload previous and next slide
 
       preload(GROUPS[activeGroup].currentIndex + 1);
-      preload(GROUPS[activeGroup].currentIndex - 1); // Create and dispatch a new event
+      preload(GROUPS[activeGroup].currentIndex - 1); // Hack to prevent animation during opening
+
+      setTimeout(() => {
+        GROUPS[activeGroup].slider.classList.add('parvus__slider--animate');
+      }, 1000); // Create and dispatch a new event
 
       const OPEN_EVENT = new CustomEvent('open');
       lightbox.dispatchEvent(OPEN_EVENT);
@@ -369,6 +365,11 @@
         throw new Error('Ups, I\'m already closed.');
       }
 
+      const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[GROUPS[activeGroup].currentIndex];
+      const IMAGE = IMAGE_CONTAINER.querySelector('img');
+      const THUMBNAIL = GROUPS[activeGroup].gallery[GROUPS[activeGroup].currentIndex];
+      const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
+      const IMAGE_SIZE = IMAGE.getBoundingClientRect();
       unbindEvents();
       clearDrag(); // Remove entry in browser history
 
@@ -386,9 +387,18 @@
       });
       lightbox.classList.add('parvus--is-closing');
       requestAnimationFrame(() => {
+        if (config.backFocus) {
+          widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
+          heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
+          xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
+          yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
+        }
+
+        IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
+        IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}`;
         lightboxOverlay.style.opacity = 0.1; // Set to 0.1 because otherwise event listener 'transitionend' does not fire if is vertical dragging
 
-        lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
+        lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction} ${transitionDuration}ms`;
       });
       lightboxOverlay.addEventListener('transitionend', () => {
         // Don't forget to cleanup our current element
@@ -402,10 +412,10 @@
         GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'true'); // Hide lightbox
 
         lightbox.setAttribute('aria-hidden', 'true');
-        lightbox.classList.remove('parvus--is-closing');
-        closeButton.style.opacity = 0;
-        previousButton.style.opacity = 0;
-        nextButton.style.opacity = 0;
+        lightbox.classList.remove('parvus--is-closing'); // Remove the hack to prevent animation during opening
+
+        GROUPS[activeGroup].slider.classList.remove('parvus__slider--animate');
+        IMAGE.style.transform = '';
       }, {
         once: true
       }); // Create and dispatch a new event
@@ -423,8 +433,9 @@
     const preload = function preload(index) {
       if (GROUPS[activeGroup].sliderElements[index] === undefined) {
         return;
-      } // TODO
+      }
 
+      loadImage(index);
     };
     /**
      * Load slide
@@ -451,26 +462,26 @@
 
 
     const createImage = function createImage(el, container) {
+      const IMAGE = document.createElement('img');
       const FIGURE = document.createElement('figure');
       const FIGURECAPTION = document.createElement('figurecaption');
-      const THUMBNAIL = el.querySelector('img'); // Create new image
-
-      lightboxImage = document.createElement('img');
+      const THUMBNAIL = el.querySelector('img');
 
       if (el.tagName === 'A') {
-        lightboxImage.setAttribute('data-src', el.href);
+        IMAGE.setAttribute('data-src', el.href);
 
         if (THUMBNAIL) {
-          lightboxImage.alt = THUMBNAIL.alt || '';
+          IMAGE.alt = THUMBNAIL.alt || '';
         } else {
-          lightboxImage.alt = el.getAttribute('data-alt') || '';
+          IMAGE.alt = el.getAttribute('data-alt') || '';
         }
       } else {
-        lightboxImage.alt = el.getAttribute('data-alt') || '';
-        lightboxImage.setAttribute('data-src', el.getAttribute('data-target'));
+        IMAGE.alt = el.getAttribute('data-alt') || '';
+        IMAGE.setAttribute('data-src', el.getAttribute('data-target'));
       }
 
-      FIGURE.appendChild(lightboxImage); // Add caption if available
+      IMAGE.style.opacity = 0;
+      FIGURE.appendChild(IMAGE); // Add caption if available
 
       if (el.hasAttribute('data-caption') && el.getAttribute('data-caption') !== '') {
         FIGURECAPTION.innerHTML = el.getAttribute('data-caption');
@@ -480,24 +491,57 @@
       container.appendChild(FIGURE);
     };
     /**
+     * Image load animation
+     *
+     * @param {number} index - Index to load
+     */
+
+
+    const imageLoadAnimation = function imageLoadAnimation(index) {
+      const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[index];
+      const IMAGE = IMAGE_CONTAINER.querySelector('img');
+      const THUMBNAIL = GROUPS[activeGroup].gallery[index];
+      const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
+      const IMAGE_SIZE = IMAGE.getBoundingClientRect();
+      console.log('Thumb: ', THUMBNAIL_SIZE);
+      console.log('Image: ', IMAGE_SIZE);
+      widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
+      heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
+      xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
+      yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
+      requestAnimationFrame(() => {
+        console.log(`translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`);
+        IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
+        IMAGE.style.transition = 'transform 0s, opacity 0s'; // Animate the difference reversal on the next tick
+
+        requestAnimationFrame(() => {
+          IMAGE.style.transform = '';
+          IMAGE.style.opacity = 1;
+          IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
+        });
+      });
+    };
+    /**
      * Load Image
      *
      * @param {number} index - Index to load
      */
 
 
-    const loadImage = function loadImage(index) {
+    const loadImage = function loadImage(index, isOpening) {
       const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[index];
       const IMAGE = IMAGE_CONTAINER.querySelector('img');
-      const THUMBNAIL = GROUPS[activeGroup].gallery[index];
-      const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
       const LOADING_INDICATOR = document.createElement('div');
 
       if (!IMAGE.hasAttribute('data-src')) {
-        return;
-      }
+        if (isOpening) {
+          console.log('yeah!');
+          imageLoadAnimation(index);
+        }
 
-      IMAGE.style.opacity = 0; // Create loading indicator
+        return;
+      } // Create loading indicator
+
 
       LOADING_INDICATOR.className = 'parvus__loader';
       LOADING_INDICATOR.setAttribute('role', 'progressbar');
@@ -506,25 +550,11 @@
       IMAGE_CONTAINER.appendChild(LOADING_INDICATOR);
 
       IMAGE.onload = () => {
-        const IMAGE_SIZE = IMAGE.getBoundingClientRect();
-        IMAGE_CONTAINER.removeChild(LOADING_INDICATOR);
-        widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
-        heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
-        xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
-        yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top; // Set image width and height
-
+        // Set image width and height
         IMAGE.setAttribute('width', IMAGE.naturalWidth);
         IMAGE.setAttribute('height', IMAGE.naturalHeight);
-        requestAnimationFrame(() => {
-          IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
-          IMAGE.style.transition = 'transform 0s, opacity 0s'; // Animate the difference reversal on the next tick
-
-          requestAnimationFrame(() => {
-            IMAGE.style.transform = '';
-            IMAGE.style.opacity = 1;
-            IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
-          });
-        });
+        IMAGE_CONTAINER.removeChild(LOADING_INDICATOR);
+        imageLoadAnimation(index);
       };
 
       IMAGE.setAttribute('src', IMAGE.getAttribute('data-src'));
@@ -636,7 +666,7 @@
           close();
         } else {
           lightboxOverlay.style.opacity = 1;
-          lightbox.classList.remove('parvus--is-closing');
+          lightbox.classList.remove('parvus--is-vertical-closing');
           updateOffset();
         }
       } else {
@@ -880,7 +910,7 @@
           lightboxOverlayOpacity = 1 - MOVEMENT_Y_DISTANCE / 100;
         }
 
-        lightbox.classList.add('parvus--is-closing');
+        lightbox.classList.add('parvus--is-vertical-closing');
         lightboxOverlay.style.opacity = lightboxOverlayOpacity;
         GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`;
         isDraggingX = false;

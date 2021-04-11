@@ -23,7 +23,6 @@ export default function Parvus (userOptions) {
   let lightbox = null
   let lightboxOverlay = null
   let lightboxOverlayOpacity = 0
-  let lightboxImage = null
   let previousButton = null
   let nextButton = null
   let closeButton = null
@@ -239,8 +238,6 @@ export default function Parvus (userOptions) {
     closeButton.setAttribute('aria-label', config.i18n[config.lang].closeButtonLabel)
     closeButton.innerHTML = config.closeButtonIcon
 
-    closeButton.style.opacity = 0
-
     // Add close button to lightbox container
     lightbox.appendChild(closeButton)
 
@@ -251,8 +248,6 @@ export default function Parvus (userOptions) {
     previousButton.setAttribute('aria-label', config.i18n[config.lang].previousButtonLabel)
     previousButton.innerHTML = config.previousButtonIcon
 
-    previousButton.style.opacity = 0
-
     // Add previous button to lightbox container
     lightbox.appendChild(previousButton)
 
@@ -262,8 +257,6 @@ export default function Parvus (userOptions) {
     nextButton.setAttribute('type', 'button')
     nextButton.setAttribute('aria-label', config.i18n[config.lang].nextButtonLabel)
     nextButton.innerHTML = config.nextButtonIcon
-
-    nextButton.style.opacity = 0
 
     // Add next button to lightbox container
     lightbox.appendChild(nextButton)
@@ -351,20 +344,15 @@ export default function Parvus (userOptions) {
       nonLightboxEl.classList.add('parvus-hidden')
     })
 
+    lightbox.classList.add('parvus--is-opening')
+
     // Show lightbox
     lightbox.setAttribute('aria-hidden', 'false')
 
     setFocusToFirstItem()
 
     requestAnimationFrame(() => {
-      closeButton.style.opacity = 1
-      closeButton.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}, transform ${transitionDuration}ms ${config.transitionTimingFunction}`
-
-      previousButton.style.opacity = 1
-      previousButton.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}, transform ${transitionDuration}ms ${config.transitionTimingFunction}`
-
-      nextButton.style.opacity = 1
-      nextButton.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}, transform ${transitionDuration}ms ${config.transitionTimingFunction}`
+      lightbox.classList.remove('parvus--is-opening')
 
       lightboxOverlay.style.opacity = 1
       lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
@@ -379,11 +367,16 @@ export default function Parvus (userOptions) {
     updateOffset()
 
     // Load image
-    loadImage(GROUPS[activeGroup].currentIndex)
+    loadImage(GROUPS[activeGroup].currentIndex, true)
 
     // Preload previous and next slide
     preload(GROUPS[activeGroup].currentIndex + 1)
     preload(GROUPS[activeGroup].currentIndex - 1)
+
+    // Hack to prevent animation during opening
+    setTimeout(() => {
+      GROUPS[activeGroup].slider.classList.add('parvus__slider--animate')
+    }, 1000)
 
     // Create and dispatch a new event
     const OPEN_EVENT = new CustomEvent('open')
@@ -399,6 +392,12 @@ export default function Parvus (userOptions) {
     if (!isOpen()) {
       throw new Error('Ups, I\'m already closed.')
     }
+
+    const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[GROUPS[activeGroup].currentIndex]
+    const IMAGE = IMAGE_CONTAINER.querySelector('img')
+    const THUMBNAIL = GROUPS[activeGroup].gallery[GROUPS[activeGroup].currentIndex]
+    const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect()
+    const IMAGE_SIZE = IMAGE.getBoundingClientRect()
 
     unbindEvents()
 
@@ -422,10 +421,18 @@ export default function Parvus (userOptions) {
     lightbox.classList.add('parvus--is-closing')
 
     requestAnimationFrame(() => {
+      if (config.backFocus) {
+        widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
+        heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
+        xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
+        yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
+      }
 
+      IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
+      IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}`
 
       lightboxOverlay.style.opacity = 0.1 // Set to 0.1 because otherwise event listener 'transitionend' does not fire if is vertical dragging
-      lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
+      lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction} ${transitionDuration}ms`
     })
 
     lightboxOverlay.addEventListener('transitionend', () => {
@@ -447,9 +454,10 @@ export default function Parvus (userOptions) {
 
       lightbox.classList.remove('parvus--is-closing')
 
-      closeButton.style.opacity = 0
-      previousButton.style.opacity = 0
-      nextButton.style.opacity = 0
+      // Remove the hack to prevent animation during opening
+      GROUPS[activeGroup].slider.classList.remove('parvus__slider--animate')
+
+      IMAGE.style.transform = ''
     },
     {
       once: true
@@ -471,7 +479,7 @@ export default function Parvus (userOptions) {
       return
     }
 
-    // TODO
+    loadImage(index)
   }
 
   /**
@@ -496,27 +504,27 @@ export default function Parvus (userOptions) {
    * @param {number} index - Index to load
    */
   const createImage = function createImage (el, container) {
+    const IMAGE = document.createElement('img')
     const FIGURE = document.createElement('figure')
     const FIGURECAPTION = document.createElement('figurecaption')
     const THUMBNAIL = el.querySelector('img')
 
-    // Create new image
-    lightboxImage = document.createElement('img')
-
     if (el.tagName === 'A') {
-      lightboxImage.setAttribute('data-src', el.href)
+      IMAGE.setAttribute('data-src', el.href)
 
       if (THUMBNAIL) {
-        lightboxImage.alt = THUMBNAIL.alt || ''
+        IMAGE.alt = THUMBNAIL.alt || ''
       } else {
-        lightboxImage.alt = el.getAttribute('data-alt') || ''
+        IMAGE.alt = el.getAttribute('data-alt') || ''
       }
     } else {
-      lightboxImage.alt = el.getAttribute('data-alt') || ''
-      lightboxImage.setAttribute('data-src', el.getAttribute('data-target'))
+      IMAGE.alt = el.getAttribute('data-alt') || ''
+      IMAGE.setAttribute('data-src', el.getAttribute('data-target'))
     }
 
-    FIGURE.appendChild(lightboxImage)
+    IMAGE.style.opacity = 0
+
+    FIGURE.appendChild(IMAGE)
 
     // Add caption if available
     if (el.hasAttribute('data-caption') && el.getAttribute('data-caption') !== '') {
@@ -529,22 +537,57 @@ export default function Parvus (userOptions) {
   }
 
   /**
-   * Load Image
+   * Image load animation
    *
    * @param {number} index - Index to load
    */
-  const loadImage = function loadImage (index) {
+  const imageLoadAnimation = function imageLoadAnimation (index) {
     const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[index]
     const IMAGE = IMAGE_CONTAINER.querySelector('img')
     const THUMBNAIL = GROUPS[activeGroup].gallery[index]
     const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect()
+    const IMAGE_SIZE = IMAGE.getBoundingClientRect()
+
+    console.log('Thumb: ', THUMBNAIL_SIZE)
+    console.log('Image: ', IMAGE_SIZE)
+
+    widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
+    heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
+    xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
+    yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
+
+    requestAnimationFrame(() => {
+      console.log(`translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`)
+      IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
+      IMAGE.style.transition = 'transform 0s, opacity 0s'
+
+      // Animate the difference reversal on the next tick
+      requestAnimationFrame(() => {
+        IMAGE.style.transform = ''
+        IMAGE.style.opacity = 1
+        IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
+      })
+    })
+  }
+
+  /**
+   * Load Image
+   *
+   * @param {number} index - Index to load
+   */
+  const loadImage = function loadImage (index, isOpening) {
+    const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[index]
+    const IMAGE = IMAGE_CONTAINER.querySelector('img')
     const LOADING_INDICATOR = document.createElement('div')
 
     if (!IMAGE.hasAttribute('data-src')) {
+      if (isOpening) {
+        console.log('yeah!')
+        imageLoadAnimation(index)
+      }
+
       return
     }
-
-    IMAGE.style.opacity = 0
 
     // Create loading indicator
     LOADING_INDICATOR.className = 'parvus__loader'
@@ -555,30 +598,13 @@ export default function Parvus (userOptions) {
     IMAGE_CONTAINER.appendChild(LOADING_INDICATOR)
 
     IMAGE.onload = () => {
-      const IMAGE_SIZE = IMAGE.getBoundingClientRect()
-
-      IMAGE_CONTAINER.removeChild(LOADING_INDICATOR)
-
-      widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
-      heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
-      xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
-      yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
-
       // Set image width and height
       IMAGE.setAttribute('width', IMAGE.naturalWidth)
       IMAGE.setAttribute('height', IMAGE.naturalHeight)
 
-      requestAnimationFrame(() => {
-        IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
-        IMAGE.style.transition = 'transform 0s, opacity 0s'
+      IMAGE_CONTAINER.removeChild(LOADING_INDICATOR)
 
-        // Animate the difference reversal on the next tick
-        requestAnimationFrame(() => {
-          IMAGE.style.transform = ''
-          IMAGE.style.opacity = 1
-          IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
-        })
-      })
+      imageLoadAnimation(index)
     }
 
     IMAGE.setAttribute('src', IMAGE.getAttribute('data-src'))
@@ -691,7 +717,7 @@ export default function Parvus (userOptions) {
       } else {
         lightboxOverlay.style.opacity = 1
 
-        lightbox.classList.remove('parvus--is-closing')
+        lightbox.classList.remove('parvus--is-vertical-closing')
 
         updateOffset()
       }
@@ -946,7 +972,7 @@ export default function Parvus (userOptions) {
         lightboxOverlayOpacity = 1 - (MOVEMENT_Y_DISTANCE / 100)
       }
 
-      lightbox.classList.add('parvus--is-closing')
+      lightbox.classList.add('parvus--is-vertical-closing')
       lightboxOverlay.style.opacity = lightboxOverlayOpacity
 
       GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`

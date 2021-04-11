@@ -81,12 +81,8 @@
     .parvus__slider[aria-hidden='true'] {
       display: none; }
     @media screen and (prefers-reduced-motion: no-preference) {
-      .parvus__slider:not(.parvus__slider--is-dragging) {
-        transition: transform var(--transition-duration) var(--transition-timing-function); }
       .parvus__slider--animate:not(.parvus__slider--is-dragging) {
-        transition-duration: var(--transition-duration);
-        transition-property: transform;
-        transition-timing-function: var(--transition-timing-function); } }
+        transition: transform var(--transition-duration) var(--transition-timing-function); } }
     .parvus__slider--is-draggable {
       cursor: grab; }
     .parvus__slider--is-dragging {
@@ -151,7 +147,7 @@
     z-index: 7; }
     @media screen and (prefers-reduced-motion: no-preference) {
       .parvus__btn {
-        transition: transform var(--transition-duration) var(--transition-timing-function); } }
+        transition: transform var(--transition-duration) var(--transition-timing-function), opacity var(--transition-duration) var(--transition-timing-function); } }
     .parvus__btn--close {
       position: absolute;
       right: 1rem;
@@ -178,13 +174,20 @@
     .parvus__btn[disabled] {
       display: none; }
   @media screen and (prefers-reduced-motion: no-preference) {
-    .parvus--is-closing .parvus__btn--close {
+    .parvus--is-opening .parvus__btn--close,
+    .parvus--is-opening .parvus__btn--previous,
+    .parvus--is-opening .parvus__btn--next, .parvus--is-closing .parvus__btn--close,
+    .parvus--is-closing .parvus__btn--previous,
+    .parvus--is-closing .parvus__btn--next {
+      opacity: 0; } }
+  @media screen and (prefers-reduced-motion: no-preference) {
+    .parvus--is-vertical-closing .parvus__btn--close {
       transform: translateY(-300%); } }
   @media screen and (prefers-reduced-motion: no-preference) {
-    .parvus--is-closing .parvus__btn--previous {
+    .parvus--is-vertical-closing .parvus__btn--previous {
       transform: translateX(-300%); } }
   @media screen and (prefers-reduced-motion: no-preference) {
-    .parvus--is-closing .parvus__btn--next {
+    .parvus--is-vertical-closing .parvus__btn--next {
       transform: translateX(300%); } }
 
 @keyframes spin {
