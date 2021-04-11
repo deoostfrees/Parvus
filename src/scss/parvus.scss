@@ -109,14 +109,8 @@
 
     @media screen and (prefers-reduced-motion: no-preference) {
 
-      &:not(&--is-dragging) {
-        transition: transform var(--transition-duration) var(--transition-timing-function);
-      }
-
       &--animate:not(&--is-dragging) {
-        transition-duration: var(--transition-duration);
-        transition-property: transform;
-        transition-timing-function: var(--transition-timing-function);
+        transition: transform var(--transition-duration) var(--transition-timing-function);
       }
     }
 
@@ -203,7 +197,7 @@
     z-index: 7;
 
     @media screen and (prefers-reduced-motion: no-preference) {
-      transition: transform var(--transition-duration) var(--transition-timing-function);
+      transition: transform var(--transition-duration) var(--transition-timing-function), opacity var(--transition-duration) var(--transition-timing-function);
     }
 
 
@@ -243,7 +237,23 @@
     }
   }
 
+  &--is-opening,
   &--is-closing {
+
+
+
+    & .parvus__btn--close,
+    & .parvus__btn--previous,
+    & .parvus__btn--next {
+
+      @media screen and (prefers-reduced-motion: no-preference) {
+
+        opacity: 0;
+      }
+    }
+  }
+
+  &--is-vertical-closing {
 
 
 
