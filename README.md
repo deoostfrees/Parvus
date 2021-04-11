@@ -157,6 +157,9 @@ The following options are available:
   // All elements with this class triggers Parvus
   selector: '.lightbox',
 
+  // All `selector` in this `gallerySelector` are combined as a gallery. Overwrites the `data-group` attribute
+  gallerySelector: null,
+
   // Click outside to close Parvus
   docClose: true,
 
