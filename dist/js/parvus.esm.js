@@ -406,7 +406,8 @@ function Parvus(userOptions) {
       GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'true'); // Hide lightbox
 
       lightbox.setAttribute('aria-hidden', 'true');
-      lightbox.classList.remove('parvus--is-closing'); // Remove the hack to prevent animation during opening
+      lightbox.classList.remove('parvus--is-closing');
+      lightbox.classList.remove('parvus--is-vertical-closing'); // Remove the hack to prevent animation during opening
 
       GROUPS[activeGroup].slider.classList.remove('parvus__slider--animate');
       IMAGE.style.transform = '';
