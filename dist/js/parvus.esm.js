@@ -56,6 +56,7 @@ function Parvus(userOptions) {
     // Default options
     const OPTIONS = {
       selector: '.lightbox',
+      gallerySelector: null,
       docClose: true,
       scrollClose: false,
       swipeClose: true,
@@ -117,14 +118,30 @@ function Parvus(userOptions) {
 
     if (!lightbox) {
       createLightbox();
-    } // Get a list of all elements within the document
+    }
 
+    if (config.gallerySelector !== null) {
+      // Get a list of all elements within the document
+      const GALLERY_ELS = document.querySelectorAll(config.gallerySelector); // Execute a few things once per element
 
-    const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(config.selector); // Execute a few things once per element
+      GALLERY_ELS.forEach((galleryEl, index) => {
+        const GALLERY_INDEX = index; // Get a list of all elements within the gallery
 
-    LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
-      add(lightboxTriggerEl);
-    });
+        const LIGHTBOX_TRIGGER_ELS = galleryEl.querySelectorAll(config.selector); // Execute a few things once per element
+
+        LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
+          lightboxTriggerEl.setAttribute('data-group', `parvus-gallery-${GALLERY_INDEX}`);
+          add(lightboxTriggerEl);
+        });
+      });
+    } else {
+      // Get a list of all elements within the document
+      const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(config.selector); // Execute a few things once per element
+
+      LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
+        add(lightboxTriggerEl);
+      });
+    }
   };
   /**
    * Get group from element
@@ -498,14 +515,11 @@ function Parvus(userOptions) {
     const THUMBNAIL = GROUPS[activeGroup].gallery[index];
     const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
     const IMAGE_SIZE = IMAGE.getBoundingClientRect();
-    console.log('Thumb: ', THUMBNAIL_SIZE);
-    console.log('Image: ', IMAGE_SIZE);
     widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
     heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
     xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
     yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
     requestAnimationFrame(() => {
-      console.log(`translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`);
       IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
       IMAGE.style.transition = 'transform 0s, opacity 0s'; // Animate the difference reversal on the next tick
 
@@ -530,7 +544,6 @@ function Parvus(userOptions) {
 
     if (!IMAGE.hasAttribute('data-src')) {
       if (isOpening) {
-        console.log('yeah!');
         imageLoadAnimation(index);
       }
 
