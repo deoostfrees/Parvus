@@ -343,7 +343,7 @@ function Parvus(userOptions) {
 
     setTimeout(() => {
       GROUPS[activeGroup].slider.classList.add('parvus__slider--animate');
-    }, 1000); // Create and dispatch a new event
+    }, transitionDuration); // Create and dispatch a new event
 
     const OPEN_EVENT = new CustomEvent('open');
     lightbox.dispatchEvent(OPEN_EVENT);
