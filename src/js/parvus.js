@@ -26,10 +26,10 @@ export default function Parvus (userOptions) {
   let previousButton = null
   let nextButton = null
   let closeButton = null
-  let widthDifference
-  let heightDifference
-  let xDifference
-  let yDifference
+  let widthDifference = 0
+  let heightDifference = 0
+  let xDifference = 0
+  let yDifference = 0
   let drag = {}
   let isDraggingX = false
   let isDraggingY = false
@@ -384,8 +384,6 @@ export default function Parvus (userOptions) {
       throw new Error('Ups, I\'m aleady open.')
     }
 
-    updateConfig()
-
     // Save user’s focus
     lastFocus = document.activeElement
 
@@ -414,14 +412,9 @@ export default function Parvus (userOptions) {
     // Show lightbox
     lightbox.setAttribute('aria-hidden', 'false')
 
+    updateConfig()
+
     setFocusToFirstItem()
-
-    requestAnimationFrame(() => {
-      lightbox.classList.remove('parvus--is-opening')
-
-      lightboxOverlay.style.opacity = 1
-      lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
-    })
 
     // Show slider
     GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false')
@@ -429,10 +422,18 @@ export default function Parvus (userOptions) {
     // Load slide
     loadSlide(index)
 
+    requestAnimationFrame(() => {
+      lightbox.classList.remove('parvus--is-opening')
+
+      lightboxOverlay.style.opacity = 1
+      lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
+      lightboxOverlay.style.willChange = 'opacity'
+    })
+
     updateOffset()
 
     // Load image
-    loadImage(index, true)
+    loadImage(index, 'open')
 
     // Preload previous and next slide
     preload(index + 1)
@@ -496,6 +497,7 @@ export default function Parvus (userOptions) {
 
       lightboxOverlay.style.opacity = 0.1 // Set to 0.1 because otherwise event listener 'transitionend' does not fire if is vertical dragging
       lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction} ${transitionDuration}ms`
+      lightboxOverlay.style.willChange = 'auto'
     })
 
     lightboxOverlay.addEventListener('transitionend', () => {
@@ -543,7 +545,7 @@ export default function Parvus (userOptions) {
       return
     }
 
-    loadImage(index)
+    loadImage(index, 'preload')
   }
 
   /**
@@ -570,7 +572,7 @@ export default function Parvus (userOptions) {
   const createImage = function createImage (el, container) {
     const IMAGE = document.createElement('img')
     const FIGURE = document.createElement('figure')
-    const FIGURECAPTION = document.createElement('figurecaption')
+    const FIGURECAPTION = document.createElement('figcaption')
     const THUMBNAIL = el.querySelector('img')
 
     if (el.tagName === 'A') {
@@ -635,13 +637,13 @@ export default function Parvus (userOptions) {
    *
    * @param {number} index - Index to load
    */
-  const loadImage = function loadImage (index, isOpening) {
+  const loadImage = function loadImage (index, status) {
     const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[index]
     const IMAGE = IMAGE_CONTAINER.querySelector('img')
     const LOADING_INDICATOR = document.createElement('div')
 
     if (!IMAGE.hasAttribute('data-src')) {
-      if (isOpening) {
+      if (status === 'open') {
         imageLoadAnimation(index)
       }
 
@@ -663,7 +665,11 @@ export default function Parvus (userOptions) {
       IMAGE.setAttribute('width', IMAGE.naturalWidth)
       IMAGE.setAttribute('height', IMAGE.naturalHeight)
 
-      imageLoadAnimation(index)
+      if (status === 'preload') {
+        IMAGE.style.opacity = 1
+      } else {
+        imageLoadAnimation(index)
+      }
     }
 
     IMAGE.setAttribute('src', IMAGE.getAttribute('data-src'))
@@ -967,6 +973,7 @@ export default function Parvus (userOptions) {
     drag.startY = event.pageY
 
     GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging')
+    GROUPS[activeGroup].slider.style.willChange = 'transform'
   }
 
   /**
@@ -994,6 +1001,7 @@ export default function Parvus (userOptions) {
     pointerDown = false
 
     GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging')
+    GROUPS[activeGroup].slider.style.willChange = 'auto'
 
     if (drag.endX || drag.endY) {
       updateAfterDrag()
@@ -1018,6 +1026,7 @@ export default function Parvus (userOptions) {
     drag.startY = event.touches[0].pageY
 
     GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging')
+    GROUPS[activeGroup].slider.style.willChange = 'transform'
   }
 
   /**
@@ -1047,6 +1056,7 @@ export default function Parvus (userOptions) {
     pointerDown = false
 
     GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging')
+    GROUPS[activeGroup].slider.style.willChange = 'auto'
 
     if (drag.endX || drag.endY) {
       updateAfterDrag()

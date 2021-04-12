@@ -38,10 +38,10 @@
     let previousButton = null;
     let nextButton = null;
     let closeButton = null;
-    let widthDifference;
-    let heightDifference;
-    let xDifference;
-    let yDifference;
+    let widthDifference = 0;
+    let heightDifference = 0;
+    let xDifference = 0;
+    let yDifference = 0;
     let drag = {};
     let isDraggingX = false;
     let isDraggingY = false;
@@ -363,9 +363,8 @@
     const open = function open(index) {
       if (isOpen()) {
         throw new Error('Ups, I\'m aleady open.');
-      }
+      } // Save user’s focus
 
-      updateConfig(); // Save user’s focus
 
       lastFocus = document.activeElement; // Use `history.pushState()` to make sure the 'Back' button behavior
       // that aligns with the user's expectations
@@ -385,19 +384,21 @@
       lightbox.classList.add('parvus--is-opening'); // Show lightbox
 
       lightbox.setAttribute('aria-hidden', 'false');
-      setFocusToFirstItem();
-      requestAnimationFrame(() => {
-        lightbox.classList.remove('parvus--is-opening');
-        lightboxOverlay.style.opacity = 1;
-        lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
-      }); // Show slider
+      updateConfig();
+      setFocusToFirstItem(); // Show slider
 
       GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false'); // Load slide
 
       loadSlide(index);
+      requestAnimationFrame(() => {
+        lightbox.classList.remove('parvus--is-opening');
+        lightboxOverlay.style.opacity = 1;
+        lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
+        lightboxOverlay.style.willChange = 'opacity';
+      });
       updateOffset(); // Load image
 
-      loadImage(index, true); // Preload previous and next slide
+      loadImage(index, 'open'); // Preload previous and next slide
 
       preload(index + 1);
       preload(index - 1); // Hack to prevent animation during opening
@@ -451,6 +452,7 @@
         lightboxOverlay.style.opacity = 0.1; // Set to 0.1 because otherwise event listener 'transitionend' does not fire if is vertical dragging
 
         lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction} ${transitionDuration}ms`;
+        lightboxOverlay.style.willChange = 'auto';
       });
       lightboxOverlay.addEventListener('transitionend', () => {
         // Don't forget to cleanup our current element
@@ -488,7 +490,7 @@
         return;
       }
 
-      loadImage(index);
+      loadImage(index, 'preload');
     };
     /**
      * Load slide
@@ -517,7 +519,7 @@
     const createImage = function createImage(el, container) {
       const IMAGE = document.createElement('img');
       const FIGURE = document.createElement('figure');
-      const FIGURECAPTION = document.createElement('figurecaption');
+      const FIGURECAPTION = document.createElement('figcaption');
       const THUMBNAIL = el.querySelector('img');
 
       if (el.tagName === 'A') {
@@ -578,13 +580,13 @@
      */
 
 
-    const loadImage = function loadImage(index, isOpening) {
+    const loadImage = function loadImage(index, status) {
       const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[index];
       const IMAGE = IMAGE_CONTAINER.querySelector('img');
       const LOADING_INDICATOR = document.createElement('div');
 
       if (!IMAGE.hasAttribute('data-src')) {
-        if (isOpening) {
+        if (status === 'open') {
           imageLoadAnimation(index);
         }
 
@@ -603,7 +605,12 @@
 
         IMAGE.setAttribute('width', IMAGE.naturalWidth);
         IMAGE.setAttribute('height', IMAGE.naturalHeight);
-        imageLoadAnimation(index);
+
+        if (status === 'preload') {
+          IMAGE.style.opacity = 1;
+        } else {
+          imageLoadAnimation(index);
+        }
       };
 
       IMAGE.setAttribute('src', IMAGE.getAttribute('data-src'));
@@ -899,6 +906,7 @@
       drag.startX = event.pageX;
       drag.startY = event.pageY;
       GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging');
+      GROUPS[activeGroup].slider.style.willChange = 'transform';
     };
     /**
      * Mousemove event handler
@@ -925,6 +933,7 @@
       event.stopPropagation();
       pointerDown = false;
       GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
+      GROUPS[activeGroup].slider.style.willChange = 'auto';
 
       if (drag.endX || drag.endY) {
         updateAfterDrag();
@@ -946,6 +955,7 @@
       drag.startX = event.touches[0].pageX;
       drag.startY = event.touches[0].pageY;
       GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging');
+      GROUPS[activeGroup].slider.style.willChange = 'transform';
     };
     /**
      * Touchmove event handler
@@ -973,6 +983,7 @@
       event.stopPropagation();
       pointerDown = false;
       GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
+      GROUPS[activeGroup].slider.style.willChange = 'auto';
 
       if (drag.endX || drag.endY) {
         updateAfterDrag();

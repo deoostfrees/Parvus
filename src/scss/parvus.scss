@@ -91,7 +91,6 @@
     position: absolute;
     right: 0;
     top: 0;
-    will-change: opacity;
   }
 
   &__slider {
@@ -100,7 +99,6 @@
     position: absolute;
     right: 0;
     top: 0;
-    will-change: transform;
 
 
     &[aria-hidden='true'] {
@@ -129,21 +127,26 @@
     height: 100%;
     justify-content: center;
     width: 100%;
-    will-change: transform;
 
 
     &:not(&--is-active) {
       visibility: hidden;
 
       @media screen and (prefers-reduced-motion: no-preference) {
-        transition-duration: var(--transition-duration);
-        transition-property: visibility;
-        transition-timing-function: var(--transition-timing-function);
+        transition: visibility var(--transition-duration) var(--transition-timing-function);
       }
     }
 
     & figure {
       margin: 0;
+    }
+
+    & figcaption {
+      will-change: transform, opacity;
+
+      @media screen and (prefers-reduced-motion: no-preference) {
+        transition: transform var(--transition-duration) var(--transition-timing-function), opacity var(--transition-duration) var(--transition-timing-function);
+      }
     }
 
     & img {
@@ -244,7 +247,8 @@
 
     & .parvus__btn--close,
     & .parvus__btn--previous,
-    & .parvus__btn--next {
+    & .parvus__btn--next,
+    & figcaption {
 
       @media screen and (prefers-reduced-motion: no-preference) {
 
@@ -261,7 +265,8 @@
 
       @media screen and (prefers-reduced-motion: no-preference) {
 
-        transform: translateY(-300%);
+        transform: translateY(-100%);
+        opacity: 0;
       }
     }
 
@@ -269,7 +274,8 @@
 
       @media screen and (prefers-reduced-motion: no-preference) {
 
-        transform: translateX(-300%);
+        transform: translateX(-100%);
+        opacity: 0;
       }
     }
 
@@ -277,7 +283,17 @@
 
       @media screen and (prefers-reduced-motion: no-preference) {
 
-        transform: translateX(300%);
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+
+    & figcaption {
+
+      @media screen and (prefers-reduced-motion: no-preference) {
+
+        transform: translateY(100%);
+        opacity: 0;
       }
     }
   }
