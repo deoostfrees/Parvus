@@ -117,13 +117,13 @@ export default function Parvus (userOptions) {
     }
 
     if (config.gallerySelector !== null) {
-      // Get a list of all elements within the document
+      // Get a list of all `gallerySelector` elements within the document
       const GALLERY_ELS = document.querySelectorAll(config.gallerySelector)
 
       // Execute a few things once per element
       GALLERY_ELS.forEach((galleryEl, index) => {
         const GALLERY_INDEX = index
-        // Get a list of all elements within the gallery
+        // Get a list of all `selector` elements within the `gallerySelector`
         const LIGHTBOX_TRIGGER_ELS = galleryEl.querySelectorAll(config.selector)
 
         // Execute a few things once per element
@@ -133,8 +133,15 @@ export default function Parvus (userOptions) {
           add(lightboxTriggerEl)
         })
       })
+
+      // Get a list of the rest of the `selector` elements within the document
+      const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(`${config.selector}:not(.parvus-trigger)`)
+
+      LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
+        add(lightboxTriggerEl)
+      })
     } else {
-      // Get a list of all elements within the document
+      // Get a list of all `selector` elements within the document
       const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(config.selector)
 
       // Execute a few things once per element
@@ -189,14 +196,14 @@ export default function Parvus (userOptions) {
       GROUPS[newGroup].elementsLength++
 
       if (el.querySelector('img') !== null) {
+        const LIGHTBOX_INDICATOR_ICON = document.createElement('div')
+
         el.classList.add('parvus-zoom')
 
-        const lightboxIndicatorIcon = document.createElement('div')
+        LIGHTBOX_INDICATOR_ICON.className = 'parvus-zoom__indicator'
+        LIGHTBOX_INDICATOR_ICON.innerHTML = config.lightboxIndicatorIcon
 
-        lightboxIndicatorIcon.className = 'parvus-zoom__indicator'
-        lightboxIndicatorIcon.innerHTML = config.lightboxIndicatorIcon
-
-        el.appendChild(lightboxIndicatorIcon)
+        el.appendChild(LIGHTBOX_INDICATOR_ICON)
       }
 
       el.classList.add('parvus-trigger')
@@ -220,11 +227,51 @@ export default function Parvus (userOptions) {
    * @param {HTMLElement} el - Element to remove
    */
   const remove = function remove (el) {
-    if (el.classList.contains('parvus-zoom')) {
-      el.classList.remove('parvus-zoom')
+    const GROUP = getGroup(el)
+
+    // Check if element exists
+    if (GROUPS[GROUP].gallery.indexOf(el) === -1) {
+      throw new Error(`Ups, I can't find a slide for the element ${el}.`)
+    } else {
+      const SLIDE_INDEX = GROUPS[GROUP].gallery.indexOf(el)
+
+      // If the element to be removed is the currently visible slide
+      if (isOpen() && GROUP === activeGroup && SLIDE_INDEX === GROUPS[GROUP].currentIndex) {
+        if (GROUPS[GROUP].elementsLength === 1) {
+          close()
+          throw new Error('Ups, I\'ve closed. There are no slides more to show.')
+        } else {
+          // TODO If there is only one slide left, deactivate horizontal dragging/ swiping
+          // TODO Recalculate counter
+          // TODO Set new absolute position per slide
+
+          // If the first slide is displayed
+          if (GROUPS[GROUP].currentIndex === 0) {
+            next()
+          } else {
+            previous()
+          }
+        }
+      }
+
+      // TODO Remove element
+      GROUPS[GROUP].elementsLength--
+
+      // Remove lightbox indicator icon if necessary
+      if (el.classList.contains('parvus-zoom')) {
+        const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator')
+
+        el.classList.remove('parvus-zoom')
+        el.removeChild(LIGHTBOX_INDICATOR_ICON)
+      }
 
       // Unbind click event handler
       el.removeEventListener('click', triggerParvus)
+
+      el.classList.remove('parvus-trigger')
+
+      // Remove slide
+      GROUPS[GROUP].slider.removeChild(GROUPS[GROUP].sliderElements[SLIDE_INDEX])
     }
   }
 
@@ -351,9 +398,6 @@ export default function Parvus (userOptions) {
 
     history.pushState(STATE_OBJ, 'Image', URL)
 
-    // Set current index
-    GROUPS[activeGroup].currentIndex = index
-
     bindEvents()
 
     // Hide all non lightbox elements from assistive technology
@@ -382,16 +426,16 @@ export default function Parvus (userOptions) {
     GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false')
 
     // Load slide
-    loadSlide(GROUPS[activeGroup].currentIndex)
+    loadSlide(index)
 
     updateOffset()
 
     // Load image
-    loadImage(GROUPS[activeGroup].currentIndex, true)
+    loadImage(index, true)
 
     // Preload previous and next slide
-    preload(GROUPS[activeGroup].currentIndex + 1)
-    preload(GROUPS[activeGroup].currentIndex - 1)
+    preload(index + 1)
+    preload(index - 1)
 
     // Hack to prevent animation during opening
     setTimeout(() => {
@@ -415,9 +459,9 @@ export default function Parvus (userOptions) {
 
     const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[GROUPS[activeGroup].currentIndex]
     const IMAGE = IMAGE_CONTAINER.querySelector('img')
-    const THUMBNAIL = GROUPS[activeGroup].gallery[GROUPS[activeGroup].currentIndex]
-    const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect()
     const IMAGE_SIZE = IMAGE.getBoundingClientRect()
+    const THUMBNAIL = config.backFocus ? GROUPS[activeGroup].gallery[GROUPS[activeGroup].currentIndex] : lastFocus
+    const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect()
 
     unbindEvents()
 
@@ -441,12 +485,10 @@ export default function Parvus (userOptions) {
     lightbox.classList.add('parvus--is-closing')
 
     requestAnimationFrame(() => {
-      if (config.backFocus) {
-        widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
-        heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
-        xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
-        yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
-      }
+      widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
+      heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
+      xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
+      yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
 
       IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
       IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}`
@@ -565,9 +607,9 @@ export default function Parvus (userOptions) {
   const imageLoadAnimation = function imageLoadAnimation (index) {
     const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[index]
     const IMAGE = IMAGE_CONTAINER.querySelector('img')
+    const IMAGE_SIZE = IMAGE.getBoundingClientRect()
     const THUMBNAIL = GROUPS[activeGroup].gallery[index]
     const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect()
-    const IMAGE_SIZE = IMAGE.getBoundingClientRect()
 
     widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
     heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
@@ -608,17 +650,17 @@ export default function Parvus (userOptions) {
     // Create loading indicator
     LOADING_INDICATOR.className = 'parvus__loader'
     LOADING_INDICATOR.setAttribute('role', 'progressbar')
-    LOADING_INDICATOR.setAttribute('aria-label', config.i18n[config.lang].lightboxLOADING_INDICATORLabel)
+    LOADING_INDICATOR.setAttribute('aria-label', config.i18n[config.lang].lightboxLoadingIndicatorLabel)
 
     // Add loading indicator to container
     IMAGE_CONTAINER.appendChild(LOADING_INDICATOR)
 
     IMAGE.onload = () => {
+      IMAGE_CONTAINER.removeChild(LOADING_INDICATOR)
+
       // Set image width and height
       IMAGE.setAttribute('width', IMAGE.naturalWidth)
       IMAGE.setAttribute('height', IMAGE.naturalHeight)
-
-      IMAGE_CONTAINER.removeChild(LOADING_INDICATOR)
 
       imageLoadAnimation(index)
     }
@@ -774,7 +816,9 @@ export default function Parvus (userOptions) {
 
     activeGroup = getGroup(this)
 
-    open(GROUPS[activeGroup].gallery.indexOf(this))
+    GROUPS[activeGroup].currentIndex = GROUPS[activeGroup].gallery.indexOf(this)
+
+    open(GROUPS[activeGroup].currentIndex)
   }
 
   /**
