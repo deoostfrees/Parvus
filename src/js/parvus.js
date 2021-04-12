@@ -493,7 +493,8 @@ export default function Parvus (userOptions) {
       yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
 
       IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
-      IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}`
+      IMAGE.style.opacity = 0
+      IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction}`
 
       lightboxOverlay.style.opacity = 0.1 // Set to 0.1 because otherwise event listener 'transitionend' does not fire if is vertical dragging
       lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction} ${transitionDuration}ms`
