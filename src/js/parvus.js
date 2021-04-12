@@ -215,6 +215,7 @@ export default function Parvus (userOptions) {
 
       if (isOpen() && newGroup === activeGroup) {
         updateConfig()
+        updateFocus()
       }
     } else {
       console.log('Ups, element already added.')
@@ -687,6 +688,8 @@ export default function Parvus (userOptions) {
       loadSlide(GROUPS[activeGroup].currentIndex)
       loadImage(GROUPS[activeGroup].currentIndex)
       updateOffset()
+      updateConfig()
+      updateFocus('left')
       preload(GROUPS[activeGroup].currentIndex - 1)
     }
   }
@@ -709,6 +712,8 @@ export default function Parvus (userOptions) {
       loadSlide(GROUPS[activeGroup].currentIndex)
       loadImage(GROUPS[activeGroup].currentIndex)
       updateOffset()
+      updateConfig()
+      updateFocus('right')
       preload(GROUPS[activeGroup].currentIndex + 1)
     }
   }
@@ -740,6 +745,31 @@ export default function Parvus (userOptions) {
 
     GROUPS[activeGroup].slider.style.transform = `translate3d(${offset}px, 0, 0)`
     offsetTmp = offset
+  }
+
+  /**
+   * Update focus
+   *
+   * @param {string} dir - Current slide direction
+   */
+  const updateFocus = function updateFocus (dir) {
+    if (GROUPS[activeGroup].elementsLength === 1) {
+      closeButton.focus()
+    } else {
+      // If the first slide is displayed
+      if (GROUPS[activeGroup].currentIndex === 0) {
+        nextButton.focus()
+        // If the last slide is displayed
+      } else if (GROUPS[activeGroup].currentIndex === GROUPS[activeGroup].elementsLength - 1) {
+        previousButton.focus()
+      } else {
+        if (dir === 'left') {
+          previousButton.focus()
+        } else {
+          nextButton.focus()
+        }
+      }
+    }
   }
 
   /**
@@ -800,10 +830,24 @@ export default function Parvus (userOptions) {
       nextButton.setAttribute('aria-hidden', 'true')
       nextButton.disabled = true
     } else {
-      previousButton.setAttribute('aria-hidden', 'false')
-      previousButton.disabled = false
-      nextButton.setAttribute('aria-hidden', 'false')
-      nextButton.disabled = false
+      // If the first slide is displayed
+      if (GROUPS[activeGroup].currentIndex === 0) {
+        previousButton.setAttribute('aria-hidden', 'true')
+        previousButton.disabled = true
+        nextButton.setAttribute('aria-hidden', 'false')
+        nextButton.disabled = false
+        // If the last slide is displayed
+      } else if (GROUPS[activeGroup].currentIndex === GROUPS[activeGroup].elementsLength - 1) {
+        previousButton.setAttribute('aria-hidden', 'false')
+        previousButton.disabled = false
+        nextButton.setAttribute('aria-hidden', 'true')
+        nextButton.disabled = true
+      } else {
+        previousButton.setAttribute('aria-hidden', 'false')
+        previousButton.disabled = false
+        nextButton.setAttribute('aria-hidden', 'false')
+        nextButton.disabled = false
+      }
     }
   }
 
