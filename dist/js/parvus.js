@@ -216,6 +216,7 @@
 
         if (isOpen() && newGroup === activeGroup) {
           updateConfig();
+          updateFocus();
         }
       } else {
         console.log('Ups, element already added.');
@@ -394,16 +395,16 @@
       GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false'); // Load slide
 
       loadSlide(index);
-      updateOffset(); // Hack to prevent animation during opening
-
-      setTimeout(() => {
-        GROUPS[activeGroup].slider.classList.add('parvus__slider--animate');
-      }, transitionDuration); // Load image
+      updateOffset(); // Load image
 
       loadImage(index, true); // Preload previous and next slide
 
       preload(index + 1);
-      preload(index - 1); // Create and dispatch a new event
+      preload(index - 1); // Hack to prevent animation during opening
+
+      setTimeout(() => {
+        GROUPS[activeGroup].slider.classList.add('parvus__slider--animate');
+      }, transitionDuration); // Create and dispatch a new event
 
       const OPEN_EVENT = new CustomEvent('open');
       lightbox.dispatchEvent(OPEN_EVENT);
@@ -424,7 +425,8 @@
       const IMAGE_SIZE = IMAGE.getBoundingClientRect();
       const THUMBNAIL = config.backFocus ? GROUPS[activeGroup].gallery[GROUPS[activeGroup].currentIndex] : lastFocus;
       const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
-      unbindEvents(); // Remove entry in browser history
+      unbindEvents();
+      clearDrag(); // Remove entry in browser history
 
       if (history.state !== null) {
         if (history.state.parvus === 'close') {
@@ -451,8 +453,7 @@
         lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction} ${transitionDuration}ms`;
       });
       lightboxOverlay.addEventListener('transitionend', () => {
-        clearDrag(); // Don't forget to cleanup our current element
-
+        // Don't forget to cleanup our current element
         leaveSlide(GROUPS[activeGroup].currentIndex); // Reenable the user’s focus
 
         lastFocus = config.backFocus ? GROUPS[activeGroup].gallery[GROUPS[activeGroup].currentIndex] : lastFocus;
@@ -626,6 +627,8 @@
         loadSlide(GROUPS[activeGroup].currentIndex);
         loadImage(GROUPS[activeGroup].currentIndex);
         updateOffset();
+        updateConfig();
+        updateFocus('left');
         preload(GROUPS[activeGroup].currentIndex - 1);
       }
     };
@@ -647,6 +650,8 @@
         loadSlide(GROUPS[activeGroup].currentIndex);
         loadImage(GROUPS[activeGroup].currentIndex);
         updateOffset();
+        updateConfig();
+        updateFocus('right');
         preload(GROUPS[activeGroup].currentIndex + 1);
       }
     };
@@ -678,6 +683,31 @@
       offset = -GROUPS[activeGroup].currentIndex * lightbox.offsetWidth;
       GROUPS[activeGroup].slider.style.transform = `translate3d(${offset}px, 0, 0)`;
       offsetTmp = offset;
+    };
+    /**
+     * Update focus
+     *
+     * @param {string} dir - Current slide direction
+     */
+
+
+    const updateFocus = function updateFocus(dir) {
+      if (GROUPS[activeGroup].elementsLength === 1) {
+        closeButton.focus();
+      } else {
+        // If the first slide is displayed
+        if (GROUPS[activeGroup].currentIndex === 0) {
+          nextButton.focus(); // If the last slide is displayed
+        } else if (GROUPS[activeGroup].currentIndex === GROUPS[activeGroup].elementsLength - 1) {
+          previousButton.focus();
+        } else {
+          if (dir === 'left') {
+            previousButton.focus();
+          } else {
+            nextButton.focus();
+          }
+        }
+      }
     };
     /**
      * Clear drag after touchend event
@@ -739,10 +769,23 @@
         nextButton.setAttribute('aria-hidden', 'true');
         nextButton.disabled = true;
       } else {
-        previousButton.setAttribute('aria-hidden', 'false');
-        previousButton.disabled = false;
-        nextButton.setAttribute('aria-hidden', 'false');
-        nextButton.disabled = false;
+        // If the first slide is displayed
+        if (GROUPS[activeGroup].currentIndex === 0) {
+          previousButton.setAttribute('aria-hidden', 'true');
+          previousButton.disabled = true;
+          nextButton.setAttribute('aria-hidden', 'false');
+          nextButton.disabled = false; // If the last slide is displayed
+        } else if (GROUPS[activeGroup].currentIndex === GROUPS[activeGroup].elementsLength - 1) {
+          previousButton.setAttribute('aria-hidden', 'false');
+          previousButton.disabled = false;
+          nextButton.setAttribute('aria-hidden', 'true');
+          nextButton.disabled = true;
+        } else {
+          previousButton.setAttribute('aria-hidden', 'false');
+          previousButton.disabled = false;
+          nextButton.setAttribute('aria-hidden', 'false');
+          nextButton.disabled = false;
+        }
       }
     };
     /**
