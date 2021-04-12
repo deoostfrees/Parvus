@@ -441,13 +441,11 @@ function Parvus(userOptions) {
       heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
       xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
       yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
-      IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`; // IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}`
-
+      IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
       IMAGE.style.opacity = 0;
       IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
-      lightboxOverlay.style.opacity = 0.1; // Set to 0.1 because otherwise event listener 'transitionend' does not fire if is vertical dragging
-
-      lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction} ${transitionDuration}ms`;
+      lightboxOverlay.style.opacity = 0;
+      lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
       lightboxOverlay.style.willChange = 'auto';
     });
     lightboxOverlay.addEventListener('transitionend', () => {
@@ -586,6 +584,10 @@ function Parvus(userOptions) {
         imageLoadAnimation(index);
       }
 
+      if (status === 'navigate') {
+        IMAGE.style.opacity = 1;
+      }
+
       return;
     } // Create loading indicator
 
@@ -628,7 +630,7 @@ function Parvus(userOptions) {
 
       --GROUPS[activeGroup].currentIndex;
       loadSlide(GROUPS[activeGroup].currentIndex);
-      loadImage(GROUPS[activeGroup].currentIndex);
+      loadImage(GROUPS[activeGroup].currentIndex, 'navigate');
       updateOffset();
       updateConfig();
       updateFocus('left');
@@ -651,7 +653,7 @@ function Parvus(userOptions) {
 
       ++GROUPS[activeGroup].currentIndex;
       loadSlide(GROUPS[activeGroup].currentIndex);
-      loadImage(GROUPS[activeGroup].currentIndex);
+      loadImage(GROUPS[activeGroup].currentIndex, 'navigate');
       updateOffset();
       updateConfig();
       updateFocus('right');
@@ -1005,7 +1007,8 @@ function Parvus(userOptions) {
       isDraggingY = false;
     } else if (Math.abs(MOVEMENT_Y) > 0 && !isDraggingX && config.swipeClose && !isReducedMotion) {
       // Vertical swipe
-      if (MOVEMENT_Y_DISTANCE <= 100) {
+      if (MOVEMENT_Y_DISTANCE <= 96) {
+        // Set to 96 because otherwise event listener 'transitionend' does not fire if is vertical dragging
         lightboxOverlayOpacity = 1 - MOVEMENT_Y_DISTANCE / 100;
       }
 

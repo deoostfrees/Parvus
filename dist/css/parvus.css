@@ -188,11 +188,11 @@
       opacity: 0; } }
   @media screen and (prefers-reduced-motion: no-preference) {
     .parvus--is-vertical-closing .parvus__btn--previous {
-      transform: translateX(-100%);
+      transform: translate(-100%, -50%);
       opacity: 0; } }
   @media screen and (prefers-reduced-motion: no-preference) {
     .parvus--is-vertical-closing .parvus__btn--next {
-      transform: translateX(100%);
+      transform: translate(100%, -50%);
       opacity: 0; } }
   @media screen and (prefers-reduced-motion: no-preference) {
     .parvus--is-vertical-closing figcaption {
