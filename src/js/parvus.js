@@ -11,14 +11,12 @@ export default function Parvus (userOptions) {
   const GROUP_ATTS = {
     gallery: [],
     slider: null,
-    sliderElements: [],
-    elementsLength: 0,
-    currentIndex: 0,
-    x: 0
+    sliderElements: []
   }
   const GROUPS = {}
   let newGroup = null
   let activeGroup = null
+  let currentIndex = 0
   let config = {}
   let lightbox = null
   let lightboxOverlay = null
@@ -158,7 +156,13 @@ export default function Parvus (userOptions) {
    * @return {string}
    */
   const getGroup = function getGroup (el) {
-    return el.hasAttribute('data-group') ? el.getAttribute('data-group') : 'default'
+    const GROUP_ID = Math.floor(Math.random() * 10000)
+
+    if (!el.hasAttribute('data-group') || el.getAttribute('data-group') === '') {
+      el.setAttribute('data-group', `default-${GROUP_ID}`)
+    }
+
+    return el.getAttribute('data-group')
   }
 
   /**
@@ -186,14 +190,11 @@ export default function Parvus (userOptions) {
 
     if (!Object.prototype.hasOwnProperty.call(GROUPS, newGroup)) {
       GROUPS[newGroup] = copyObject(GROUP_ATTS)
-
-      createSlider()
     }
 
     // Check if element already exists
     if (GROUPS[newGroup].gallery.indexOf(el) === -1) {
       GROUPS[newGroup].gallery.push(el)
-      GROUPS[newGroup].elementsLength++
 
       if (el.querySelector('img') !== null) {
         const LIGHTBOX_INDICATOR_ICON = document.createElement('div')
@@ -210,8 +211,6 @@ export default function Parvus (userOptions) {
 
       // Bind click event handler
       el.addEventListener('click', triggerParvus)
-
-      createSlide(el)
 
       if (isOpen() && newGroup === activeGroup) {
         updateConfig()
@@ -237,8 +236,8 @@ export default function Parvus (userOptions) {
       const SLIDE_INDEX = GROUPS[GROUP].gallery.indexOf(el)
 
       // If the element to be removed is the currently visible slide
-      if (isOpen() && GROUP === activeGroup && SLIDE_INDEX === GROUPS[GROUP].currentIndex) {
-        if (GROUPS[GROUP].elementsLength === 1) {
+      if (isOpen() && GROUP === activeGroup && SLIDE_INDEX === currentIndex) {
+        if (GROUPS[GROUP].gallery.length === 1) {
           close()
           throw new Error('Ups, I\'ve closed. There are no slides more to show.')
         } else {
@@ -247,7 +246,7 @@ export default function Parvus (userOptions) {
           // TODO Set new absolute position per slide
 
           // If the first slide is displayed
-          if (GROUPS[GROUP].currentIndex === 0) {
+          if (currentIndex === 0) {
             next()
           } else {
             previous()
@@ -256,7 +255,6 @@ export default function Parvus (userOptions) {
       }
 
       // TODO Remove element
-      GROUPS[GROUP].elementsLength--
 
       // Remove lightbox indicator icon if necessary
       if (el.classList.contains('parvus-zoom')) {
@@ -338,26 +336,26 @@ export default function Parvus (userOptions) {
    *
    */
   const createSlider = function createSlider () {
-    GROUPS[newGroup].slider = document.createElement('div')
-    GROUPS[newGroup].slider.className = 'parvus__slider'
+    GROUPS[activeGroup].slider = document.createElement('div')
+    GROUPS[activeGroup].slider.className = 'parvus__slider'
 
     // Hide slider
-    GROUPS[newGroup].slider.setAttribute('aria-hidden', 'true')
+    GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'true')
 
-    lightbox.appendChild(GROUPS[newGroup].slider)
+    lightbox.appendChild(GROUPS[activeGroup].slider)
   }
 
   /**
    * Create a slide
    *
    */
-  const createSlide = function createSlide (el) {
+  const createSlide = function createSlide (el, index) {
     const SLIDER_ELEMENT = document.createElement('div')
     const SLIDER_ELEMENT_CONTENT = document.createElement('div')
 
     SLIDER_ELEMENT.className = 'parvus__slide'
     SLIDER_ELEMENT.style.position = 'absolute'
-    SLIDER_ELEMENT.style.left = `${GROUPS[newGroup].x * 100}%`
+    SLIDER_ELEMENT.style.left = `${index * 100}%`
 
     // Hide slide
     SLIDER_ELEMENT.setAttribute('aria-hidden', 'true')
@@ -367,11 +365,18 @@ export default function Parvus (userOptions) {
     // Add slide content container to slider element
     SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT)
 
-    // Add slider element to slider
-    GROUPS[newGroup].slider.appendChild(SLIDER_ELEMENT)
-    GROUPS[newGroup].sliderElements.push(SLIDER_ELEMENT)
+    GROUPS[activeGroup].sliderElements[index] = SLIDER_ELEMENT
 
-    ++GROUPS[newGroup].x
+    // Add slider element to slider
+    if (index === currentIndex) {
+      GROUPS[activeGroup].slider.appendChild(SLIDER_ELEMENT)
+    }
+
+    if (index > currentIndex) {
+      GROUPS[activeGroup].sliderElements[currentIndex].after(SLIDER_ELEMENT)
+    } else {
+      GROUPS[activeGroup].sliderElements[currentIndex].before(SLIDER_ELEMENT)
+    }
   }
 
   /**
@@ -411,6 +416,9 @@ export default function Parvus (userOptions) {
 
     // Show lightbox
     lightbox.setAttribute('aria-hidden', 'false')
+
+    createSlider()
+    createSlide(GROUPS[activeGroup].gallery[index], index)
 
     updateConfig()
 
@@ -459,10 +467,10 @@ export default function Parvus (userOptions) {
       throw new Error('Ups, I\'m already closed.')
     }
 
-    const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[GROUPS[activeGroup].currentIndex]
+    const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[currentIndex]
     const IMAGE = IMAGE_CONTAINER.querySelector('img')
     const IMAGE_SIZE = IMAGE.getBoundingClientRect()
-    const THUMBNAIL = config.backFocus ? GROUPS[activeGroup].gallery[GROUPS[activeGroup].currentIndex] : lastFocus
+    const THUMBNAIL = config.backFocus ? GROUPS[activeGroup].gallery[currentIndex] : lastFocus
     const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect()
 
     unbindEvents()
@@ -503,17 +511,14 @@ export default function Parvus (userOptions) {
 
     lightboxOverlay.addEventListener('transitionend', () => {
       // Don't forget to cleanup our current element
-      leaveSlide(GROUPS[activeGroup].currentIndex)
+      leaveSlide(currentIndex)
 
       // Reenable the user’s focus
-      lastFocus = config.backFocus ? GROUPS[activeGroup].gallery[GROUPS[activeGroup].currentIndex] : lastFocus
+      lastFocus = config.backFocus ? GROUPS[activeGroup].gallery[currentIndex] : lastFocus
 
       lastFocus.focus({
         preventScroll: true
       })
-
-      // Hide slider
-      GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'true')
 
       // Hide lightbox
       lightbox.setAttribute('aria-hidden', 'true')
@@ -521,8 +526,8 @@ export default function Parvus (userOptions) {
       lightbox.classList.remove('parvus--is-closing')
       lightbox.classList.remove('parvus--is-vertical-closing')
 
-      // Remove the hack to prevent animation during opening
-      GROUPS[activeGroup].slider.classList.remove('parvus__slider--animate')
+      // Remove slider
+      GROUPS[activeGroup].slider.remove()
 
       IMAGE.style.transform = ''
     },
@@ -542,10 +547,11 @@ export default function Parvus (userOptions) {
    * @param {number} index - Index to preload
    */
   const preload = function preload (index) {
-    if (GROUPS[activeGroup].sliderElements[index] === undefined) {
+    if (GROUPS[activeGroup].gallery[index] === undefined) {
       return
     }
 
+    createSlide(GROUPS[activeGroup].gallery[index], index)
     loadImage(index, 'preload')
   }
 
@@ -573,7 +579,7 @@ export default function Parvus (userOptions) {
   const createImage = function createImage (el, container) {
     const IMAGE = document.createElement('img')
     const FIGURE = document.createElement('figure')
-    const FIGURECAPTION = document.createElement('figcaption')
+    const FIGCAPTION = document.createElement('figcaption')
     const THUMBNAIL = el.querySelector('img')
 
     if (el.tagName === 'A') {
@@ -589,7 +595,7 @@ export default function Parvus (userOptions) {
       IMAGE.setAttribute('data-src', el.getAttribute('data-target'))
     }
 
-    // Add srcset if available
+    // Prepare srcset if available
     if (el.hasAttribute('data-srcset') && el.getAttribute('data-srcset') !== '') {
       IMAGE.setAttribute('data-srcset', el.getAttribute('data-srcset'))
     }
@@ -600,9 +606,9 @@ export default function Parvus (userOptions) {
 
     // Add caption if available
     if (el.hasAttribute('data-caption') && el.getAttribute('data-caption') !== '') {
-      FIGURECAPTION.innerHTML = el.getAttribute('data-caption')
+      FIGCAPTION.innerHTML = el.getAttribute('data-caption')
 
-      FIGURE.appendChild(FIGURECAPTION)
+      FIGURE.appendChild(FIGCAPTION)
     }
 
     container.appendChild(FIGURE)
@@ -702,18 +708,18 @@ export default function Parvus (userOptions) {
       return
     }
 
-    if (GROUPS[activeGroup].currentIndex > 0) {
-      leaveSlide(GROUPS[activeGroup].currentIndex)
+    if (currentIndex > 0) {
+      leaveSlide(currentIndex)
 
       // TODO
-      --GROUPS[activeGroup].currentIndex
+      --currentIndex
 
-      loadSlide(GROUPS[activeGroup].currentIndex)
-      loadImage(GROUPS[activeGroup].currentIndex, 'navigate')
+      loadSlide(currentIndex)
+      loadImage(currentIndex, 'navigate')
       updateOffset()
       updateConfig()
       updateFocus('left')
-      preload(GROUPS[activeGroup].currentIndex - 1)
+      preload(currentIndex - 1)
     }
   }
 
@@ -726,18 +732,18 @@ export default function Parvus (userOptions) {
       return
     }
 
-    if (GROUPS[activeGroup].currentIndex < GROUPS[activeGroup].elementsLength - 1) {
-      leaveSlide(GROUPS[activeGroup].currentIndex)
+    if (currentIndex < GROUPS[activeGroup].gallery.length - 1) {
+      leaveSlide(currentIndex)
 
       // TODO
-      ++GROUPS[activeGroup].currentIndex
+      ++currentIndex
 
-      loadSlide(GROUPS[activeGroup].currentIndex)
-      loadImage(GROUPS[activeGroup].currentIndex, 'navigate')
+      loadSlide(currentIndex)
+      loadImage(currentIndex, 'navigate')
       updateOffset()
       updateConfig()
       updateFocus('right')
-      preload(GROUPS[activeGroup].currentIndex + 1)
+      preload(currentIndex + 1)
     }
   }
 
@@ -764,7 +770,7 @@ export default function Parvus (userOptions) {
   const updateOffset = function updateOffset () {
     activeGroup = activeGroup !== null ? activeGroup : newGroup
 
-    offset = -GROUPS[activeGroup].currentIndex * lightbox.offsetWidth
+    offset = -currentIndex * lightbox.offsetWidth
 
     GROUPS[activeGroup].slider.style.transform = `translate3d(${offset}px, 0, 0)`
     offsetTmp = offset
@@ -776,14 +782,14 @@ export default function Parvus (userOptions) {
    * @param {string} dir - Current slide direction
    */
   const updateFocus = function updateFocus (dir) {
-    if (GROUPS[activeGroup].elementsLength === 1) {
+    if (GROUPS[activeGroup].gallery.length === 1) {
       closeButton.focus()
     } else {
       // If the first slide is displayed
-      if (GROUPS[activeGroup].currentIndex === 0) {
+      if (currentIndex === 0) {
         nextButton.focus()
         // If the last slide is displayed
-      } else if (GROUPS[activeGroup].currentIndex === GROUPS[activeGroup].elementsLength - 1) {
+      } else if (currentIndex === GROUPS[activeGroup].gallery.length - 1) {
         previousButton.focus()
       } else {
         if (dir === 'left') {
@@ -818,9 +824,9 @@ export default function Parvus (userOptions) {
     const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
 
-    if (isDraggingX && MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE >= config.threshold && GROUPS[activeGroup].currentIndex > 0) {
+    if (isDraggingX && MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex > 0) {
       previous()
-    } else if (isDraggingX && MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE >= config.threshold && GROUPS[activeGroup].currentIndex !== GROUPS[activeGroup].elementsLength - 1) {
+    } else if (isDraggingX && MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex !== GROUPS[activeGroup].gallery.length - 1) {
       next()
     } else if (isDraggingY && MOVEMENT_Y_DISTANCE > 0) {
       if (MOVEMENT_Y_DISTANCE >= config.threshold && config.swipeClose) {
@@ -842,25 +848,25 @@ export default function Parvus (userOptions) {
    *
    */
   const updateConfig = function updateConfig () {
-    if ((config.swipeClose && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable')) || (GROUPS[activeGroup].elementsLength > 1 && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable'))) {
+    if ((config.swipeClose && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable')) || (GROUPS[activeGroup].gallery.length > 1 && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable'))) {
       GROUPS[activeGroup].slider.classList.add('parvus__slider--is-draggable')
     }
 
     // Hide buttons if necessary
-    if (GROUPS[activeGroup].elementsLength === 1) {
+    if (GROUPS[activeGroup].gallery.length === 1) {
       previousButton.setAttribute('aria-hidden', 'true')
       previousButton.disabled = true
       nextButton.setAttribute('aria-hidden', 'true')
       nextButton.disabled = true
     } else {
       // If the first slide is displayed
-      if (GROUPS[activeGroup].currentIndex === 0) {
+      if (currentIndex === 0) {
         previousButton.setAttribute('aria-hidden', 'true')
         previousButton.disabled = true
         nextButton.setAttribute('aria-hidden', 'false')
         nextButton.disabled = false
         // If the last slide is displayed
-      } else if (GROUPS[activeGroup].currentIndex === GROUPS[activeGroup].elementsLength - 1) {
+      } else if (currentIndex === GROUPS[activeGroup].gallery.length - 1) {
         previousButton.setAttribute('aria-hidden', 'false')
         previousButton.disabled = false
         nextButton.setAttribute('aria-hidden', 'true')
@@ -883,9 +889,9 @@ export default function Parvus (userOptions) {
 
     activeGroup = getGroup(this)
 
-    GROUPS[activeGroup].currentIndex = GROUPS[activeGroup].gallery.indexOf(this)
+    currentIndex = GROUPS[activeGroup].gallery.indexOf(this)
 
-    open(GROUPS[activeGroup].currentIndex)
+    open(currentIndex)
   }
 
   /**
@@ -1091,7 +1097,7 @@ export default function Parvus (userOptions) {
     const MOVEMENT_Y = drag.endY - drag.startY
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
 
-    if (Math.abs(MOVEMENT_X) > 0 && !isDraggingY && GROUPS[activeGroup].elementsLength > 1 && !isReducedMotion) {
+    if (Math.abs(MOVEMENT_X) > 0 && !isDraggingY && GROUPS[activeGroup].gallery.length > 1 && !isReducedMotion) {
       // Horizontal swipe
       GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`
 
