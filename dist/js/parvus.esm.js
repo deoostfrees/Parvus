@@ -210,6 +210,8 @@ function Parvus(userOptions) {
       el.addEventListener('click', triggerParvus);
 
       if (isOpen() && newGroup === activeGroup) {
+        createSlide(el, GROUPS[newGroup].gallery.indexOf(el));
+        loadImage(GROUPS[newGroup].gallery.indexOf(el), 'preload');
         updateConfig();
         updateFocus();
       }
