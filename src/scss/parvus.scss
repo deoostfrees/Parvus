@@ -1,6 +1,6 @@
 :root {
   --transition-duration: 300ms;
-  --transition-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
+  --transition-timing-function: cubic-bezier(0.5, 0, 0.14, 1);
 
   --overlay-color: hsl(23, 40%, 96%);
   --overlay-text: hsl(228, 24%, 23%);
@@ -142,6 +142,8 @@
     }
 
     & figcaption {
+      padding: 1rem;
+      text-align: center;
       will-change: transform, opacity;
 
       @media screen and (prefers-reduced-motion: no-preference) {
@@ -152,10 +154,12 @@
     & img {
       display: block;
       height: auto;
-      transform-origin: left top;
-      width: auto;
+      margin-left: auto;
+      margin-right: auto;
       max-height: var(--image-max-height);
       max-width: var(--image-max-width);
+      transform-origin: left top;
+      width: auto;
     }
   }
 
