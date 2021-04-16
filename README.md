@@ -64,28 +64,12 @@ Parvus is also available on npm.
 
 ## Usage
 
-The standard way of using Parvus is a linked thumbnail image with the class name `lightbox` to a larger image:
+The standard way of using Parvus is a linked thumbnail image with the class `lightbox` to a larger image:
 
 ```html
 <a href="path/to/image.jpg" class="lightbox">
   <img src="path/to/thumbnail.jpg" alt="">
 </a>
-```
-
-You can also use a text link. Set the `data-alt` attribute for the alternative text of the image.
-
-```html
-<a href="path/to/image.jpg" class="lightbox" data-alt="">
-  Open Image
-</a>
-```
-
-You can also use a button. Set the `data-alt` attribute for the alternative text of the image.
-
-```html
-<button type="button" class="lightbox" data-target="path/to/image.jpg" data-alt="">
-  Open image
-</button>
 ```
 
 Initialize the script by running:
@@ -104,20 +88,44 @@ const prvs = new Parvus()
 
 ### Gallery
 
+If you have a group of related images that you would like to combine into a set, add the `data-group` attribute:
+
 ```html
 <a href="path/to/image.jpg" class="lightbox" data-group="Berlin">
   <img src="path/to/thumbnail.jpg" alt="">
 </a>
 
-<a href="path/to/image.jpg" class="lightbox" data-group="Berlin">
-  <img src="path/to/thumbnail.jpg" alt="">
+<a href="path/to/image_2.jpg" class="lightbox" data-group="Berlin">
+  <img src="path/to/thumbnail_2.jpg" alt="">
 </a>
 
 //...
 
-<a href="path/to/image.jpg" class="lightbox" data-group="Kassel">
-  <img src="path/to/thumbnail.jpg" alt="">
+<a href="path/to/image_8.jpg" class="lightbox" data-group="Kassel">
+  <img src="path/to/thumbnail_8.jpg" alt="">
 </a>
+```
+
+Instead of `data-group` you can also set the option `gallerySelector` to combine all images with the `selector` class within this selector into a group.
+
+```html
+<div class="gallery">
+  <a href="path/to/image.jpg" class="lightbox">
+    <img src="path/to/thumbnail.jpg" alt="">
+  </a>
+
+  <a href="path/to/image_2.jpg" class="lightbox">
+    <img src="path/to/thumbnail_2.jpg" alt="">
+  </a>
+
+  // ...
+</div>
+```
+
+```js
+const prvs = new Parvus({
+  gallerySelector: '.gallery',
+})
 ```
 
 ### scrset
