@@ -5,8 +5,8 @@
   --parvus-overlay-text: hsl(228, 24%, 23%);
   --parvus-button-color: hsl(228, 24%, 23%);
   --parvus-button-text: hsl(0, 0%, 100%);
-  --parvus-focus-text: hsl(228, 24%, 23%);
-  --parvus-focus-color: hsl(51, 100%, 85%);
+  --parvus-button-hover-color: hsl(229, 24%, 33%);
+  --parvus-button-hover-text: hsl(0, 0%, 100%);
   --parvus-focus-outline-color: hsl(228, 24%, 23%);
   --parvus-loader-background-color: hsl(23, 40%, 96%);
   --parvus-loader-color: hsl(228, 24%, 23%);
@@ -91,11 +91,11 @@
     height: 100%;
     justify-content: center;
     width: 100%; }
+    @media screen and (prefers-reduced-motion: no-preference) {
+      .parvus__slide {
+        transition: visibility var(--parvus-transition-duration) var(--parvus-transition-timing-function); } }
     .parvus__slide:not(.parvus__slide--is-active) {
       visibility: hidden; }
-      @media screen and (prefers-reduced-motion: no-preference) {
-        .parvus__slide:not(.parvus__slide--is-active) {
-          transition: visibility var(--parvus-transition-duration) var(--parvus-transition-timing-function); } }
     .parvus__slide figure {
       margin: 0; }
     .parvus__slide figcaption {
@@ -152,6 +152,9 @@
     @media screen and (prefers-reduced-motion: no-preference) {
       .parvus__btn {
         transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function); } }
+    .parvus__btn:hover {
+      background-color: var(--parvus-button-hover-color);
+      color: var(--parvus-button-hover-text); }
     .parvus__btn--close {
       position: absolute;
       right: 1rem;
