@@ -384,10 +384,12 @@ export default function Parvus (userOptions) {
    *
    * @param {number} index - Index to load
    */
-  const open = function open (index) {
+  const open = function open (el) {
     if (isOpen()) {
       throw new Error('Ups, I\'m aleady open.')
     }
+
+    currentIndex = GROUPS[activeGroup].gallery.indexOf(el)
 
     // Save user’s focus
     lastFocus = document.activeElement
@@ -418,7 +420,7 @@ export default function Parvus (userOptions) {
     lightbox.setAttribute('aria-hidden', 'false')
 
     createSlider()
-    createSlide(GROUPS[activeGroup].gallery[index], index)
+    createSlide(el, currentIndex)
 
     updateConfig()
 
@@ -428,7 +430,7 @@ export default function Parvus (userOptions) {
     GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false')
 
     // Load slide
-    loadSlide(index)
+    loadSlide(currentIndex)
 
     requestAnimationFrame(() => {
       lightbox.classList.remove('parvus--is-opening')
@@ -441,11 +443,11 @@ export default function Parvus (userOptions) {
     updateOffset()
 
     // Load image
-    loadImage(index, 'open')
+    loadImage(currentIndex, 'open')
 
     // Preload previous and next slide
-    preload(index + 1)
-    preload(index - 1)
+    preload(currentIndex + 1)
+    preload(currentIndex - 1)
 
     // Hack to prevent animation during opening
     setTimeout(() => {
@@ -889,9 +891,7 @@ export default function Parvus (userOptions) {
 
     activeGroup = getGroup(this)
 
-    currentIndex = GROUPS[activeGroup].gallery.indexOf(this)
-
-    open(currentIndex)
+    open(this)
   }
 
   /**
