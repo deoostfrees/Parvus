@@ -533,6 +533,11 @@
       } else {
         IMAGE.alt = el.getAttribute('data-alt') || '';
         IMAGE.setAttribute('data-src', el.getAttribute('data-target'));
+      } // Add srcset if available
+
+
+      if (el.hasAttribute('data-srcset') && el.getAttribute('data-srcset') !== '') {
+        IMAGE.setAttribute('data-srcset', el.getAttribute('data-srcset'));
       }
 
       IMAGE.style.opacity = 0;
@@ -615,7 +620,14 @@
         } else {
           imageLoadAnimation(index);
         }
-      };
+      }; // Add srcset if available
+
+
+      if (IMAGE.hasAttribute('data-srcset')) {
+        IMAGE.setAttribute('srcset', IMAGE.getAttribute('data-srcset'));
+        IMAGE.removeAttribute('data-srcset');
+      } // Add src
+
 
       IMAGE.setAttribute('src', IMAGE.getAttribute('data-src'));
       IMAGE.removeAttribute('data-src');
