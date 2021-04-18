@@ -107,6 +107,13 @@ export default function Parvus (userOptions) {
     // Merge user options into defaults
     config = mergeOptions(userOptions)
 
+    // Check if an lightbox element is present
+    const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(config.selector)
+
+    if (!LIGHTBOX_TRIGGER_ELS.length) {
+      return // throw new Error(`Ups, I can't find the selector ${config.selector} on this website.`)
+    }
+
     reducedMotionCheck()
 
     // Check if the lightbox already exists
@@ -182,8 +189,7 @@ export default function Parvus (userOptions) {
    */
   const add = function add (el) {
     if (!(el.tagName === 'A' && el.hasAttribute('href') && el.href.match(config.fileTypes)) && !(el.tagName === 'BUTTON' && el.hasAttribute('data-target') && el.getAttribute('data-target').match(config.fileTypes))) {
-      console.log(el, `Use a link with the 'href' attribute or a button with the 'data-target' attribute. Both attributes must have a path to the image file. Supported image file types: ${config.fileTypes}.`)
-      return
+      throw new Error(el, `Use a link with the 'href' attribute or a button with the 'data-target' attribute. Both attributes must have a path to the image file. Supported image file types: ${config.fileTypes}.`)
     }
 
     newGroup = getGroup(el)
@@ -219,7 +225,7 @@ export default function Parvus (userOptions) {
         updateFocus()
       }
     } else {
-      console.log('Ups, element already added.')
+      throw new Error('Ups, element already added.')
     }
   }
 
@@ -229,51 +235,33 @@ export default function Parvus (userOptions) {
    * @param {HTMLElement} el - Element to remove
    */
   const remove = function remove (el) {
+    if (isOpen() || !lightbox || !el || !el.hasAttribute('data-group')) {
+      return
+    }
+
     const GROUP = getGroup(el)
 
     // Check if element exists
     if (GROUPS[GROUP].gallery.indexOf(el) === -1) {
-      throw new Error(`Ups, I can't find a slide for the element ${el}.`)
-    } else {
-      const SLIDE_INDEX = GROUPS[GROUP].gallery.indexOf(el)
-
-      // If the element to be removed is the currently visible slide
-      if (isOpen() && GROUP === activeGroup && SLIDE_INDEX === currentIndex) {
-        if (GROUPS[GROUP].gallery.length === 1) {
-          close()
-          throw new Error('Ups, I\'ve closed. There are no slides more to show.')
-        } else {
-          // TODO If there is only one slide left, deactivate horizontal dragging/ swiping
-          // TODO Recalculate counter
-          // TODO Set new absolute position per slide
-
-          // If the first slide is displayed
-          if (currentIndex === 0) {
-            next()
-          } else {
-            previous()
-          }
-        }
-      }
-
-      // TODO Remove element
-
-      // Remove lightbox indicator icon if necessary
-      if (el.classList.contains('parvus-zoom')) {
-        const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator')
-
-        el.classList.remove('parvus-zoom')
-        el.removeChild(LIGHTBOX_INDICATOR_ICON)
-      }
-
-      // Unbind click event handler
-      el.removeEventListener('click', triggerParvus)
-
-      el.classList.remove('parvus-trigger')
-
-      // Remove slide
-      GROUPS[GROUP].slider.removeChild(GROUPS[GROUP].sliderElements[SLIDE_INDEX])
+      throw new Error('Ups, I can\'t find the element.')
     }
+
+    // TODO: Remove elements dynamically
+
+    GROUPS[GROUP].gallery.splice(GROUPS[GROUP].gallery.indexOf(el), 1)
+
+    // Remove lightbox indicator icon if necessary
+    if (el.classList.contains('parvus-zoom')) {
+      const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator')
+
+      el.classList.remove('parvus-zoom')
+      el.removeChild(LIGHTBOX_INDICATOR_ICON)
+    }
+
+    // Unbind click event handler
+    el.removeEventListener('click', triggerParvus)
+
+    el.classList.remove('parvus-trigger')
   }
 
   /**
@@ -387,8 +375,15 @@ export default function Parvus (userOptions) {
    * @param {number} index - Index to load
    */
   const open = function open (el) {
-    if (isOpen()) {
-      throw new Error('Ups, I\'m aleady open.')
+    if (!lightbox || !el || !el.classList.contains('parvus-trigger') || isOpen()) {
+      return
+    }
+
+    activeGroup = getGroup(el)
+
+    // Check if element exists
+    if (GROUPS[activeGroup].gallery.indexOf(el) === -1) {
+      throw new Error('Ups, I can\'t find the element.')
     }
 
     currentIndex = GROUPS[activeGroup].gallery.indexOf(el)
@@ -715,8 +710,7 @@ export default function Parvus (userOptions) {
     if (currentIndex > 0) {
       leaveSlide(currentIndex)
 
-      // TODO
-      --currentIndex
+      currentIndex--
 
       loadSlide(currentIndex)
       loadImage(currentIndex, 'navigate')
@@ -739,8 +733,7 @@ export default function Parvus (userOptions) {
     if (currentIndex < GROUPS[activeGroup].gallery.length - 1) {
       leaveSlide(currentIndex)
 
-      // TODO
-      ++currentIndex
+      currentIndex++
 
       loadSlide(currentIndex)
       loadImage(currentIndex, 'navigate')
@@ -890,8 +883,6 @@ export default function Parvus (userOptions) {
    */
   const triggerParvus = function triggerParvus (event) {
     event.preventDefault()
-
-    activeGroup = getGroup(this)
 
     open(this)
   }
@@ -1186,11 +1177,17 @@ export default function Parvus (userOptions) {
    *
    */
   const destroy = function destroy () {
+    if (!lightbox) {
+      return
+    }
+
     if (isOpen()) {
       close()
     }
 
-    const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll('.parvus-zoom')
+    lightbox.remove()
+
+    const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll('.parvus-trigger')
 
     LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
       remove(lightboxTriggerEl)
@@ -1225,7 +1222,9 @@ export default function Parvus (userOptions) {
    *
    */
   const on = function on (eventName, callback) {
-    lightbox.addEventListener(eventName, callback)
+    if (lightbox) {
+      lightbox.addEventListener(eventName, callback)
+    }
   }
 
   /**
@@ -1235,7 +1234,9 @@ export default function Parvus (userOptions) {
    *
    */
   const off = function off (eventName, callback) {
-    lightbox.removeEventListener(eventName, callback)
+    if (lightbox) {
+      lightbox.removeEventListener(eventName, callback)
+    }
   }
 
   init(userOptions)
