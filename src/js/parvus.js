@@ -35,6 +35,7 @@ export default function Parvus (userOptions) {
   let lastFocus = null
   let offset = null
   let offsetTmp = null
+  let resizeTicking = false
   let transitionDuration = null
   let isReducedMotion = true
 
@@ -878,6 +879,22 @@ export default function Parvus (userOptions) {
   }
 
   /**
+   * Resize event
+   *
+   */
+  const resizeHandler = function resizeHandler () {
+    if (!resizeTicking) {
+      resizeTicking = true
+
+      BROWSER_WINDOW.requestAnimationFrame(() => {
+        updateOffset()
+
+        resizeTicking = false
+      })
+    }
+  }
+
+  /**
    * Click event handler to trigger Parvus
    *
    */
@@ -1118,6 +1135,7 @@ export default function Parvus (userOptions) {
    */
   const bindEvents = function bindEvents () {
     BROWSER_WINDOW.addEventListener('keydown', keydownHandler)
+    BROWSER_WINDOW.addEventListener('resize', resizeHandler)
 
     if (config.scrollClose) {
       BROWSER_WINDOW.addEventListener('wheel', wheelHandler)
@@ -1148,6 +1166,7 @@ export default function Parvus (userOptions) {
    */
   const unbindEvents = function unbindEvents () {
     BROWSER_WINDOW.removeEventListener('keydown', keydownHandler)
+    BROWSER_WINDOW.removeEventListener('resize', resizeHandler)
 
     if (config.scrollClose) {
       BROWSER_WINDOW.removeEventListener('wheel', wheelHandler)
