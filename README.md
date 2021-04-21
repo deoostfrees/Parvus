@@ -60,7 +60,19 @@ Linking the `.css` and `.js` files to your HTML file. The HTML code may look lik
 
 Parvus is also available on npm.
 
-`npm install parvus --save`
+```
+npm install parvus --save`
+```
+
+```
+yarn add parvus
+```
+
+Then you can import Parvus in your JavaScript codebase:
+
+```js
+import Parvus from 'parvus'
+```
 
 ## Usage
 
