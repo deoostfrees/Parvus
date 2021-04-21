@@ -61,7 +61,7 @@ Linking the `.css` and `.js` files to your HTML file. The HTML code may look lik
 Parvus is also available on npm.
 
 ```
-npm install parvus --save`
+npm install parvus --save
 ```
 
 ```
