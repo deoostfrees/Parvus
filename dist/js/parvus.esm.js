@@ -410,7 +410,11 @@ function Parvus(userOptions) {
       GROUPS[activeGroup].slider.classList.add('parvus__slider--animate');
     }, transitionDuration); // Create and dispatch a new event
 
-    const OPEN_EVENT = new CustomEvent('open');
+    const OPEN_EVENT = new CustomEvent('open', {
+      detail: {
+        source: el
+      }
+    });
     lightbox.dispatchEvent(OPEN_EVENT);
   };
   /**
@@ -476,7 +480,11 @@ function Parvus(userOptions) {
       once: true
     }); // Create and dispatch a new event
 
-    const CLOSE_EVENT = new CustomEvent('close');
+    const CLOSE_EVENT = new CustomEvent('close', {
+      detail: {
+        source: GROUPS[activeGroup].gallery[currentIndex]
+      }
+    });
     lightbox.dispatchEvent(CLOSE_EVENT);
   };
   /**
@@ -677,7 +685,11 @@ function Parvus(userOptions) {
     updateOffset();
     updateConfig(); // Create and dispatch a new event
 
-    const SELECT_EVENT = new CustomEvent('select');
+    const SELECT_EVENT = new CustomEvent('select', {
+      detail: {
+        source: GROUPS[activeGroup].gallery[currentIndex]
+      }
+    });
     lightbox.dispatchEvent(SELECT_EVENT);
   };
   /**
