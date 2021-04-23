@@ -712,43 +712,46 @@ export default function Parvus (userOptions) {
    *
    * @param {number} index - Index to select
    */
-  const select = function select (index) {
+  const select = function select (newIndex) {
+    const oldIndex = currentIndex
+
     if (!isOpen()) {
       throw new Error('Ups, I\'m closed.')
     } else {
-      if (!index && index !== 0) {
+      if (!newIndex && newIndex !== 0) {
         throw new Error('Ups, no slide specified.')
       }
 
-      if (index === currentIndex) {
-        throw new Error(`Ups, slide ${index} is already selected.`)
+      if (newIndex === currentIndex) {
+        throw new Error(`Ups, slide ${newIndex} is already selected.`)
       }
 
-      if (index === -1 || index >= GROUPS[activeGroup].gallery.length) {
-        throw new Error(`Ups, I can't find slide ${index}.`)
+      if (newIndex === -1 || newIndex >= GROUPS[activeGroup].gallery.length) {
+        throw new Error(`Ups, I can't find slide ${newIndex}.`)
       }
     }
 
-    leaveSlide(currentIndex)
-    loadSlide(index)
-    loadImage(index, 'navigate')
+    leaveSlide(oldIndex)
+    loadSlide(newIndex)
+    loadImage(newIndex, 'navigate')
 
-    if (index < currentIndex) {
-      updateFocus('left')
-      preload(index - 1)
-
+    if (newIndex < oldIndex) {
       currentIndex--
+
+      updateOffset()
+      updateConfig()
+      updateFocus('left')
+      preload(newIndex - 1)
     }
 
-    if (index > currentIndex) {
-      updateFocus('right')
-      preload(index + 1)
-
+    if (newIndex > oldIndex) {
       currentIndex++
-    }
 
-    updateOffset()
-    updateConfig()
+      updateOffset()
+      updateConfig()
+      updateFocus('right')
+      preload(newIndex + 1)
+    }
 
     // Create and dispatch a new event
     const SELECT_EVENT = new CustomEvent('select', {
