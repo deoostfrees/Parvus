@@ -453,7 +453,11 @@ export default function Parvus (userOptions) {
     }, transitionDuration)
 
     // Create and dispatch a new event
-    const OPEN_EVENT = new CustomEvent('open')
+    const OPEN_EVENT = new CustomEvent('open', {
+      detail: {
+        source: el
+      }
+    })
 
     lightbox.dispatchEvent(OPEN_EVENT)
   }
@@ -536,7 +540,11 @@ export default function Parvus (userOptions) {
     })
 
     // Create and dispatch a new event
-    const CLOSE_EVENT = new CustomEvent('close')
+    const CLOSE_EVENT = new CustomEvent('close', {
+      detail: {
+        source: GROUPS[activeGroup].gallery[currentIndex]
+      }
+    })
 
     lightbox.dispatchEvent(CLOSE_EVENT)
   }
@@ -743,7 +751,11 @@ export default function Parvus (userOptions) {
     updateConfig()
 
     // Create and dispatch a new event
-    const SELECT_EVENT = new CustomEvent('select')
+    const SELECT_EVENT = new CustomEvent('select', {
+      detail: {
+        source: GROUPS[activeGroup].gallery[currentIndex]
+      }
+    })
 
     lightbox.dispatchEvent(SELECT_EVENT)
   }
