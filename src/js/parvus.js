@@ -1270,6 +1270,14 @@ export default function Parvus (userOptions) {
   }
 
   /**
+   * Return current index
+   *
+   */
+  const getCurrentIndex = function getCurrentIndex () {
+    return currentIndex
+  }
+
+  /**
    * Bind event
    * @param {String} eventName
    * @param {function} callback - callback to call
@@ -1301,6 +1309,7 @@ export default function Parvus (userOptions) {
   Parvus.select = select
   Parvus.previous = previous
   Parvus.next = next
+  Parvus.currentIndex = getCurrentIndex
   Parvus.add = add
   Parvus.remove = remove
   Parvus.destroy = destroy
