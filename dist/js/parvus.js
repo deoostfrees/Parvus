@@ -32,7 +32,7 @@
     let config = {};
     let lightbox = null;
     let lightboxOverlay = null;
-    let lightboxOverlayOpacity = 0;
+    let lightboxOverlayOpacity = 1;
     let previousButton = null;
     let nextButton = null;
     let closeButton = null;
@@ -1077,14 +1077,14 @@
       const MOVEMENT_Y = drag.endY - drag.startY;
       const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
 
-      if (Math.abs(MOVEMENT_X) > 0 && !isDraggingY && GROUPS[activeGroup].gallery.length > 1 && !isReducedMotion) {
+      if (Math.abs(MOVEMENT_X) > 0 && !isDraggingY && GROUPS[activeGroup].gallery.length > 1) {
         // Horizontal swipe
         GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`;
         isDraggingX = true;
         isDraggingY = false;
-      } else if (Math.abs(MOVEMENT_Y) > 0 && !isDraggingX && config.swipeClose && !isReducedMotion) {
+      } else if (Math.abs(MOVEMENT_Y) > 0 && !isDraggingX && config.swipeClose) {
         // Vertical swipe
-        if (MOVEMENT_Y_DISTANCE <= 96) {
+        if (MOVEMENT_Y_DISTANCE <= 96 && !isReducedMotion) {
           // Set to 96 because otherwise event listener 'transitionend' does not fire if is vertical dragging
           lightboxOverlayOpacity = 1 - MOVEMENT_Y_DISTANCE / 100;
         }
