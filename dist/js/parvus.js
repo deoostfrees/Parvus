@@ -65,7 +65,7 @@
         docClose: true,
         scrollClose: false,
         swipeClose: true,
-        threshold: 100,
+        threshold: 50,
         backFocus: true,
         transitionDuration: 300,
         reducedTransitionDuration: 0.1,
