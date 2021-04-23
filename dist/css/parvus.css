@@ -188,20 +188,16 @@
     .parvus--is-closing .parvus__btn--previous,
     .parvus--is-closing .parvus__btn--next,
     .parvus--is-closing figcaption {
-      opacity: 0; } }
-  @media screen and (prefers-reduced-motion: no-preference) {
+      opacity: 0; }
     .parvus--is-vertical-closing .parvus__btn--close {
       transform: translateY(-100%);
-      opacity: 0; } }
-  @media screen and (prefers-reduced-motion: no-preference) {
+      opacity: 0; }
     .parvus--is-vertical-closing .parvus__btn--previous {
       transform: translate(-100%, -50%);
-      opacity: 0; } }
-  @media screen and (prefers-reduced-motion: no-preference) {
+      opacity: 0; }
     .parvus--is-vertical-closing .parvus__btn--next {
       transform: translate(100%, -50%);
-      opacity: 0; } }
-  @media screen and (prefers-reduced-motion: no-preference) {
+      opacity: 0; }
     .parvus--is-vertical-closing figcaption {
       transform: translateY(100%);
       opacity: 0; } }
