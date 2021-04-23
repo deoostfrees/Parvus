@@ -635,25 +635,60 @@ function Parvus(userOptions) {
     IMAGE.removeAttribute('data-src');
   };
   /**
+   * Select a slide
+   *
+   * @param {number} index - Index to select
+   */
+
+
+  const select = function select(index) {
+    if (!isOpen()) {
+      throw new Error('Ups, I\'m closed.');
+    } else {
+      if (!index && index !== 0) {
+        throw new Error('Ups, no slide specified.');
+      }
+
+      if (index === currentIndex) {
+        throw new Error(`Ups, slide ${index} is already selected.`);
+      }
+
+      if (index === -1 || index >= GROUPS[activeGroup].gallery.length) {
+        throw new Error(`Ups, I can't find slide ${index}.`);
+      }
+    }
+
+    leaveSlide(currentIndex);
+    loadSlide(index);
+    loadImage(index, 'navigate');
+
+    if (index < currentIndex) {
+      updateFocus('left');
+      preload(index - 1);
+      currentIndex--;
+    }
+
+    if (index > currentIndex) {
+      updateFocus('right');
+      preload(index + 1);
+      currentIndex++;
+    }
+
+    updateOffset();
+    updateConfig(); // Create and dispatch a new event
+
+    const SELECT_EVENT = new CustomEvent('select');
+    lightbox.dispatchEvent(SELECT_EVENT);
+  };
+  /**
    * Select the previous slide
    *
    */
 
 
   const previous = function previous() {
-    if (!isOpen()) {
-      return;
-    }
-
     if (currentIndex > 0) {
-      leaveSlide(currentIndex);
-      currentIndex--;
-      loadSlide(currentIndex);
-      loadImage(currentIndex, 'navigate');
-      updateOffset();
-      updateConfig();
-      updateFocus('left');
-      preload(currentIndex - 1);
+      select(currentIndex - 1);
     }
   };
   /**
@@ -663,19 +698,8 @@ function Parvus(userOptions) {
 
 
   const next = function next() {
-    if (!isOpen()) {
-      return;
-    }
-
     if (currentIndex < GROUPS[activeGroup].gallery.length - 1) {
-      leaveSlide(currentIndex);
-      currentIndex++;
-      loadSlide(currentIndex);
-      loadImage(currentIndex, 'navigate');
-      updateOffset();
-      updateConfig();
-      updateFocus('right');
-      preload(currentIndex + 1);
+      select(currentIndex + 1);
     }
   };
   /**
@@ -1185,6 +1209,7 @@ function Parvus(userOptions) {
   Parvus.init = init;
   Parvus.open = open;
   Parvus.close = close;
+  Parvus.select = select;
   Parvus.previous = previous;
   Parvus.next = next;
   Parvus.add = add;
