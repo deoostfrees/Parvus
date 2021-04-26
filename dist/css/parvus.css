@@ -52,7 +52,7 @@
   bottom: 0;
   contain: strict;
   display: flex;
-  font-size: 1.125rem;
+  font: normal normal 400 1.125rem/1.7 -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   justify-content: center;
   left: 0;
   line-height: 1.667;
@@ -180,15 +180,32 @@
       width: 2rem; }
     .parvus__btn[disabled] {
       display: none; }
+  .parvus__counter {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    left: 1rem;
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    position: absolute;
+    top: 1rem; }
+    @media screen and (prefers-reduced-motion: no-preference) {
+      .parvus__counter {
+        transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function); } }
+    .parvus__counter[aria-hidden='true'] {
+      display: none; }
   @media screen and (prefers-reduced-motion: no-preference) {
+    .parvus--is-opening .parvus__counter,
     .parvus--is-opening .parvus__btn--close,
     .parvus--is-opening .parvus__btn--previous,
     .parvus--is-opening .parvus__btn--next,
-    .parvus--is-opening figcaption, .parvus--is-closing .parvus__btn--close,
+    .parvus--is-opening figcaption, .parvus--is-closing .parvus__counter,
+    .parvus--is-closing .parvus__btn--close,
     .parvus--is-closing .parvus__btn--previous,
     .parvus--is-closing .parvus__btn--next,
     .parvus--is-closing figcaption {
       opacity: 0; }
+    .parvus--is-vertical-closing .parvus__counter,
     .parvus--is-vertical-closing .parvus__btn--close {
       transform: translateY(-100%);
       opacity: 0; }

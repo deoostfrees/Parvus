@@ -30,6 +30,7 @@ function Parvus(userOptions) {
   let previousButton = null;
   let nextButton = null;
   let closeButton = null;
+  let counter = null;
   let widthDifference = 0;
   let heightDifference = 0;
   let xDifference = 0;
@@ -221,6 +222,7 @@ function Parvus(userOptions) {
         loadImage(GROUPS[newGroup].gallery.indexOf(el), 'preload');
         updateConfig();
         updateFocus();
+        updateCounter();
       }
     } else {
       throw new Error('Ups, element already added.');
@@ -301,7 +303,12 @@ function Parvus(userOptions) {
     nextButton.setAttribute('aria-label', config.i18n[config.lang].nextButtonLabel);
     nextButton.innerHTML = config.nextButtonIcon; // Add next button to lightbox container
 
-    lightbox.appendChild(nextButton); // Add lightbox container to body
+    lightbox.appendChild(nextButton); // Create the counter
+
+    counter = document.createElement('div');
+    counter.className = 'parvus__counter'; // Add counter to lightbox container
+
+    lightbox.appendChild(counter); // Add lightbox container to body
 
     document.body.appendChild(lightbox);
   };
@@ -386,29 +393,26 @@ function Parvus(userOptions) {
 
     lightbox.setAttribute('aria-hidden', 'false');
     createSlider();
-    createSlide(el, currentIndex);
-    updateConfig();
-    setFocusToFirstItem(); // Show slider
+    createSlide(el, currentIndex); // Show slider
 
-    GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false'); // Load slide
-
+    GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false');
     loadSlide(currentIndex);
+    loadImage(currentIndex, 'open');
+    updateOffset();
+    updateConfig();
+    updateCounter();
+    setFocusToFirstItem();
     requestAnimationFrame(() => {
       lightbox.classList.remove('parvus--is-opening');
       lightboxOverlay.style.opacity = 1;
       lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
       lightboxOverlay.style.willChange = 'opacity';
-    });
-    updateOffset(); // Load image
-
-    loadImage(currentIndex, 'open'); // Preload previous and next slide
+    }); // Preload previous and next slide
 
     preload(currentIndex + 1);
-    preload(currentIndex - 1); // Hack to prevent animation during opening
+    preload(currentIndex - 1); // Add class for slider animation
 
-    setTimeout(() => {
-      GROUPS[activeGroup].slider.classList.add('parvus__slider--animate');
-    }, transitionDuration); // Create and dispatch a new event
+    GROUPS[activeGroup].slider.classList.add('parvus__slider--animate'); // Create and dispatch a new event
 
     const OPEN_EVENT = new CustomEvent('open', {
       detail: {
@@ -650,7 +654,7 @@ function Parvus(userOptions) {
 
 
   const select = function select(newIndex) {
-    const oldIndex = currentIndex;
+    const OLD_INDEX = currentIndex;
 
     if (!isOpen()) {
       throw new Error('Ups, I\'m closed.');
@@ -668,11 +672,11 @@ function Parvus(userOptions) {
       }
     }
 
-    leaveSlide(oldIndex);
+    leaveSlide(OLD_INDEX);
     loadSlide(newIndex);
     loadImage(newIndex, 'navigate');
 
-    if (newIndex < oldIndex) {
+    if (newIndex < OLD_INDEX) {
       currentIndex--;
       updateOffset();
       updateConfig();
@@ -680,14 +684,15 @@ function Parvus(userOptions) {
       preload(newIndex - 1);
     }
 
-    if (newIndex > oldIndex) {
+    if (newIndex > OLD_INDEX) {
       currentIndex++;
       updateOffset();
       updateConfig();
       updateFocus('right');
       preload(newIndex + 1);
-    } // Create and dispatch a new event
+    }
 
+    updateCounter(); // Create and dispatch a new event
 
     const SELECT_EVENT = new CustomEvent('select', {
       detail: {
@@ -773,6 +778,15 @@ function Parvus(userOptions) {
     }
   };
   /**
+   * Update counter
+   *
+   */
+
+
+  const updateCounter = function updateCounter() {
+    counter.textContent = `${currentIndex + 1}/${GROUPS[activeGroup].gallery.length}`;
+  };
+  /**
    * Clear drag after touchend event
    *
    */
@@ -849,6 +863,13 @@ function Parvus(userOptions) {
         nextButton.setAttribute('aria-hidden', 'false');
         nextButton.disabled = false;
       }
+    } // Hide counter if necessary
+
+
+    if (GROUPS[activeGroup].gallery.length === 1) {
+      counter.setAttribute('aria-hidden', 'true');
+    } else {
+      counter.setAttribute('aria-hidden', 'false');
     }
   };
   /**

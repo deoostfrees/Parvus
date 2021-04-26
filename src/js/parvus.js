@@ -24,6 +24,7 @@ export default function Parvus (userOptions) {
   let previousButton = null
   let nextButton = null
   let closeButton = null
+  let counter = null
   let widthDifference = 0
   let heightDifference = 0
   let xDifference = 0
@@ -224,6 +225,7 @@ export default function Parvus (userOptions) {
         loadImage(GROUPS[newGroup].gallery.indexOf(el), 'preload')
         updateConfig()
         updateFocus()
+        updateCounter()
       }
     } else {
       throw new Error('Ups, element already added.')
@@ -317,6 +319,13 @@ export default function Parvus (userOptions) {
 
     // Add next button to lightbox container
     lightbox.appendChild(nextButton)
+
+    // Create the counter
+    counter = document.createElement('div')
+    counter.className = 'parvus__counter'
+
+    // Add counter to lightbox container
+    lightbox.appendChild(counter)
 
     // Add lightbox container to body
     document.body.appendChild(lightbox)
@@ -420,15 +429,17 @@ export default function Parvus (userOptions) {
     createSlider()
     createSlide(el, currentIndex)
 
-    updateConfig()
-
-    setFocusToFirstItem()
-
     // Show slider
     GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false')
 
-    // Load slide
     loadSlide(currentIndex)
+    loadImage(currentIndex, 'open')
+
+    updateOffset()
+    updateConfig()
+    updateCounter()
+
+    setFocusToFirstItem()
 
     requestAnimationFrame(() => {
       lightbox.classList.remove('parvus--is-opening')
@@ -438,19 +449,12 @@ export default function Parvus (userOptions) {
       lightboxOverlay.style.willChange = 'opacity'
     })
 
-    updateOffset()
-
-    // Load image
-    loadImage(currentIndex, 'open')
-
     // Preload previous and next slide
     preload(currentIndex + 1)
     preload(currentIndex - 1)
 
-    // Hack to prevent animation during opening
-    setTimeout(() => {
-      GROUPS[activeGroup].slider.classList.add('parvus__slider--animate')
-    }, transitionDuration)
+    // Add class for slider animation
+    GROUPS[activeGroup].slider.classList.add('parvus__slider--animate')
 
     // Create and dispatch a new event
     const OPEN_EVENT = new CustomEvent('open', {
@@ -713,7 +717,7 @@ export default function Parvus (userOptions) {
    * @param {number} index - Index to select
    */
   const select = function select (newIndex) {
-    const oldIndex = currentIndex
+    const OLD_INDEX = currentIndex
 
     if (!isOpen()) {
       throw new Error('Ups, I\'m closed.')
@@ -731,11 +735,11 @@ export default function Parvus (userOptions) {
       }
     }
 
-    leaveSlide(oldIndex)
+    leaveSlide(OLD_INDEX)
     loadSlide(newIndex)
     loadImage(newIndex, 'navigate')
 
-    if (newIndex < oldIndex) {
+    if (newIndex < OLD_INDEX) {
       currentIndex--
 
       updateOffset()
@@ -744,7 +748,7 @@ export default function Parvus (userOptions) {
       preload(newIndex - 1)
     }
 
-    if (newIndex > oldIndex) {
+    if (newIndex > OLD_INDEX) {
       currentIndex++
 
       updateOffset()
@@ -752,6 +756,8 @@ export default function Parvus (userOptions) {
       updateFocus('right')
       preload(newIndex + 1)
     }
+
+    updateCounter()
 
     // Create and dispatch a new event
     const SELECT_EVENT = new CustomEvent('select', {
@@ -838,6 +844,14 @@ export default function Parvus (userOptions) {
   }
 
   /**
+   * Update counter
+   *
+   */
+  const updateCounter = function updateCounter () {
+    counter.textContent = `${currentIndex + 1}/${GROUPS[activeGroup].gallery.length}`
+  }
+
+  /**
    * Clear drag after touchend event
    *
    */
@@ -913,6 +927,13 @@ export default function Parvus (userOptions) {
         nextButton.setAttribute('aria-hidden', 'false')
         nextButton.disabled = false
       }
+    }
+
+    // Hide counter if necessary
+    if (GROUPS[activeGroup].gallery.length === 1) {
+      counter.setAttribute('aria-hidden', 'true')
+    } else {
+      counter.setAttribute('aria-hidden', 'false')
     }
   }
 
