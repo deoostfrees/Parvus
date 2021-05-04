@@ -222,7 +222,7 @@ export default function Parvus (userOptions) {
 
       if (isOpen() && newGroup === activeGroup) {
         createSlide(el, GROUPS[newGroup].gallery.indexOf(el))
-        loadImage(GROUPS[newGroup].gallery.indexOf(el), 'preload')
+        loadImage(GROUPS[newGroup].gallery.indexOf(el))
         updateConfig()
         updateFocus()
         updateCounter()
@@ -432,14 +432,14 @@ export default function Parvus (userOptions) {
     // Show slider
     GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false')
 
-    loadSlide(currentIndex)
-    loadImage(currentIndex, 'open')
-
     updateOffset()
     updateConfig()
     updateCounter()
 
     setFocusToFirstItem()
+
+    loadSlide(currentIndex)
+    loadImage(currentIndex)
 
     requestAnimationFrame(() => {
       lightbox.classList.remove('parvus--is-opening')
@@ -564,27 +564,21 @@ export default function Parvus (userOptions) {
     }
 
     createSlide(GROUPS[activeGroup].gallery[index], index)
-    loadImage(index, 'preload')
+    loadImage(index)
   }
 
   /**
    * Load slide
-   * Will be called when opening the lightbox or moving index
    *
    * @param {number} index - Index to load
    */
   const loadSlide = function loadSlide (index) {
-    if (GROUPS[activeGroup].sliderElements[index] === undefined) {
-      return
-    }
-
-    // Add active slide class
     GROUPS[activeGroup].sliderElements[index].classList.add('parvus__slide--is-active')
     GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false')
   }
 
   /**
-   * Load Image
+   * Create Image
    *
    * @param {number} index - Index to load
    */
@@ -593,9 +587,26 @@ export default function Parvus (userOptions) {
     const FIGURE = document.createElement('figure')
     const FIGCAPTION = document.createElement('figcaption')
     const THUMBNAIL = el.querySelector('img')
+    const LOADING_INDICATOR = document.createElement('div')
+
+    // Create loading indicator
+    LOADING_INDICATOR.className = 'parvus__loader'
+    LOADING_INDICATOR.setAttribute('role', 'progressbar')
+    LOADING_INDICATOR.setAttribute('aria-label', config.i18n[config.lang].lightboxLoadingIndicatorLabel)
+
+    // Add loading indicator to container
+    container.appendChild(LOADING_INDICATOR)
+
+    IMAGE.onload = () => {
+      container.removeChild(LOADING_INDICATOR)
+
+      // Set image width and height
+      IMAGE.setAttribute('width', IMAGE.naturalWidth)
+      IMAGE.setAttribute('height', IMAGE.naturalHeight)
+    }
 
     if (el.tagName === 'A') {
-      IMAGE.setAttribute('data-src', el.href)
+      IMAGE.setAttribute('src', el.href)
 
       if (THUMBNAIL) {
         IMAGE.alt = THUMBNAIL.alt || ''
@@ -607,9 +618,9 @@ export default function Parvus (userOptions) {
       IMAGE.setAttribute('data-src', el.getAttribute('data-target'))
     }
 
-    // Prepare srcset if available
+    // Add srcset if available
     if (el.hasAttribute('data-srcset') && el.getAttribute('data-srcset') !== '') {
-      IMAGE.setAttribute('data-srcset', el.getAttribute('data-srcset'))
+      IMAGE.setAttribute('srcset', el.getAttribute('data-srcset'))
     }
 
     IMAGE.style.opacity = 0
@@ -627,88 +638,37 @@ export default function Parvus (userOptions) {
   }
 
   /**
-   * Image load animation
+   * Load Image
    *
    * @param {number} index - Index to load
    */
-  const imageLoadAnimation = function imageLoadAnimation (index) {
+  const loadImage = function loadImage (index) {
     const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[index]
     const IMAGE = IMAGE_CONTAINER.querySelector('img')
     const IMAGE_SIZE = IMAGE.getBoundingClientRect()
     const THUMBNAIL = GROUPS[activeGroup].gallery[index]
     const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect()
 
-    widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
-    heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
-    xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
-    yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
+    if (lightbox.classList.contains('parvus--is-opening')) {
+      widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
+      heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
+      xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
+      yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
 
-    requestAnimationFrame(() => {
-      IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
-      IMAGE.style.transition = 'transform 0s, opacity 0s'
-
-      // Animate the difference reversal on the next tick
       requestAnimationFrame(() => {
-        IMAGE.style.transform = ''
-        IMAGE.style.opacity = 1
-        IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration / 2}ms ${config.transitionTimingFunction}`
+        IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
+        IMAGE.style.transition = 'transform 0s, opacity 0s'
+
+        // Animate the difference reversal on the next tick
+        requestAnimationFrame(() => {
+          IMAGE.style.transform = ''
+          IMAGE.style.opacity = 1
+          IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration / 2}ms ${config.transitionTimingFunction}`
+        })
       })
-    })
-  }
-
-  /**
-   * Load Image
-   *
-   * @param {number} index - Index to load
-   */
-  const loadImage = function loadImage (index, status) {
-    const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[index]
-    const IMAGE = IMAGE_CONTAINER.querySelector('img')
-    const LOADING_INDICATOR = document.createElement('div')
-
-    if (!IMAGE.hasAttribute('data-src')) {
-      if (status === 'open') {
-        imageLoadAnimation(index)
-      }
-
-      if (status === 'navigate') {
-        IMAGE.style.opacity = 1
-      }
-
-      return
+    } else {
+      IMAGE.style.opacity = 1
     }
-
-    // Create loading indicator
-    LOADING_INDICATOR.className = 'parvus__loader'
-    LOADING_INDICATOR.setAttribute('role', 'progressbar')
-    LOADING_INDICATOR.setAttribute('aria-label', config.i18n[config.lang].lightboxLoadingIndicatorLabel)
-
-    // Add loading indicator to container
-    IMAGE_CONTAINER.appendChild(LOADING_INDICATOR)
-
-    IMAGE.onload = () => {
-      IMAGE_CONTAINER.removeChild(LOADING_INDICATOR)
-
-      // Set image width and height
-      IMAGE.setAttribute('width', IMAGE.naturalWidth)
-      IMAGE.setAttribute('height', IMAGE.naturalHeight)
-
-      if (status === 'preload') {
-        IMAGE.style.opacity = 1
-      } else {
-        imageLoadAnimation(index)
-      }
-    }
-
-    // Add srcset if available
-    if (IMAGE.hasAttribute('data-srcset')) {
-      IMAGE.setAttribute('srcset', IMAGE.getAttribute('data-srcset'))
-      IMAGE.removeAttribute('data-srcset')
-    }
-
-    // Add src
-    IMAGE.setAttribute('src', IMAGE.getAttribute('data-src'))
-    IMAGE.removeAttribute('data-src')
   }
 
   /**
@@ -736,8 +696,9 @@ export default function Parvus (userOptions) {
     }
 
     leaveSlide(OLD_INDEX)
+
     loadSlide(newIndex)
-    loadImage(newIndex, 'navigate')
+    loadImage(newIndex)
 
     if (newIndex < OLD_INDEX) {
       currentIndex--
@@ -796,11 +757,6 @@ export default function Parvus (userOptions) {
    * @param {number} index - Index to leave
    */
   const leaveSlide = function leaveSlide (index) {
-    if (GROUPS[activeGroup].sliderElements[index] === undefined) {
-      return
-    }
-
-    // Remove active slide class
     GROUPS[activeGroup].sliderElements[index].classList.remove('parvus__slide--is-active')
     GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'true')
   }
