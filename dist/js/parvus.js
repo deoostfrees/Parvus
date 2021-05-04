@@ -124,7 +124,7 @@
       const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(config.selector);
 
       if (!LIGHTBOX_TRIGGER_ELS.length) {
-        return; // throw new Error(`Ups, I can't find the selector ${config.selector} on this website.`)
+        return; // No elements for the lightbox available
       }
 
       reducedMotionCheck(); // Check if the lightbox already exists
@@ -413,10 +413,12 @@
         lightboxOverlay.style.opacity = 1;
         lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
         lightboxOverlay.style.willChange = 'opacity';
-      }); // Preload previous and next slide
-
-      preload(currentIndex + 1);
-      preload(currentIndex - 1); // Add class for slider animation
+      });
+      lightboxOverlay.addEventListener('transitionend', () => {
+        // Preload previous and next slide
+        preload(currentIndex + 1);
+        preload(currentIndex - 1);
+      }); // Add class for slider animation
 
       GROUPS[activeGroup].slider.classList.add('parvus__slider--animate'); // Create and dispatch a new event
 
@@ -560,7 +562,7 @@
         }
       } else {
         IMAGE.alt = el.getAttribute('data-alt') || '';
-        IMAGE.setAttribute('data-src', el.getAttribute('data-target'));
+        IMAGE.setAttribute('src', el.getAttribute('data-target'));
       } // Add srcset if available
 
 
