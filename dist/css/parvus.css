@@ -1,6 +1,6 @@
 :root {
   --parvus-transition-duration: 300ms;
-  --parvus-transition-timing-function: cubic-bezier(0.5, 0, 0.14, 1);
+  --parvus-transition-timing-function: cubic-bezier(0.4, 0, 0.22, 1);
   --parvus-overlay-color: hsl(23, 40%, 96%);
   --parvus-overlay-text: hsl(228, 24%, 23%);
   --parvus-button-color: hsl(228, 24%, 23%);
