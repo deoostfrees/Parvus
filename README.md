@@ -2,6 +2,8 @@
 
 An accessible, open-source image lightbox with no dependencies.
 
+![Screenshot of parvus. It shows the first picture of a gallery.](https://rqrauhvmra.com/parvus/parvus.png)
+
 [Open in CodePen](https://codepen.io/collection/DwLBpz)
 
 ## Table of contents
