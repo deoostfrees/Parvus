@@ -22,7 +22,9 @@
   position: relative; }
   .parvus-zoom__indicator {
     align-items: center;
+    background-color: hsl(228, 24%, 23%);
     background-color: var(--parvus-button-color);
+    color: hsl(0, 0%, 100%);
     color: var(--parvus-button-text);
     display: flex;
     justify-content: center;
@@ -64,6 +66,7 @@
   .parvus[aria-hidden='true'] {
     display: none; }
   .parvus__overlay {
+    background-color: hsl(23, 40%, 96%);
     background-color: var(--parvus-overlay-color);
     bottom: 0;
     left: 0;
@@ -80,6 +83,7 @@
       display: none; }
     @media screen and (prefers-reduced-motion: no-preference) {
       .parvus__slider--animate:not(.parvus__slider--is-dragging) {
+        transition: transform 300ms cubic-bezier(0.4, 0, 0.22, 1);
         transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function); } }
     .parvus__slider--is-draggable {
       cursor: grab; }
@@ -93,6 +97,7 @@
     width: 100%; }
     @media screen and (prefers-reduced-motion: no-preference) {
       .parvus__slide {
+        transition: visibility 300ms cubic-bezier(0.4, 0, 0.22, 1);
         transition: visibility var(--parvus-transition-duration) var(--parvus-transition-timing-function); } }
     .parvus__slide:not(.parvus__slide--is-active) {
       visibility: hidden; }
@@ -104,13 +109,16 @@
       will-change: transform, opacity; }
       @media screen and (prefers-reduced-motion: no-preference) {
         .parvus__slide figcaption {
+          transition: transform 300ms cubic-bezier(0.4, 0, 0.22, 1), opacity 300ms cubic-bezier(0.4, 0, 0.22, 1);
           transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function); } }
     .parvus__slide img {
       display: block;
       height: auto;
       margin-left: auto;
       margin-right: auto;
+      max-height: 85vh;
       max-height: var(--parvus-image-max-height);
+      max-width: 85vw;
       max-width: var(--parvus-image-max-width);
       transform-origin: left top;
       width: auto; }
@@ -125,7 +133,9 @@
     .parvus__loader::before {
       animation: spin 1s infinite;
       border-radius: 100%;
+      border: 0.25rem solid hsl(23, 40%, 96%);
       border: 0.25rem solid var(--parvus-loader-background-color);
+      border-top-color: hsl(228, 24%, 23%);
       border-top-color: var(--parvus-loader-color);
       bottom: 0;
       content: '';
@@ -137,10 +147,12 @@
   .parvus__btn {
     -webkit-appearance: none;
             appearance: none;
+    background-color: hsl(228, 24%, 23%);
     background-color: var(--parvus-button-color);
     background-image: none;
     border-radius: 0;
     border: 0.0625rem solid transparent;
+    color: hsl(0, 0%, 100%);
     color: var(--parvus-button-text);
     cursor: pointer;
     display: flex;
@@ -151,9 +163,12 @@
     z-index: 7; }
     @media screen and (prefers-reduced-motion: no-preference) {
       .parvus__btn {
+        transition: transform 300ms cubic-bezier(0.4, 0, 0.22, 1), opacity 300ms cubic-bezier(0.4, 0, 0.22, 1);
         transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function); } }
     .parvus__btn:hover {
+      background-color: hsl(229, 24%, 33%);
       background-color: var(--parvus-button-hover-color);
+      color: hsl(0, 0%, 100%);
       color: var(--parvus-button-hover-text); }
     .parvus__btn--close {
       position: absolute;
@@ -191,6 +206,7 @@
     top: 1rem; }
     @media screen and (prefers-reduced-motion: no-preference) {
       .parvus__counter {
+        transition: transform 300ms cubic-bezier(0.4, 0, 0.22, 1), opacity 300ms cubic-bezier(0.4, 0, 0.22, 1);
         transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function); } }
     .parvus__counter[aria-hidden='true'] {
       display: none; }
@@ -233,10 +249,12 @@
 
 .parvus-trigger.focus-visible,
 .parvus .focus-visible {
+  outline: 0.125rem dashed hsl(228, 24%, 23%);
   outline: 0.125rem dashed var(--parvus-focus-outline-color);
   outline-offset: 0.125rem; }
 
 .parvus-trigger:focus-visible,
 .parvus :focus-visible {
+  outline: 0.125rem dashed hsl(228, 24%, 23%);
   outline: 0.125rem dashed var(--parvus-focus-outline-color);
   outline-offset: 0.125rem; }
