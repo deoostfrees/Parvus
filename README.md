@@ -234,10 +234,12 @@ The following options are available:
 | `close()` | Close Parvus |
 | `previous()` | Show previous image |
 | `next()` | Show next image |
+| `select(index)` | Select a slide with `index` (Integer), zero-based index of the slide to select |
 | `add(element)` | Add `element` (DOM element) |
 | `remove(element)` | Remove `element` (DOM element) |
 | `destroy()` | Destroy Parvus |
 | `isOpen()` | Check if Parvus is open |
+| `currentIndex()` | Return the current slide index |
 
 ## Events
 
@@ -260,8 +262,17 @@ prvs.off(eventName, listener)
 | eventName | Description |
 | --- | --- |
 | `open` | Triggered after Parvus has been opened |
+| `select` | Triggered when a slide is selected |
 | `close` | Triggered after Parvus has been closed |
 | `destroy` | Triggered after Parvus has been destroyed |
+
+Except for the `destroy` event, you can get the current source element:
+
+```js
+prvs.on('open', function (event) {
+  console.log(event.detail.source);
+})
+```
 
 ## Browser support
 
