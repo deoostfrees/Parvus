@@ -8,7 +8,6 @@ An accessible, open-source image lightbox with no dependencies.
 
 ## Table of contents
 
-- [Features](#features)
 - [Installation](#installation)
   - [Download](#download)
   - [Package managers](#package-managers)
@@ -20,13 +19,6 @@ An accessible, open-source image lightbox with no dependencies.
 - [API](#api)
 - [Events](#events)
 - [Browser support](#browser-support)
-
-## Features
-
-- Accessible
-- API
-- Events
-- Internationalization
 
 ## Installation
 
