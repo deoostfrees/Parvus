@@ -13,7 +13,6 @@
     "core-js": "^3.12.1",
     "node-sass": "^6.0.0",
     "postcss": "^8.2.15",
-    "postcss-preset-env": "^6.7.0",
     "rollup": "^2.48.0",
     "rollup-plugin-license": "^2.3.0",
     "rollup-plugin-postcss": "^4.0.0",

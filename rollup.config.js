@@ -99,10 +99,7 @@ if (process.env.BUILDCSS) {
       }),
       commonjs(),
       postcss({
-        extract: true,
-        plugins: [
-          require('postcss-preset-env')
-        ]
+        extract: true
       }),
       license({
         banner
@@ -127,10 +124,7 @@ if (process.env.BUILDCSS) {
       commonjs(),
       postcss({
         extract: true,
-        minimize: true,
-        plugins: [
-          require('postcss-preset-env')
-        ]
+        minimize: true
       }),
       license({
         banner
