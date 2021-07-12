@@ -26,6 +26,13 @@
     "not IE 10",
     "not IE 11"
   ],
+  "standard": {
+    "globals": [
+      "history",
+      "CustomEvent",
+      "requestAnimationFrame"
+    ]
+  },
   "scripts": {
     "build": "npm run buildJs && npm run buildCss",
     "buildJs": "rollup -c --environment BUILDJS",
