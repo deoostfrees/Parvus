@@ -7,16 +7,14 @@ import license from 'rollup-plugin-license'
 
 const pkg = require('./package.json')
 
-const banner = [
-  '/**',
-  '\n * Parvus',
-  '\n *',
-  '\n * @author ', pkg.author,
-  '\n * @version ', pkg.version,
-  '\n * @url ', pkg.homepage,
-  '\n *',
-  '\n * ', pkg.license, ' license',
-  '\n */'].join('')
+const bannerContent = `
+  Parvus
+
+  @author ${pkg.author}
+  @version ${pkg.version}
+  @url ${pkg.homepage}
+
+  ${pkg.license} license`
 
 let rollupBuilds
 
@@ -65,13 +63,15 @@ if (process.env.BUILDJS) {
         exclude: 'node_modules/**',
         presets: [
           ['@babel/preset-env', {
-            corejs: 3.6,
+            corejs: 3.15,
             useBuiltIns: 'usage'
           }]
         ]
       }),
       license({
-        banner
+        banner: {
+          content: bannerContent
+        }
       })
     ],
     watch: {
@@ -89,8 +89,7 @@ if (process.env.BUILDCSS) {
     input: './src/scss/parvus.scss',
     output: [
       {
-        file: './dist/css/parvus.css',
-        format: 'es'
+        file: './dist/css/parvus.css'
       }
     ],
     plugins: [
@@ -102,7 +101,9 @@ if (process.env.BUILDCSS) {
         extract: true
       }),
       license({
-        banner
+        banner: {
+          content: bannerContent
+        }
       })
     ],
     watch: {
@@ -113,8 +114,7 @@ if (process.env.BUILDCSS) {
     input: './src/scss/parvus.scss',
     output: [
       {
-        file: './dist/css/parvus.min.css',
-        format: 'es'
+        file: './dist/css/parvus.min.css'
       }
     ],
     plugins: [
@@ -127,7 +127,9 @@ if (process.env.BUILDCSS) {
         minimize: true
       }),
       license({
-        banner
+        banner: {
+          content: bannerContent
+        }
       })
     ],
     watch: {
