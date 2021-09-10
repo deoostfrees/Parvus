@@ -7,6 +7,7 @@
  *
  * MIT license
  */
+
 function Parvus(userOptions) {
   /**
    * Global variables
@@ -1224,4 +1225,4 @@ function Parvus(userOptions) {
   return Parvus;
 }
 
-export default Parvus;
+export { Parvus as default };
