@@ -1,9 +1,9 @@
 /**
  * Parvus
  *
- * @author de Oostfreese
- * @version 1.4.1
- * @url https://github.com/deoostfreese/parvus
+ * @author Benjamin de Oostfrees
+ * @version 1.4.3
+ * @url https://github.com/deoostfrees/parvus
  *
  * MIT license
  */
