@@ -1,9 +1,9 @@
 /**
  * Parvus
  *
- * @author de Oostfreese
- * @version 1.4.1
- * @url https://github.com/deoostfreese/parvus
+ * @author Benjamin de Oostfrees
+ * @version 1.4.3
+ * @url https://github.com/deoostfrees/parvus
  *
  * MIT license
  */
@@ -12,7 +12,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Parvus = factory());
-}(this, (function () { 'use strict';
+})(this, (function () { 'use strict';
 
   function Parvus(userOptions) {
     /**
@@ -1233,4 +1233,4 @@
 
   return Parvus;
 
-})));
+}));
