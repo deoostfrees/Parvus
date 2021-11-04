@@ -60,5 +60,6 @@
   "bugs": {
     "url": "https://github.com/deoostfrees/parvus/issues"
   },
-  "homepage": "https://github.com/deoostfrees/parvus"
+  "homepage": "https://github.com/deoostfrees/parvus",
+  "dependencies": {}
 }
