@@ -11,8 +11,6 @@
   --parvus-button-hover-color: hsl(229, 24%, 33%);
   --parvus-button-hover-text: hsl(0, 0%, 100%);
 
-  --parvus-focus-outline-color: hsl(228, 24%, 23%);
-
   --parvus-loader-background-color: hsl(23, 40%, 96%);
   --parvus-loader-color: hsl(228, 24%, 23%);
 
@@ -319,20 +317,4 @@
   to {
     transform: rotate(360deg);
   }
-}
-
-/**
- * Focus
- *
- */
-
-.parvus-trigger:focus,
-.parvus :focus {
-  outline: 0;
-}
-
-.parvus-trigger:focus-visible,
-.parvus :focus-visible {
-  outline: 0.125rem dashed var(--parvus-focus-outline-color);
-  outline-offset: 0.125rem;
 }
