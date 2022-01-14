@@ -51,6 +51,9 @@ export default function Parvus (userOptions) {
     const OPTIONS = {
       selector: '.lightbox',
       gallerySelector: null,
+      captions: true,
+      captionsSelector: 'self',
+      captionsAttribute: 'data-caption',
       docClose: true,
       scrollClose: false,
       swipeClose: true,
@@ -630,10 +633,33 @@ export default function Parvus (userOptions) {
     FIGURE.appendChild(IMAGE)
 
     // Add caption if available
-    if (el.hasAttribute('data-caption') && el.getAttribute('data-caption') !== '') {
-      FIGCAPTION.innerHTML = el.getAttribute('data-caption')
+    if (config.captions) {
+      let captionData = null
 
-      FIGURE.appendChild(FIGCAPTION)
+      if (config.captionsSelector === 'self') {
+        if (el.hasAttribute(config.captionsAttribute) && el.getAttribute(config.captionsAttribute) !== '') {
+          captionData = el.getAttribute(config.captionsAttribute)
+        }
+      } else {
+        if (el.querySelector(config.captionsSelector) !== null) {
+          const CAPTION_SELECTOR = el.querySelector(config.captionsSelector)
+
+          if (CAPTION_SELECTOR.hasAttribute(config.captionsAttribute) && CAPTION_SELECTOR.getAttribute(config.captionsAttribute) !== '') {
+            captionData = CAPTION_SELECTOR.getAttribute(config.captionsAttribute)
+          } else {
+            captionData = CAPTION_SELECTOR.innerHTML
+          }
+        }
+      }
+
+      if (captionData !== null) {
+        FIGCAPTION.innerHTML = `<p>${captionData}</p>`
+
+        FIGURE.appendChild(FIGCAPTION)
+      }
+
+
+
     }
 
     container.appendChild(FIGURE)

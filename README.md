@@ -92,6 +92,26 @@ const prvs = new Parvus()
 </a>
 ```
 
+Instead of `data-caption`, you can also set the option `captionsSelector` to set the captions from the innerHTML of an element.
+
+```html
+<a href="path/to/image.jpg" class="lightbox">
+  <figure class="figure">
+    <img src="path/to/thumbnail.jpg" alt="">
+
+    <figcaption class="figure__caption">
+      <p>I'm a caption</p>
+    </figcaption>
+  </figure>
+</a>
+```
+
+```js
+const prvs = new Parvus({
+  captionsSelector: '.figure__caption',
+})
+```
+
 ### Gallery
 
 If you have a group of related images that you would like to combine into a set, add the `data-group` attribute:
@@ -173,6 +193,15 @@ The following options are available:
 
   // All `selector` in this `gallerySelector` are combined as a gallery. Overwrites the `data-group` attribute
   gallerySelector: null,
+
+  // Display captions, if available
+  captions: true,
+
+  // Set the element where the caption is. Set it to "self" for the `a` tag itself
+  captionsSelector: 'self',
+
+  // Get the caption from given attribute
+  captionsAttribute: 'data-caption',
 
   // Click outside to close Parvus
   docClose: true,
