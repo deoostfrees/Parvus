@@ -14,6 +14,15 @@
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Parvus = factory());
 })(this, (function () { 'use strict';
 
+  var en = {
+    lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
+    lightboxLoadingIndicatorLabel: 'Image loading',
+    previousButtonLabel: 'Previous image',
+    nextButtonLabel: 'Next image',
+    closeButtonLabel: 'Close dialog window'
+  };
+
+  // Default language
   function Parvus(userOptions) {
     /**
      * Global variables
@@ -79,16 +88,7 @@
         previousButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18" /></svg>',
         nextButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="9 6 15 12 9 18" /></svg>',
         closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6L6 18M6 6l12 12"/></svg>',
-        lang: 'en',
-        i18n: {
-          en: {
-            lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
-            lightboxLoadingIndicatorLabel: 'Image loading',
-            previousButtonLabel: 'Previous image',
-            nextButtonLabel: 'Next image',
-            closeButtonLabel: 'Close dialog window'
-          }
-        },
+        l10n: en,
         fileTypes: /\.(png|jpe?g|webp|avif|svg)(\?.*)?$/i
       };
       return { ...OPTIONS,
@@ -282,7 +282,7 @@
       lightbox.setAttribute('aria-modal', 'true');
       lightbox.setAttribute('aria-hidden', 'true');
       lightbox.setAttribute('tabindex', '-1');
-      lightbox.setAttribute('aria-label', config.i18n[config.lang].lightboxLabel);
+      lightbox.setAttribute('aria-label', config.l10n.lightboxLabel);
       lightbox.classList.add('parvus'); // Create the lightbox overlay container
 
       lightboxOverlay = document.createElement('div');
@@ -294,7 +294,7 @@
       closeButton = document.createElement('button');
       closeButton.className = 'parvus__btn parvus__btn--close';
       closeButton.setAttribute('type', 'button');
-      closeButton.setAttribute('aria-label', config.i18n[config.lang].closeButtonLabel);
+      closeButton.setAttribute('aria-label', config.l10n.closeButtonLabel);
       closeButton.innerHTML = config.closeButtonIcon; // Add close button to lightbox container
 
       lightbox.appendChild(closeButton); // Create the previous button
@@ -302,7 +302,7 @@
       previousButton = document.createElement('button');
       previousButton.className = 'parvus__btn parvus__btn--previous';
       previousButton.setAttribute('type', 'button');
-      previousButton.setAttribute('aria-label', config.i18n[config.lang].previousButtonLabel);
+      previousButton.setAttribute('aria-label', config.l10n.previousButtonLabel);
       previousButton.innerHTML = config.previousButtonIcon; // Add previous button to lightbox container
 
       lightbox.appendChild(previousButton); // Create the next button
@@ -310,7 +310,7 @@
       nextButton = document.createElement('button');
       nextButton.className = 'parvus__btn parvus__btn--next';
       nextButton.setAttribute('type', 'button');
-      nextButton.setAttribute('aria-label', config.i18n[config.lang].nextButtonLabel);
+      nextButton.setAttribute('aria-label', config.l10n.nextButtonLabel);
       nextButton.innerHTML = config.nextButtonIcon; // Add next button to lightbox container
 
       lightbox.appendChild(nextButton); // Create the counter
@@ -545,7 +545,7 @@
 
       LOADING_INDICATOR.className = 'parvus__loader';
       LOADING_INDICATOR.setAttribute('role', 'progressbar');
-      LOADING_INDICATOR.setAttribute('aria-label', config.i18n[config.lang].lightboxLoadingIndicatorLabel); // Add loading indicator to container
+      LOADING_INDICATOR.setAttribute('aria-label', config.l10n.lightboxLoadingIndicatorLabel); // Add loading indicator to container
 
       container.appendChild(LOADING_INDICATOR);
 

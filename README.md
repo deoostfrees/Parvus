@@ -172,20 +172,10 @@ const prvs = new Parvus({
 You can pass an object with custom options as an argument.
 
 ```js
+import de from 'parvus/src/l10n/de.js'
+
 const prvs = new Parvus({
-  lang: 'de',
-  i18n: {
-    en: {
-      lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
-      lightboxLoadingIndicatorLabel: 'Image loading',
-      closeButtonLabel: 'Close dialog window'
-    },
-    de: {
-      lightboxLabel: 'Dies ist ein Dialogfenster, das den Hauptinhalt der Seite überlagert. Das Modal zeigt das vergrößerte Bild. Durch Drücken der Escape-Taste wird das Modal geschlossen und Sie kehren an die Stelle zurück, an der Sie sich auf der Seite befanden.',
-      lightboxLoadingIndicatorLabel: 'Bild wird geladen',
-      closeButtonLabel: 'Dialogfenster schließen'
-    }
-  }
+  l10n: de,
 })
 ```
 
@@ -235,17 +225,8 @@ The following options are available:
   nextButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="9 6 15 12 9 18" /></svg>',
   closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6L6 18M6 6l12 12"/></svg>',
 
-  // Internationalization
-  lang: 'en',
-  i18n: {
-    en: {
-      lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
-      lightboxLoadingIndicatorLabel: 'Image loading',
-      previousButtonLabel: 'Previous image',
-      nextButtonLabel: 'Next image',
-      closeButtonLabel: 'Close dialog window'
-    }
-  },
+  // Localization of strings
+  l10n: en,
 
   // Regular expression for supported image file types
   fileTypes: /\.(png|jpe?g|webp|avif|svg)(\?.*)?$/i
