@@ -24,11 +24,14 @@ Overlays sucks, don't use them. But if you must use one, use Parvus. Parvus trie
 
 ### Download
 
-CSS: `dist/css/parvus.min.css` minified, or `dist/css/parvus.css` un-minified
+- CSS:
+  - `dist/css/parvus.min.css` minified, or
+  - `dist/css/parvus.css` un-minified
+- JavaScript:
+  - `dist/js/parvus.min.js` minified, or
+  - `dist/js/parvus.js` un-minified
 
-JavaScript: `dist/js/parvus.min.js` minified, or `dist/js/parvus.js` un-minified
-
-Linking the `.css` and `.js` files to your HTML file. The HTML code may look like this:
+Link the `.css` and `.js` files to your HTML file. The HTML code may look like this:
 
 ```html
 <!DOCTYPE html>
@@ -84,7 +87,7 @@ Initialize the script by running:
 const prvs = new Parvus()
 ```
 
-### Caption
+### Captions
 
 Add a `data-caption` attribute if you want to show a caption under the image.
 
@@ -211,13 +214,13 @@ The following options are available:
   // Scroll to close Parvus
   scrollClose: false,
 
-  // Swipe up to close Parvus
+  // Swipe up/ down to close Parvus
   swipeClose: true,
 
   // Touch dragging threshold (in px)
   threshold: 100,
 
-  // Focus thumbnail from the last active slide after closing instead focus last active element before opening
+  // Set focus back to trigger element after closing Parvus
   backFocus: true,
 
   // Specifies how many milliseconds (ms) the transition effects takes to complete
