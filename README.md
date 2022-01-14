@@ -1,6 +1,6 @@
 # Parvus
 
-Parvus is an accessible, open-source image lightbox with no dependencies.
+Overlays sucks, don't use them. But if you must use one, use Parvus. Parvus tries to be an accessible, open-source image lightbox with no dependencies.
 
 ![Screenshot of Parvus. It shows the first picture of a gallery.](https://rqrauhvmra.com/parvus/parvus.png)
 
@@ -55,7 +55,7 @@ Linking the `.css` and `.js` files to your HTML file. The HTML code may look lik
 You can install Parvus through npm or yarn like any other dependency:
 
 ```
-npm install parvus --save
+npm install parvus
 ```
 
 ```
@@ -70,7 +70,7 @@ import Parvus from 'parvus'
 
 ## Usage
 
-The standard way of using Parvus is a linked thumbnail image with the class `lightbox` to a larger image:
+The standard way of using Parvus is a linked thumbnail image with the class `lightbox` to a larger image.
 
 ```html
 <a href="path/to/image.jpg" class="lightbox">
@@ -85,6 +85,8 @@ const prvs = new Parvus()
 ```
 
 ### Caption
+
+Add a `data-caption` attribute if you want to show a caption under the image.
 
 ```html
 <a href="path/to/image.jpg" class="lightbox" data-caption="I'm a caption">
@@ -114,7 +116,7 @@ const prvs = new Parvus({
 
 ### Gallery
 
-If you have a group of related images that you would like to combine into a set, add the `data-group` attribute:
+If you have a group of related images that you would like to combine into a set, add a `data-group` attribute:
 
 ```html
 <a href="path/to/image.jpg" class="lightbox" data-group="Berlin">
@@ -132,7 +134,7 @@ If you have a group of related images that you would like to combine into a set,
 </a>
 ```
 
-Instead of `data-group`, you can also set the option `gallerySelector` to combine all images with the `selector` class within this selector into a group.
+Instead of `data-group`, you can also set the option `gallerySelector` to combine all images with a `selector` class within this selector into a group.
 
 ```html
 <div class="gallery">
