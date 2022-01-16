@@ -27,7 +27,8 @@ function Parvus(userOptions) {
   const GROUP_ATTS = {
     gallery: [],
     slider: null,
-    sliderElements: []
+    sliderElements: [],
+    images: []
   };
   const GROUPS = {};
   let newGroup = null;
@@ -37,6 +38,9 @@ function Parvus(userOptions) {
   let lightbox = null;
   let lightboxOverlay = null;
   let lightboxOverlayOpacity = 1;
+  let toolbar = null;
+  let toolbarLeft = null;
+  let toolbarRight = null;
   let previousButton = null;
   let nextButton = null;
   let closeButton = null;
@@ -283,15 +287,20 @@ function Parvus(userOptions) {
     lightboxOverlay.classList.add('parvus__overlay');
     lightboxOverlay.style.opacity = 0; // Add lightbox overlay container to lightbox container
 
-    lightbox.appendChild(lightboxOverlay); // Create the close button
+    lightbox.appendChild(lightboxOverlay); // Create the toolbar
+
+    toolbar = document.createElement('div');
+    toolbar.className = 'parvus__toolbar';
+    toolbarLeft = document.createElement('div');
+    toolbarRight = document.createElement('div'); // Create the close button
 
     closeButton = document.createElement('button');
     closeButton.className = 'parvus__btn parvus__btn--close';
     closeButton.setAttribute('type', 'button');
     closeButton.setAttribute('aria-label', config.l10n.closeButtonLabel);
-    closeButton.innerHTML = config.closeButtonIcon; // Add close button to lightbox container
+    closeButton.innerHTML = config.closeButtonIcon; // Add close button to right toolbar item
 
-    lightbox.appendChild(closeButton); // Create the previous button
+    toolbarRight.appendChild(closeButton); // Create the previous button
 
     previousButton = document.createElement('button');
     previousButton.className = 'parvus__btn parvus__btn--previous';
@@ -310,9 +319,14 @@ function Parvus(userOptions) {
     lightbox.appendChild(nextButton); // Create the counter
 
     counter = document.createElement('div');
-    counter.className = 'parvus__counter'; // Add counter to lightbox container
+    counter.className = 'parvus__counter'; // Add counter to left toolbar item
 
-    lightbox.appendChild(counter); // Add lightbox container to body
+    toolbarLeft.appendChild(counter); // Add toolbar items to toolbar
+
+    toolbar.appendChild(toolbarLeft);
+    toolbar.appendChild(toolbarRight); // Add toolbar to lightbox container
+
+    lightbox.appendChild(toolbar); // Add lightbox container to body
 
     document.body.appendChild(lightbox);
   };
@@ -343,7 +357,7 @@ function Parvus(userOptions) {
     SLIDER_ELEMENT.style.left = `${index * 100}%`; // Hide slide
 
     SLIDER_ELEMENT.setAttribute('aria-hidden', 'true');
-    createImage(el, SLIDER_ELEMENT_CONTENT); // Add slide content container to slider element
+    createImage(index, el, SLIDER_ELEMENT_CONTENT); // Add slide content container to slider element
 
     SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT);
     GROUPS[activeGroup].sliderElements[index] = SLIDER_ELEMENT; // Add slider element to slider
@@ -438,8 +452,7 @@ function Parvus(userOptions) {
       throw new Error('Ups, I\'m already closed.');
     }
 
-    const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[currentIndex];
-    const IMAGE = IMAGE_CONTAINER.querySelector('img');
+    const IMAGE = GROUPS[activeGroup].images[currentIndex];
     const IMAGE_SIZE = IMAGE.getBoundingClientRect();
     const THUMBNAIL = config.backFocus ? GROUPS[activeGroup].gallery[currentIndex] : lastFocus;
     const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
@@ -522,6 +535,7 @@ function Parvus(userOptions) {
   const loadSlide = function loadSlide(index) {
     GROUPS[activeGroup].sliderElements[index].classList.add('parvus__slide--is-active');
     GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false');
+    setImageDimension(GROUPS[activeGroup].sliderElements[index], GROUPS[activeGroup].images[index]);
   };
   /**
    * Create Image
@@ -530,12 +544,14 @@ function Parvus(userOptions) {
    */
 
 
-  const createImage = function createImage(el, container) {
+  const createImage = function createImage(index, el, container) {
     const IMAGE = document.createElement('img');
-    const FIGURE = document.createElement('figure');
-    const FIGCAPTION = document.createElement('figcaption');
+    const IMAGE_CONTAINER = document.createElement('div');
+    const CAPTION_CONTAINER = document.createElement('div');
     const THUMBNAIL = el.querySelector('img');
-    const LOADING_INDICATOR = document.createElement('div'); // Create loading indicator
+    const LOADING_INDICATOR = document.createElement('div');
+    IMAGE_CONTAINER.className = 'parvus__content';
+    CAPTION_CONTAINER.className = 'parvus__caption'; // Create loading indicator
 
     LOADING_INDICATOR.className = 'parvus__loader';
     LOADING_INDICATOR.setAttribute('role', 'progressbar');
@@ -569,7 +585,8 @@ function Parvus(userOptions) {
     }
 
     IMAGE.style.opacity = 0;
-    FIGURE.appendChild(IMAGE); // Add caption if available
+    IMAGE_CONTAINER.appendChild(IMAGE);
+    GROUPS[activeGroup].images[index] = IMAGE; // Add caption if available
 
     if (config.captions) {
       let captionData = null;
@@ -591,12 +608,12 @@ function Parvus(userOptions) {
       }
 
       if (captionData !== null) {
-        FIGCAPTION.innerHTML = `<p>${captionData}</p>`;
-        FIGURE.appendChild(FIGCAPTION);
+        CAPTION_CONTAINER.innerHTML = `<p>${captionData}</p>`;
       }
     }
 
-    container.appendChild(FIGURE);
+    container.appendChild(IMAGE_CONTAINER);
+    container.appendChild(CAPTION_CONTAINER);
   };
   /**
    * Load Image
@@ -606,8 +623,7 @@ function Parvus(userOptions) {
 
 
   const loadImage = function loadImage(index) {
-    const IMAGE_CONTAINER = GROUPS[activeGroup].sliderElements[index];
-    const IMAGE = IMAGE_CONTAINER.querySelector('img');
+    const IMAGE = GROUPS[activeGroup].images[index];
     const IMAGE_SIZE = IMAGE.getBoundingClientRect();
     const THUMBNAIL = GROUPS[activeGroup].gallery[index];
     const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
@@ -863,9 +879,31 @@ function Parvus(userOptions) {
       resizeTicking = true;
       BROWSER_WINDOW.requestAnimationFrame(() => {
         updateOffset();
+        setImageDimension(GROUPS[activeGroup].sliderElements[currentIndex], GROUPS[activeGroup].images[currentIndex]);
         resizeTicking = false;
       });
     }
+  };
+  /**
+   * Set image with
+   *
+   * @param {HTMLElement} slideEl
+   * @param {HTMLElement} imageEl
+   */
+
+
+  const setImageDimension = function setImageDimension(slideEl, imageEl) {
+    const computedStyle = getComputedStyle(slideEl);
+    const captionRec = slideEl.querySelector('.parvus__caption').getBoundingClientRect();
+    const srcHeight = imageEl.naturalHeight;
+    const srcWidth = imageEl.naturalWidth;
+    let maxHeight = slideEl.clientHeight;
+    let maxWidth = slideEl.clientWidth;
+    maxHeight -= parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom) + parseFloat(captionRec.height);
+    maxWidth -= parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
+    const ratio = Math.min(maxWidth / srcWidth || 0, maxHeight / srcHeight);
+    imageEl.style.width = `${srcWidth * ratio || 0}px`;
+    imageEl.style.height = `${srcHeight * ratio || 0}px`;
   };
   /**
    * Click event handler to trigger Parvus

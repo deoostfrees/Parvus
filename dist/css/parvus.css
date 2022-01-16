@@ -8,9 +8,7 @@
   --parvus-button-hover-color: hsl(229, 24%, 33%);
   --parvus-button-hover-text: hsl(0, 0%, 100%);
   --parvus-loader-background-color: hsl(23, 40%, 96%);
-  --parvus-loader-color: hsl(228, 24%, 23%);
-  --parvus-image-max-height: 85vh;
-  --parvus-image-max-width: 85vw; }
+  --parvus-loader-color: hsl(228, 24%, 23%); }
 
 /**
  * Parvus trigger
@@ -87,30 +85,32 @@
   .parvus__slide {
     align-items: center;
     display: flex;
-    height: 100%;
+    flex-direction: column;
+    height: calc(100% - 4.75rem);
     justify-content: center;
-    width: 100%; }
+    padding-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 3.75rem;
+    width: calc(100% - 2rem); }
     @media screen and (prefers-reduced-motion: no-preference) {
       .parvus__slide {
         transition: visibility var(--parvus-transition-duration) var(--parvus-transition-timing-function); } }
     .parvus__slide:not(.parvus__slide--is-active) {
       visibility: hidden; }
-    .parvus__slide figure {
-      margin: 0; }
-    .parvus__slide figcaption {
-      padding: 1rem;
-      text-align: center;
+    .parvus__slide .parvus__caption {
+      color: var(--parvus-overlay-text);
+      padding-top: 0.5rem;
+      text-align: left;
       will-change: transform, opacity; }
       @media screen and (prefers-reduced-motion: no-preference) {
-        .parvus__slide figcaption {
+        .parvus__slide .parvus__caption {
           transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function); } }
     .parvus__slide img {
       display: block;
       height: auto;
       margin-left: auto;
       margin-right: auto;
-      max-height: var(--parvus-image-max-height);
-      max-width: var(--parvus-image-max-width);
       transform-origin: left top;
       width: auto; }
   .parvus__loader {
@@ -133,6 +133,14 @@
       right: 0;
       top: 0;
       z-index: 1; }
+  .parvus__toolbar {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    left: 1rem;
+    position: absolute;
+    right: 1rem;
+    top: 1rem; }
   .parvus__btn {
     appearance: none;
     background-color: var(--parvus-button-color);
@@ -144,6 +152,7 @@
     display: flex;
     font: inherit;
     padding: 0.3125rem;
+    position: relative;
     touch-action: manipulation;
     will-change: transform, opacity;
     z-index: 7; }
@@ -153,10 +162,6 @@
     .parvus__btn:hover {
       background-color: var(--parvus-button-hover-color);
       color: var(--parvus-button-hover-text); }
-    .parvus__btn--close {
-      position: absolute;
-      right: 1rem;
-      top: 1rem; }
     .parvus__btn--previous {
       left: 1rem;
       position: absolute;
@@ -179,14 +184,8 @@
     .parvus__btn[disabled] {
       display: none; }
   .parvus__counter {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    left: 1rem;
-    min-height: 2.75rem;
-    min-width: 2.75rem;
-    position: absolute;
-    top: 1rem; }
+    position: relative;
+    z-index: 7; }
     @media screen and (prefers-reduced-motion: no-preference) {
       .parvus__counter {
         transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function); } }
