@@ -50,8 +50,8 @@ export default function Parvus (userOptions) {
   /**
    * Merge default options with user options
    *
-   * @param {Object} userOptions - Optional user options
-   * @returns {Object} - Custom options
+   * @param {Object} userOptions
+   * @returns {Object}
    */
   const mergeOptions = function mergeOptions (userOptions) {
     // Default options
@@ -163,7 +163,7 @@ export default function Parvus (userOptions) {
    * Get group from element
    *
    * @param {HTMLElement} el
-   * @return {string}
+   * @return {String}
    */
   const getGroup = function getGroup (el) {
     const GROUP_ID = Math.floor(Math.random() * 10000)
@@ -178,8 +178,8 @@ export default function Parvus (userOptions) {
   /**
    * Copy an object. (The secure way)
    *
-   * @param {object} object
-   * @return {object}
+   * @param {Object} object
+   * @return {Object}
    */
   const copyObject = function copyObject (object) {
     return JSON.parse(JSON.stringify(object))
@@ -188,7 +188,7 @@ export default function Parvus (userOptions) {
   /**
    * Add element
    *
-   * @param {HTMLElement} el - Element to add
+   * @param {HTMLElement} el
    */
   const add = function add (el) {
     if (!(el.tagName === 'A' && el.hasAttribute('href') && el.href.match(config.fileTypes)) && !(el.tagName === 'BUTTON' && el.hasAttribute('data-target') && el.getAttribute('data-target').match(config.fileTypes))) {
@@ -236,7 +236,7 @@ export default function Parvus (userOptions) {
   /**
    * Remove element
    *
-   * @param {HTMLElement} el - Element to remove
+   * @param {HTMLElement} el
    */
   const remove = function remove (el) {
     if (isOpen() || !lightbox || !el || !el.hasAttribute('data-group')) {
@@ -364,6 +364,8 @@ export default function Parvus (userOptions) {
   /**
    * Create a slide
    *
+   * @param {HTMLElement} el
+   * @param {Number} index
    */
   const createSlide = function createSlide (el, index) {
     const SLIDER_ELEMENT = document.createElement('div')
@@ -398,7 +400,7 @@ export default function Parvus (userOptions) {
   /**
    * Open Parvus
    *
-   * @param {number} index - Index to load
+   * @param {HTMLElement} el
    */
   const open = function open (el) {
     if (!lightbox || !el || !el.classList.contains('parvus-trigger') || isOpen()) {
@@ -573,7 +575,7 @@ export default function Parvus (userOptions) {
   /**
    * Preload slide
    *
-   * @param {number} index - Index to preload
+   * @param {Number} index
    */
   const preload = function preload (index) {
     if (GROUPS[activeGroup].gallery[index] === undefined) {
@@ -587,7 +589,7 @@ export default function Parvus (userOptions) {
   /**
    * Load slide
    *
-   * @param {number} index - Index to load
+   * @param {Number} index
    */
   const loadSlide = function loadSlide (index) {
     GROUPS[activeGroup].sliderElements[index].classList.add('parvus__slide--is-active')
@@ -597,7 +599,9 @@ export default function Parvus (userOptions) {
   /**
    * Create Image
    *
-   * @param {number} index - Index to load
+   * @param {Number} index
+   * @param {HTMLElement} el
+   * @param {HTMLElement} container
    */
   const createImage = function createImage (index, el, container) {
     const IMAGE = document.createElement('img')
@@ -683,7 +687,7 @@ export default function Parvus (userOptions) {
   /**
    * Load Image
    *
-   * @param {number} index - Index to load
+   * @param {Number} index
    */
   const loadImage = function loadImage (index) {
     const IMAGE = GROUPS[activeGroup].images[index]
@@ -716,7 +720,7 @@ export default function Parvus (userOptions) {
   /**
    * Select a slide
    *
-   * @param {number} index - Index to select
+   * @param {Number} newIndex
    */
   const select = function select (newIndex) {
     const OLD_INDEX = currentIndex
@@ -796,7 +800,7 @@ export default function Parvus (userOptions) {
    * Leave slide
    * Will be called before moving index
    *
-   * @param {number} index - Index to leave
+   * @param {Number} index
    */
   const leaveSlide = function leaveSlide (index) {
     GROUPS[activeGroup].sliderElements[index].classList.remove('parvus__slide--is-active')
@@ -819,7 +823,7 @@ export default function Parvus (userOptions) {
   /**
    * Update focus
    *
-   * @param {string} dir - Current slide direction
+   * @param {String} dir
    */
   const updateFocus = function updateFocus (dir) {
     if (GROUPS[activeGroup].gallery.length === 1) {
@@ -1326,9 +1330,9 @@ export default function Parvus (userOptions) {
 
   /**
    * Bind event
-   * @param {String} eventName
-   * @param {function} callback - callback to call
    *
+   * @param {String} eventName
+   * @param {Function} callback
    */
   const on = function on (eventName, callback) {
     if (lightbox) {
@@ -1338,9 +1342,9 @@ export default function Parvus (userOptions) {
 
   /**
    * Unbind event
-   * @param {String} eventName
-   * @param {function} callback - callback to call
    *
+   * @param {String} eventName
+   * @param {Function} callback
    */
   const off = function off (eventName, callback) {
     if (lightbox) {
