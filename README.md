@@ -12,9 +12,10 @@ Overlays sucks, don't use them. But if you must use one, use Parvus. Parvus trie
   - [Download](#download)
   - [Package managers](#package-managers)
 - [Usage](#usage)
-  - [Caption](#caption)
+  - [Captions](#captions)
   - [Gallery](#gallery)
   - [scrset](#scrset)
+  - [Localization](#lokalization)
 - [Options](#options)
 - [API](#api)
 - [Events](#events)
@@ -167,15 +168,24 @@ const prvs = new Parvus({
 </a>
 ```
 
-## Options
-
-You can pass an object with custom options as an argument.
+### Localization
 
 ```js
 import de from 'parvus/src/l10n/de.js'
 
 const prvs = new Parvus({
-  l10n: de,
+  l10n: de
+})
+```
+
+## Options
+
+You can pass an object with custom options as an argument.
+
+```js
+const prvs = new Parvus({
+  // Click outside to close Parvus
+  docClose: false
 })
 ```
 
