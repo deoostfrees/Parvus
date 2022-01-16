@@ -13,9 +13,6 @@
 
   --parvus-loader-background-color: hsl(23, 40%, 96%);
   --parvus-loader-color: hsl(228, 24%, 23%);
-
-  --parvus-image-max-height: 85vh;
-  --parvus-image-max-width: 85vw;
 }
 
 /**
@@ -123,9 +120,14 @@
   &__slide {
     align-items: center;
     display: flex;
-    height: 100%;
+    flex-direction: column;
+    height: calc(100% - 4.75rem);
     justify-content: center;
-    width: 100%;
+    padding-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 3.75rem;
+    width: calc(100% - 2rem);
 
     @media screen and (prefers-reduced-motion: no-preference) {
       transition: visibility var(--parvus-transition-duration) var(--parvus-transition-timing-function);
@@ -135,14 +137,10 @@
       visibility: hidden;
     }
 
-
-    & figure {
-      margin: 0;
-    }
-
-    & figcaption {
-      padding: 1rem;
-      text-align: center;
+    & .parvus__caption {
+      color: var(--parvus-overlay-text);
+      padding-top: 0.5rem;
+      text-align: left;
       will-change: transform, opacity;
 
       @media screen and (prefers-reduced-motion: no-preference) {
@@ -155,8 +153,6 @@
       height: auto;
       margin-left: auto;
       margin-right: auto;
-      max-height: var(--parvus-image-max-height);
-      max-width: var(--parvus-image-max-width);
       transform-origin: left top;
       width: auto;
     }
@@ -187,6 +183,16 @@
     }
   }
 
+  &__toolbar {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    left: 1rem;
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+  }
+
   &__btn {
     appearance: none;
     background-color: var(--parvus-button-color);
@@ -198,6 +204,7 @@
     display: flex;
     font: inherit;
     padding: 0.3125rem;
+    position: relative;
     touch-action: manipulation;
     will-change: transform, opacity;
     z-index: 7;
@@ -213,9 +220,7 @@
 
 
     &--close {
-      position: absolute;
-      right: 1rem;
-      top: 1rem;
+
     }
 
     &--previous {
@@ -249,14 +254,9 @@
   }
 
   &__counter {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    left: 1rem;
-    min-height: 2.75rem;
-    min-width: 2.75rem;
-    position: absolute;
-    top: 1rem;
+    position: relative;
+    z-index: 7;
+
 
     @media screen and (prefers-reduced-motion: no-preference) {
       transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function);
