@@ -68,8 +68,8 @@
     /**
      * Merge default options with user options
      *
-     * @param {Object} userOptions - Optional user options
-     * @returns {Object} - Custom options
+     * @param {Object} userOptions
+     * @returns {Object}
      */
 
     const mergeOptions = function mergeOptions(userOptions) {
@@ -173,7 +173,7 @@
      * Get group from element
      *
      * @param {HTMLElement} el
-     * @return {string}
+     * @return {String}
      */
 
 
@@ -189,8 +189,8 @@
     /**
      * Copy an object. (The secure way)
      *
-     * @param {object} object
-     * @return {object}
+     * @param {Object} object
+     * @return {Object}
      */
 
 
@@ -200,7 +200,7 @@
     /**
      * Add element
      *
-     * @param {HTMLElement} el - Element to add
+     * @param {HTMLElement} el
      */
 
 
@@ -245,7 +245,7 @@
     /**
      * Remove element
      *
-     * @param {HTMLElement} el - Element to remove
+     * @param {HTMLElement} el
      */
 
 
@@ -352,6 +352,8 @@
     /**
      * Create a slide
      *
+     * @param {HTMLElement} el
+     * @param {Number} index
      */
 
 
@@ -381,7 +383,7 @@
     /**
      * Open Parvus
      *
-     * @param {number} index - Index to load
+     * @param {HTMLElement} el
      */
 
 
@@ -519,7 +521,7 @@
     /**
      * Preload slide
      *
-     * @param {number} index - Index to preload
+     * @param {Number} index
      */
 
 
@@ -534,7 +536,7 @@
     /**
      * Load slide
      *
-     * @param {number} index - Index to load
+     * @param {Number} index
      */
 
 
@@ -545,7 +547,9 @@
     /**
      * Create Image
      *
-     * @param {number} index - Index to load
+     * @param {Number} index
+     * @param {HTMLElement} el
+     * @param {HTMLElement} container
      */
 
 
@@ -624,7 +628,7 @@
     /**
      * Load Image
      *
-     * @param {number} index - Index to load
+     * @param {Number} index
      */
 
 
@@ -656,7 +660,7 @@
     /**
      * Select a slide
      *
-     * @param {number} index - Index to select
+     * @param {Number} newIndex
      */
 
 
@@ -734,7 +738,7 @@
      * Leave slide
      * Will be called before moving index
      *
-     * @param {number} index - Index to leave
+     * @param {Number} index
      */
 
 
@@ -757,7 +761,7 @@
     /**
      * Update focus
      *
-     * @param {string} dir - Current slide direction
+     * @param {String} dir
      */
 
 
@@ -1250,9 +1254,9 @@
     };
     /**
      * Bind event
-     * @param {String} eventName
-     * @param {function} callback - callback to call
      *
+     * @param {String} eventName
+     * @param {Function} callback
      */
 
 
@@ -1263,9 +1267,9 @@
     };
     /**
      * Unbind event
-     * @param {String} eventName
-     * @param {function} callback - callback to call
      *
+     * @param {String} eventName
+     * @param {Function} callback
      */
 
 
