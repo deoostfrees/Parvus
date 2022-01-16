@@ -535,7 +535,6 @@ function Parvus(userOptions) {
   const loadSlide = function loadSlide(index) {
     GROUPS[activeGroup].sliderElements[index].classList.add('parvus__slide--is-active');
     GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false');
-    setImageDimension(GROUPS[activeGroup].sliderElements[index], GROUPS[activeGroup].images[index]);
   };
   /**
    * Create Image
@@ -564,6 +563,7 @@ function Parvus(userOptions) {
 
       IMAGE.setAttribute('width', IMAGE.naturalWidth);
       IMAGE.setAttribute('height', IMAGE.naturalHeight);
+      setImageDimension(GROUPS[activeGroup].sliderElements[index], GROUPS[activeGroup].images[index]);
     };
 
     if (el.tagName === 'A') {
@@ -744,7 +744,7 @@ function Parvus(userOptions) {
 
   const updateOffset = function updateOffset() {
     activeGroup = activeGroup !== null ? activeGroup : newGroup;
-    offset = -currentIndex * lightbox.offsetWidth;
+    offset = currentIndex * lightbox.offsetWidth * -1;
     GROUPS[activeGroup].slider.style.transform = `translate3d(${offset}px, 0, 0)`;
     offsetTmp = offset;
   };
@@ -878,8 +878,8 @@ function Parvus(userOptions) {
     if (!resizeTicking) {
       resizeTicking = true;
       BROWSER_WINDOW.requestAnimationFrame(() => {
-        updateOffset();
         setImageDimension(GROUPS[activeGroup].sliderElements[currentIndex], GROUPS[activeGroup].images[currentIndex]);
+        updateOffset();
         resizeTicking = false;
       });
     }
@@ -897,8 +897,8 @@ function Parvus(userOptions) {
     const captionRec = slideEl.querySelector('.parvus__caption').getBoundingClientRect();
     const srcHeight = imageEl.naturalHeight;
     const srcWidth = imageEl.naturalWidth;
-    let maxHeight = slideEl.clientHeight;
-    let maxWidth = slideEl.clientWidth;
+    let maxHeight = slideEl.getBoundingClientRect().height;
+    let maxWidth = slideEl.getBoundingClientRect().width;
     maxHeight -= parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom) + parseFloat(captionRec.height);
     maxWidth -= parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
     const ratio = Math.min(maxWidth / srcWidth || 0, maxHeight / srcHeight);
