@@ -63,6 +63,7 @@
 .parvus {
   align-items: center;
   bottom: 0;
+  box-sizing: border-box;
   contain: strict;
   display: flex;
   font: normal normal 400 1.125rem/1.7 -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
@@ -75,6 +76,12 @@
   top: 0;
   z-index: 1337;
 
+
+  & *,
+  & *::before,
+  & *::after {
+    box-sizing: border-box;
+  }
 
   &[aria-hidden='true'] {
     display: none;
@@ -121,13 +128,13 @@
     align-items: center;
     display: flex;
     flex-direction: column;
-    height: calc(100% - 4.75rem);
+    height: 100%;
     justify-content: center;
     padding-bottom: 1rem;
     padding-left: 1rem;
     padding-right: 1rem;
     padding-top: 3.75rem;
-    width: calc(100% - 2rem);
+    width: 100%;
 
     @media screen and (prefers-reduced-motion: no-preference) {
       transition: visibility var(--parvus-transition-duration) var(--parvus-transition-timing-function);
