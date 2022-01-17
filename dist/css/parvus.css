@@ -201,11 +201,11 @@
     .parvus--is-opening .parvus__btn--close,
     .parvus--is-opening .parvus__btn--previous,
     .parvus--is-opening .parvus__btn--next,
-    .parvus--is-opening figcaption, .parvus--is-closing .parvus__counter,
+    .parvus--is-opening .parvus__caption, .parvus--is-closing .parvus__counter,
     .parvus--is-closing .parvus__btn--close,
     .parvus--is-closing .parvus__btn--previous,
     .parvus--is-closing .parvus__btn--next,
-    .parvus--is-closing figcaption {
+    .parvus--is-closing .parvus__caption {
       opacity: 0; }
     .parvus--is-vertical-closing .parvus__counter,
     .parvus--is-vertical-closing .parvus__btn--close {
@@ -217,7 +217,7 @@
     .parvus--is-vertical-closing .parvus__btn--next {
       transform: translate(100%, -50%);
       opacity: 0; }
-    .parvus--is-vertical-closing figcaption {
+    .parvus--is-vertical-closing .parvus__caption {
       transform: translateY(100%);
       opacity: 0; } }
 
