@@ -352,26 +352,28 @@ function Parvus(userOptions) {
 
 
   const createSlide = function createSlide(el, index) {
-    const SLIDER_ELEMENT = document.createElement('div');
-    const SLIDER_ELEMENT_CONTENT = document.createElement('div');
-    SLIDER_ELEMENT.className = 'parvus__slide';
-    SLIDER_ELEMENT.style.position = 'absolute';
-    SLIDER_ELEMENT.style.left = `${index * 100}%`; // Hide slide
+    if (groups[activeGroup].sliderElements[index] !== undefined) ; else {
+      const SLIDER_ELEMENT = document.createElement('div');
+      const SLIDER_ELEMENT_CONTENT = document.createElement('div');
+      SLIDER_ELEMENT.className = 'parvus__slide';
+      SLIDER_ELEMENT.style.position = 'absolute';
+      SLIDER_ELEMENT.style.left = `${index * 100}%`; // Hide slide
 
-    SLIDER_ELEMENT.setAttribute('aria-hidden', 'true');
-    createImage(index, el, SLIDER_ELEMENT_CONTENT); // Add slide content container to slider element
+      SLIDER_ELEMENT.setAttribute('aria-hidden', 'true');
+      createImage(index, el, SLIDER_ELEMENT_CONTENT); // Add slide content container to slider element
 
-    SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT);
-    groups[activeGroup].sliderElements[index] = SLIDER_ELEMENT; // Add slider element to slider
+      SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT);
+      groups[activeGroup].sliderElements[index] = SLIDER_ELEMENT; // Add slider element to slider
 
-    if (index === currentIndex) {
-      groups[activeGroup].slider.appendChild(SLIDER_ELEMENT);
-    }
+      if (index === currentIndex) {
+        groups[activeGroup].slider.appendChild(SLIDER_ELEMENT);
+      }
 
-    if (index > currentIndex) {
-      groups[activeGroup].sliderElements[currentIndex].after(SLIDER_ELEMENT);
-    } else {
-      groups[activeGroup].sliderElements[currentIndex].before(SLIDER_ELEMENT);
+      if (index > currentIndex) {
+        groups[activeGroup].sliderElements[currentIndex].after(SLIDER_ELEMENT);
+      } else {
+        groups[activeGroup].sliderElements[currentIndex].before(SLIDER_ELEMENT);
+      }
     }
   };
   /**
@@ -499,14 +501,9 @@ function Parvus(userOptions) {
       lightbox.classList.remove('parvus--is-closing');
       lightbox.classList.remove('parvus--is-vertical-closing'); // Reset groups
 
-      /* TODO: Mach's halt richtig :-/
-      groups[activeGroup].gallery = []
-      groups[activeGroup].slider = null
-      groups[activeGroup].sliderElements = []
-      groups[activeGroup].images = []
-      */
-
       groups[activeGroup].slider.remove();
+      groups[activeGroup].slider = null;
+      groups[activeGroup].sliderElements = [];
       IMAGE.style.transform = '';
     }, {
       once: true
