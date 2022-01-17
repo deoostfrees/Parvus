@@ -577,6 +577,7 @@
 
         IMAGE.setAttribute('width', IMAGE.naturalWidth);
         IMAGE.setAttribute('height', IMAGE.naturalHeight);
+        setImageDimension(groups[activeGroup].sliderElements[index], IMAGE);
       };
 
       if (el.tagName === 'A') {
@@ -635,7 +636,6 @@
 
 
     const loadImage = function loadImage(index) {
-      setImageDimension(groups[activeGroup].sliderElements[index], groups[activeGroup].images[index]);
       const IMAGE = groups[activeGroup].images[index];
       const IMAGE_SIZE = IMAGE.getBoundingClientRect();
       const THUMBNAIL = groups[activeGroup].gallery[index];
