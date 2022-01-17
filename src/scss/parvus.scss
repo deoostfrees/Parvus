@@ -286,7 +286,7 @@
       & .parvus__btn--close,
       & .parvus__btn--previous,
       & .parvus__btn--next,
-      & figcaption {
+      & .parvus__caption {
         opacity: 0;
       }
     }
@@ -311,7 +311,7 @@
         opacity: 0;
       }
 
-      & figcaption {
+      & .parvus__caption {
         transform: translateY(100%);
         opacity: 0;
       }
