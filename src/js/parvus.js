@@ -702,11 +702,6 @@ export default function Parvus (userOptions) {
       xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
       yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
 
-      console.log(THUMBNAIL_SIZE.width)
-      console.log(THUMBNAIL_SIZE.height)
-      console.log(IMAGE_SIZE.width)
-      console.log(IMAGE_SIZE.height)
-
       requestAnimationFrame(() => {
         IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
         IMAGE.style.transition = 'transform 0s, opacity 0s'
@@ -970,23 +965,20 @@ export default function Parvus (userOptions) {
    */
   const setImageDimension = function setImageDimension (slideEl, imageEl) {
     const computedStyle = getComputedStyle(slideEl)
-    const captionRec = slideEl.querySelector('.parvus__caption').getBoundingClientRect()
+    const captionRec = slideEl.querySelector('.parvus__caption') !== null ? slideEl.querySelector('.parvus__caption').getBoundingClientRect().height : 0
     const srcHeight = imageEl.naturalHeight
     const srcWidth = imageEl.naturalWidth
 
     let maxHeight = slideEl.getBoundingClientRect().height
     let maxWidth = slideEl.getBoundingClientRect().width
 
-    maxHeight -= parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom) + parseFloat(captionRec.height)
+    maxHeight -= parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom) + parseFloat(captionRec)
     maxWidth -= parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight)
 
     const ratio = Math.min(maxWidth / srcWidth || 0, maxHeight / srcHeight)
 
     imageEl.style.width = `${srcWidth * ratio || 0}px`
     imageEl.style.height = `${srcHeight * ratio || 0}px`
-
-    console.log(srcWidth * ratio || 0)
-    console.log(srcHeight * ratio || 0)
   }
 
   /**
