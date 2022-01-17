@@ -499,7 +499,14 @@ function Parvus(userOptions) {
       lightbox.classList.remove('parvus--is-closing');
       lightbox.classList.remove('parvus--is-vertical-closing'); // Reset groups
 
-      groups = {};
+      /* TODO: Mach's halt richtig :-/
+      groups[activeGroup].gallery = []
+      groups[activeGroup].slider = null
+      groups[activeGroup].sliderElements = []
+      groups[activeGroup].images = []
+      */
+
+      groups[activeGroup].slider.remove();
       IMAGE.style.transform = '';
     }, {
       once: true
