@@ -233,7 +233,9 @@
 
         if (isOpen() && newGroup === activeGroup) {
           createSlide(el, groups[newGroup].gallery.indexOf(el));
-          loadImage(groups[newGroup].gallery.indexOf(el));
+          createImage(el, groups[newGroup].gallery.indexOf(el), function () {
+            loadImage(groups[newGroup].gallery.indexOf(el));
+          });
           updateConfig();
           updateFocus();
           updateCounter();
@@ -365,8 +367,7 @@
         SLIDER_ELEMENT.style.position = 'absolute';
         SLIDER_ELEMENT.style.left = `${index * 100}%`; // Hide slide
 
-        SLIDER_ELEMENT.setAttribute('aria-hidden', 'true');
-        createImage(index, el, SLIDER_ELEMENT_CONTENT); // Add slide content container to slider element
+        SLIDER_ELEMENT.setAttribute('aria-hidden', 'true'); // Add slide content container to slider element
 
         SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT);
         groups[activeGroup].sliderElements[index] = SLIDER_ELEMENT; // Add slider element to slider
@@ -429,20 +430,22 @@
       updateCounter();
       setFocusToFirstItem();
       loadSlide(currentIndex);
-      loadImage(currentIndex);
-      requestAnimationFrame(() => {
-        lightbox.classList.remove('parvus--is-opening');
-        lightboxOverlay.style.opacity = 1;
-        lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
-        lightboxOverlay.style.willChange = 'opacity';
-      });
-      lightboxOverlay.addEventListener('transitionend', () => {
-        // Preload previous and next slide
-        preload(currentIndex + 1);
-        preload(currentIndex - 1);
-      }); // Add class for slider animation
+      createImage(el, currentIndex, function () {
+        loadImage(currentIndex);
+        requestAnimationFrame(() => {
+          lightbox.classList.remove('parvus--is-opening');
+          lightboxOverlay.style.opacity = 1;
+          lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
+          lightboxOverlay.style.willChange = 'opacity';
+        });
+        lightboxOverlay.addEventListener('transitionend', () => {
+          // Preload previous and next slide
+          preload(currentIndex + 1);
+          preload(currentIndex - 1);
+        }); // Add class for slider animation
 
-      groups[activeGroup].slider.classList.add('parvus__slider--animate'); // Create and dispatch a new event
+        groups[activeGroup].slider.classList.add('parvus__slider--animate');
+      }); // Create and dispatch a new event
 
       const OPEN_EVENT = new CustomEvent('open', {
         detail: {
@@ -505,12 +508,13 @@
 
         lightbox.setAttribute('aria-hidden', 'true');
         lightbox.classList.remove('parvus--is-closing');
-        lightbox.classList.remove('parvus--is-vertical-closing'); // Reset groups
+        lightbox.classList.remove('parvus--is-vertical-closing');
+        IMAGE.style.transform = ''; // Reset groups
 
         groups[activeGroup].slider.remove();
         groups[activeGroup].slider = null;
         groups[activeGroup].sliderElements = [];
-        IMAGE.style.transform = '';
+        groups[activeGroup].images = [];
       }, {
         once: true
       }); // Create and dispatch a new event
@@ -535,7 +539,9 @@
       }
 
       createSlide(groups[activeGroup].gallery[index], index);
-      loadImage(index);
+      createImage(groups[activeGroup].gallery[index], index, function () {
+        loadImage(index);
+      });
     };
     /**
      * Load slide
@@ -557,74 +563,81 @@
      */
 
 
-    const createImage = function createImage(index, el, container) {
-      const IMAGE = document.createElement('img');
-      const IMAGE_CONTAINER = document.createElement('div');
-      const CAPTION_CONTAINER = document.createElement('div');
-      const THUMBNAIL = el.querySelector('img');
-      const LOADING_INDICATOR = document.createElement('div');
-      IMAGE_CONTAINER.className = 'parvus__content';
-      CAPTION_CONTAINER.className = 'parvus__caption'; // Create loading indicator
+    const createImage = function createImage(el, index, callback) {
+      if (groups[activeGroup].images[index] !== undefined) ; else {
+        const container = groups[activeGroup].sliderElements[index].querySelector('div');
+        const IMAGE = document.createElement('img');
+        const IMAGE_CONTAINER = document.createElement('div');
+        const CAPTION_CONTAINER = document.createElement('div');
+        const THUMBNAIL = el.querySelector('img');
+        const LOADING_INDICATOR = document.createElement('div');
+        IMAGE_CONTAINER.className = 'parvus__content';
+        CAPTION_CONTAINER.className = 'parvus__caption'; // Create loading indicator
 
-      LOADING_INDICATOR.className = 'parvus__loader';
-      LOADING_INDICATOR.setAttribute('role', 'progressbar');
-      LOADING_INDICATOR.setAttribute('aria-label', config.l10n.lightboxLoadingIndicatorLabel); // Add loading indicator to container
+        LOADING_INDICATOR.className = 'parvus__loader';
+        LOADING_INDICATOR.setAttribute('role', 'progressbar');
+        LOADING_INDICATOR.setAttribute('aria-label', config.l10n.lightboxLoadingIndicatorLabel); // Add loading indicator to container
 
-      container.appendChild(LOADING_INDICATOR);
+        container.appendChild(LOADING_INDICATOR);
 
-      IMAGE.onload = () => {
-        container.removeChild(LOADING_INDICATOR); // Set image width and height
+        IMAGE.onload = () => {
+          container.removeChild(LOADING_INDICATOR); // Set image width and height
 
-        IMAGE.setAttribute('width', IMAGE.naturalWidth);
-        IMAGE.setAttribute('height', IMAGE.naturalHeight);
-        setImageDimension(groups[activeGroup].sliderElements[index], IMAGE);
-      };
+          IMAGE.setAttribute('width', IMAGE.naturalWidth);
+          IMAGE.setAttribute('height', IMAGE.naturalHeight);
+          setImageDimension(groups[activeGroup].sliderElements[index], IMAGE);
 
-      if (el.tagName === 'A') {
-        IMAGE.setAttribute('src', el.href);
+          if (callback && typeof callback === 'function') {
+            callback();
+          }
+        };
 
-        if (THUMBNAIL) {
-          IMAGE.alt = THUMBNAIL.alt || '';
+        if (el.tagName === 'A') {
+          IMAGE.setAttribute('src', el.href);
+
+          if (THUMBNAIL) {
+            IMAGE.alt = THUMBNAIL.alt || '';
+          } else {
+            IMAGE.alt = el.getAttribute('data-alt') || '';
+          }
         } else {
           IMAGE.alt = el.getAttribute('data-alt') || '';
+          IMAGE.setAttribute('src', el.getAttribute('data-target'));
+        } // Add srcset if available
+
+
+        if (el.hasAttribute('data-srcset') && el.getAttribute('data-srcset') !== '') {
+          IMAGE.setAttribute('srcset', el.getAttribute('data-srcset'));
         }
-      } else {
-        IMAGE.alt = el.getAttribute('data-alt') || '';
-        IMAGE.setAttribute('src', el.getAttribute('data-target'));
-      } // Add srcset if available
 
+        IMAGE.style.opacity = 0;
+        IMAGE_CONTAINER.appendChild(IMAGE);
+        groups[activeGroup].images[index] = IMAGE;
+        container.appendChild(IMAGE_CONTAINER); // Add caption if available
 
-      if (el.hasAttribute('data-srcset') && el.getAttribute('data-srcset') !== '') {
-        IMAGE.setAttribute('srcset', el.getAttribute('data-srcset'));
-      }
+        if (config.captions) {
+          let captionData = null;
 
-      IMAGE.style.opacity = 0;
-      IMAGE_CONTAINER.appendChild(IMAGE);
-      groups[activeGroup].images[index] = IMAGE;
-      container.appendChild(IMAGE_CONTAINER); // Add caption if available
+          if (config.captionsSelector === 'self') {
+            if (el.hasAttribute(config.captionsAttribute) && el.getAttribute(config.captionsAttribute) !== '') {
+              captionData = el.getAttribute(config.captionsAttribute);
+            }
+          } else {
+            if (el.querySelector(config.captionsSelector) !== null) {
+              const CAPTION_SELECTOR = el.querySelector(config.captionsSelector);
 
-      if (config.captions) {
-        let captionData = null;
-
-        if (config.captionsSelector === 'self') {
-          if (el.hasAttribute(config.captionsAttribute) && el.getAttribute(config.captionsAttribute) !== '') {
-            captionData = el.getAttribute(config.captionsAttribute);
-          }
-        } else {
-          if (el.querySelector(config.captionsSelector) !== null) {
-            const CAPTION_SELECTOR = el.querySelector(config.captionsSelector);
-
-            if (CAPTION_SELECTOR.hasAttribute(config.captionsAttribute) && CAPTION_SELECTOR.getAttribute(config.captionsAttribute) !== '') {
-              captionData = CAPTION_SELECTOR.getAttribute(config.captionsAttribute);
-            } else {
-              captionData = CAPTION_SELECTOR.innerHTML;
+              if (CAPTION_SELECTOR.hasAttribute(config.captionsAttribute) && CAPTION_SELECTOR.getAttribute(config.captionsAttribute) !== '') {
+                captionData = CAPTION_SELECTOR.getAttribute(config.captionsAttribute);
+              } else {
+                captionData = CAPTION_SELECTOR.innerHTML;
+              }
             }
           }
-        }
 
-        if (captionData !== null) {
-          CAPTION_CONTAINER.innerHTML = `<p>${captionData}</p>`;
-          container.appendChild(CAPTION_CONTAINER);
+          if (captionData !== null) {
+            CAPTION_CONTAINER.innerHTML = `<p>${captionData}</p>`;
+            container.appendChild(CAPTION_CONTAINER);
+          }
         }
       }
     };
@@ -914,6 +927,12 @@
       let maxWidth = slideEl.getBoundingClientRect().width;
       maxHeight -= parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom) + parseFloat(captionRec);
       maxWidth -= parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
+
+      if (imageEl.naturalHeight < maxHeight && imageEl.naturalWidth < maxWidth) {
+        maxHeight = imageEl.naturalHeight;
+        maxWidth = imageEl.naturalWidth;
+      }
+
       const ratio = Math.min(maxWidth / srcWidth || 0, maxHeight / srcHeight);
       imageEl.style.width = `${srcWidth * ratio || 0}px`;
       imageEl.style.height = `${srcHeight * ratio || 0}px`;
