@@ -904,7 +904,9 @@
       if (!resizeTicking) {
         resizeTicking = true;
         BROWSER_WINDOW.requestAnimationFrame(() => {
-          setImageDimension(groups[activeGroup].sliderElements[currentIndex], groups[activeGroup].images[currentIndex]);
+          groups[activeGroup].sliderElements.forEach(function (slide, index) {
+            setImageDimension(groups[activeGroup].sliderElements[index], groups[activeGroup].images[index]);
+          });
           updateOffset();
           resizeTicking = false;
         });
@@ -931,7 +933,7 @@
       const newWidth = srcWidth * ratio || 0;
       const newHeight = srcHeight * ratio || 0;
 
-      if (imageEl.getAttribute('height') > newHeight && imageEl.getAttribute('height') < maxHeight || imageEl.getAttribute('width') > newWidth && imageEl.getAttribute('width') < maxWidth || imageEl.getAttribute('height') < newHeight || imageEl.getAttribute('width') < newWidth) {
+      if (imageEl.getAttribute('height') > newHeight && imageEl.getAttribute('height') < maxHeight && imageEl.getAttribute('width') > newWidth && imageEl.getAttribute('width') < maxWidth || imageEl.getAttribute('height') < newHeight && imageEl.getAttribute('height') < maxHeight && imageEl.getAttribute('width') < newWidth && imageEl.getAttribute('width') < maxWidth) {
         imageEl.style.width = '';
         imageEl.style.height = '';
       } else {
