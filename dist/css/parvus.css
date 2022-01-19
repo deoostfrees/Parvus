@@ -170,12 +170,12 @@
     .parvus__btn--previous {
       left: 1rem;
       position: absolute;
-      top: 50%;
+      top: calc(50% + 1.375rem);
       transform: translateY(-50%); }
     .parvus__btn--next {
       position: absolute;
       right: 1rem;
-      top: 50%;
+      top: calc(50% + 1.375rem);
       transform: translateY(-50%); }
     .parvus__btn svg {
       fill: none;
