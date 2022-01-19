@@ -988,8 +988,8 @@ export default function Parvus (userOptions) {
   const setImageDimension = function setImageDimension (slideEl, imageEl) {
     const computedStyle = getComputedStyle(slideEl)
     const captionRec = slideEl.querySelector('.parvus__caption') !== null ? slideEl.querySelector('.parvus__caption').getBoundingClientRect().height : 0
-    const srcHeight = imageEl.naturalHeight
-    const srcWidth = imageEl.naturalWidth
+    const srcHeight = imageEl.getAttribute('height')
+    const srcWidth = imageEl.getAttribute('width')
 
     let maxHeight = slideEl.getBoundingClientRect().height
     let maxWidth = slideEl.getBoundingClientRect().width
@@ -997,15 +997,28 @@ export default function Parvus (userOptions) {
     maxHeight -= parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom) + parseFloat(captionRec)
     maxWidth -= parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight)
 
-    if (imageEl.naturalHeight < maxHeight && imageEl.naturalWidth < maxWidth) {
-      maxHeight = imageEl.naturalHeight
-      maxWidth = imageEl.naturalWidth
-    }
-
     const ratio = Math.min(maxWidth / srcWidth || 0, maxHeight / srcHeight)
 
-    imageEl.style.width = `${srcWidth * ratio || 0}px`
-    imageEl.style.height = `${srcHeight * ratio || 0}px`
+    const newWidth = srcWidth * ratio || 0
+    const newHeight = srcHeight * ratio || 0
+
+    if ((
+      imageEl.getAttribute('height') > newHeight &&
+      imageEl.getAttribute('height') < maxHeight
+    ) || (
+      imageEl.getAttribute('width') > newWidth &&
+      imageEl.getAttribute('width') < maxWidth
+    ) || (
+      imageEl.getAttribute('height') < newHeight
+    ) || (
+      imageEl.getAttribute('width') < newWidth
+    )) {
+      imageEl.style.width = ''
+      imageEl.style.height = ''
+    } else {
+      imageEl.style.width = `${newWidth}px`
+      imageEl.style.height = `${newHeight}px`
+    }
   }
 
   /**
