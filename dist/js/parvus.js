@@ -635,6 +635,8 @@
           }
 
           if (captionData !== null) {
+            GROUPS[activeGroup].sliderElements[index].setAttribute('aria-labelledby', `parvus__caption-${index}`);
+            CAPTION_CONTAINER.id = `parvus__caption-${index}`;
             CAPTION_CONTAINER.innerHTML = `<p>${captionData}</p>`;
             container.appendChild(CAPTION_CONTAINER);
           }
