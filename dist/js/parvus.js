@@ -36,7 +36,7 @@
       sliderElements: [],
       images: []
     };
-    let groups = {};
+    const GROUPS = {};
     let newGroup = null;
     let activeGroup = null;
     let currentIndex = 0;
@@ -178,6 +178,7 @@
 
 
     const getGroup = function getGroup(el) {
+      // Create a unique ID
       const GROUP_ID = Math.floor(Math.random() * 10000);
 
       if (!el.hasAttribute('data-group') || el.getAttribute('data-group') === '') {
@@ -211,13 +212,13 @@
 
       newGroup = getGroup(el);
 
-      if (!Object.prototype.hasOwnProperty.call(groups, newGroup)) {
-        groups[newGroup] = copyObject(GROUP_ATTS);
+      if (!Object.prototype.hasOwnProperty.call(GROUPS, newGroup)) {
+        GROUPS[newGroup] = copyObject(GROUP_ATTS);
       } // Check if element already exists
 
 
-      if (!groups[newGroup].gallery.includes(el)) {
-        groups[newGroup].gallery.push(el);
+      if (!GROUPS[newGroup].gallery.includes(el)) {
+        GROUPS[newGroup].gallery.push(el);
 
         if (el.querySelector('img') !== null) {
           const LIGHTBOX_INDICATOR_ICON = document.createElement('div');
@@ -232,9 +233,9 @@
         el.addEventListener('click', triggerParvus);
 
         if (isOpen() && newGroup === activeGroup) {
-          createSlide(el, groups[newGroup].gallery.indexOf(el));
-          createImage(el, groups[newGroup].gallery.indexOf(el), function () {
-            loadImage(groups[newGroup].gallery.indexOf(el));
+          createSlide(GROUPS[newGroup].gallery.indexOf(el));
+          createImage(el, GROUPS[newGroup].gallery.indexOf(el), function () {
+            loadImage(GROUPS[newGroup].gallery.indexOf(el));
           });
           updateConfig();
           updateFocus();
@@ -258,12 +259,12 @@
 
       const GROUP = getGroup(el); // Check if element exists
 
-      if (!groups[GROUP].gallery.includes(el)) {
+      if (!GROUPS[GROUP].gallery.includes(el)) {
         throw new Error('Ups, I can\'t find the element.');
       } // TODO: Remove elements dynamically
 
 
-      groups[GROUP].gallery.splice(groups[GROUP].gallery.indexOf(el), 1); // Remove lightbox indicator icon if necessary
+      GROUPS[GROUP].gallery.splice(GROUPS[GROUP].gallery.indexOf(el), 1); // Remove lightbox indicator icon if necessary
 
       if (el.classList.contains('parvus-zoom')) {
         const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator');
@@ -345,22 +346,21 @@
 
 
     const createSlider = function createSlider() {
-      groups[activeGroup].slider = document.createElement('div');
-      groups[activeGroup].slider.className = 'parvus__slider'; // Hide slider
+      GROUPS[activeGroup].slider = document.createElement('div');
+      GROUPS[activeGroup].slider.className = 'parvus__slider'; // Hide slider
 
-      groups[activeGroup].slider.setAttribute('aria-hidden', 'true');
-      lightbox.appendChild(groups[activeGroup].slider);
+      GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'true');
+      lightbox.appendChild(GROUPS[activeGroup].slider);
     };
     /**
      * Create a slide
      *
      * @param {HTMLElement} el
-     * @param {Number} index
      */
 
 
-    const createSlide = function createSlide(el, index) {
-      if (groups[activeGroup].sliderElements[index] !== undefined) ; else {
+    const createSlide = function createSlide(index) {
+      if (GROUPS[activeGroup].sliderElements[index] !== undefined) ; else {
         const SLIDER_ELEMENT = document.createElement('div');
         const SLIDER_ELEMENT_CONTENT = document.createElement('div');
         SLIDER_ELEMENT.className = 'parvus__slide';
@@ -370,16 +370,16 @@
         SLIDER_ELEMENT.setAttribute('aria-hidden', 'true'); // Add slide content container to slider element
 
         SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT);
-        groups[activeGroup].sliderElements[index] = SLIDER_ELEMENT; // Add slider element to slider
+        GROUPS[activeGroup].sliderElements[index] = SLIDER_ELEMENT; // Add slider element to slider
 
         if (index === currentIndex) {
-          groups[activeGroup].slider.appendChild(SLIDER_ELEMENT);
+          GROUPS[activeGroup].slider.appendChild(SLIDER_ELEMENT);
         }
 
         if (index > currentIndex) {
-          groups[activeGroup].sliderElements[currentIndex].after(SLIDER_ELEMENT);
+          GROUPS[activeGroup].sliderElements[currentIndex].after(SLIDER_ELEMENT);
         } else {
-          groups[activeGroup].sliderElements[currentIndex].before(SLIDER_ELEMENT);
+          GROUPS[activeGroup].sliderElements[currentIndex].before(SLIDER_ELEMENT);
         }
       }
     };
@@ -397,11 +397,11 @@
 
       activeGroup = getGroup(el); // Check if element exists
 
-      if (!groups[activeGroup].gallery.includes(el)) {
+      if (!GROUPS[activeGroup].gallery.includes(el)) {
         throw new Error('Ups, I can\'t find the element.');
       }
 
-      currentIndex = groups[activeGroup].gallery.indexOf(el); // Save user’s focus
+      currentIndex = GROUPS[activeGroup].gallery.indexOf(el); // Save user’s focus
 
       lastFocus = document.activeElement; // Use `history.pushState()` to make sure the 'Back' button behavior
       // that aligns with the user's expectations
@@ -422,9 +422,9 @@
 
       lightbox.setAttribute('aria-hidden', 'false');
       createSlider();
-      createSlide(el, currentIndex); // Show slider
+      createSlide(currentIndex); // Show slider
 
-      groups[activeGroup].slider.setAttribute('aria-hidden', 'false');
+      GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false');
       updateOffset();
       updateConfig();
       updateCounter();
@@ -444,7 +444,7 @@
           preload(currentIndex - 1);
         }); // Add class for slider animation
 
-        groups[activeGroup].slider.classList.add('parvus__slider--animate');
+        GROUPS[activeGroup].slider.classList.add('parvus__slider--animate');
       }); // Create and dispatch a new event
 
       const OPEN_EVENT = new CustomEvent('open', {
@@ -465,9 +465,9 @@
         throw new Error('Ups, I\'m already closed.');
       }
 
-      const IMAGE = groups[activeGroup].images[currentIndex];
+      const IMAGE = GROUPS[activeGroup].images[currentIndex];
       const IMAGE_SIZE = IMAGE.getBoundingClientRect();
-      const THUMBNAIL = config.backFocus ? groups[activeGroup].gallery[currentIndex] : lastFocus;
+      const THUMBNAIL = config.backFocus ? GROUPS[activeGroup].gallery[currentIndex] : lastFocus;
       const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
       unbindEvents();
       clearDrag(); // Remove entry in browser history
@@ -501,7 +501,7 @@
         // Don't forget to cleanup our current element
         leaveSlide(currentIndex); // Reenable the user’s focus
 
-        lastFocus = config.backFocus ? groups[activeGroup].gallery[currentIndex] : lastFocus;
+        lastFocus = config.backFocus ? GROUPS[activeGroup].gallery[currentIndex] : lastFocus;
         lastFocus.focus({
           preventScroll: true
         }); // Hide lightbox
@@ -509,19 +509,19 @@
         lightbox.setAttribute('aria-hidden', 'true');
         lightbox.classList.remove('parvus--is-closing');
         lightbox.classList.remove('parvus--is-vertical-closing');
-        IMAGE.style.transform = ''; // Reset groups
+        IMAGE.style.transform = ''; // Reset GROUPS
 
-        groups[activeGroup].slider.remove();
-        groups[activeGroup].slider = null;
-        groups[activeGroup].sliderElements = [];
-        groups[activeGroup].images = [];
+        GROUPS[activeGroup].slider.remove();
+        GROUPS[activeGroup].slider = null;
+        GROUPS[activeGroup].sliderElements = [];
+        GROUPS[activeGroup].images = [];
       }, {
         once: true
       }); // Create and dispatch a new event
 
       const CLOSE_EVENT = new CustomEvent('close', {
         detail: {
-          source: groups[activeGroup].gallery[currentIndex]
+          source: GROUPS[activeGroup].gallery[currentIndex]
         }
       });
       lightbox.dispatchEvent(CLOSE_EVENT);
@@ -534,12 +534,12 @@
 
 
     const preload = function preload(index) {
-      if (groups[activeGroup].gallery[index] === undefined) {
+      if (GROUPS[activeGroup].gallery[index] === undefined) {
         return;
       }
 
-      createSlide(groups[activeGroup].gallery[index], index);
-      createImage(groups[activeGroup].gallery[index], index, function () {
+      createSlide(index);
+      createImage(GROUPS[activeGroup].gallery[index], index, function () {
         loadImage(index);
       });
     };
@@ -551,21 +551,21 @@
 
 
     const loadSlide = function loadSlide(index) {
-      groups[activeGroup].sliderElements[index].classList.add('parvus__slide--is-active');
-      groups[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false');
+      GROUPS[activeGroup].sliderElements[index].classList.add('parvus__slide--is-active');
+      GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false');
     };
     /**
      * Create Image
      *
-     * @param {Number} index
      * @param {HTMLElement} el
-     * @param {HTMLElement} container
+     * @param {Number} index
+     * @param {Function} callback
      */
 
 
     const createImage = function createImage(el, index, callback) {
-      if (groups[activeGroup].images[index] !== undefined) ; else {
-        const container = groups[activeGroup].sliderElements[index].querySelector('div');
+      if (GROUPS[activeGroup].images[index] !== undefined) ; else {
+        const container = GROUPS[activeGroup].sliderElements[index].querySelector('div');
         const IMAGE = document.createElement('img');
         const IMAGE_CONTAINER = document.createElement('div');
         const CAPTION_CONTAINER = document.createElement('div');
@@ -585,7 +585,7 @@
 
           IMAGE.setAttribute('width', IMAGE.naturalWidth);
           IMAGE.setAttribute('height', IMAGE.naturalHeight);
-          setImageDimension(groups[activeGroup].sliderElements[index], IMAGE);
+          setImageDimension(GROUPS[activeGroup].sliderElements[index], IMAGE);
 
           if (callback && typeof callback === 'function') {
             callback();
@@ -612,7 +612,7 @@
 
         IMAGE.style.opacity = 0;
         IMAGE_CONTAINER.appendChild(IMAGE);
-        groups[activeGroup].images[index] = IMAGE;
+        GROUPS[activeGroup].images[index] = IMAGE;
         container.appendChild(IMAGE_CONTAINER); // Add caption if available
 
         if (config.captions) {
@@ -649,9 +649,9 @@
 
 
     const loadImage = function loadImage(index) {
-      const IMAGE = groups[activeGroup].images[index];
+      const IMAGE = GROUPS[activeGroup].images[index];
       const IMAGE_SIZE = IMAGE.getBoundingClientRect();
-      const THUMBNAIL = groups[activeGroup].gallery[index];
+      const THUMBNAIL = GROUPS[activeGroup].gallery[index];
       const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
 
       if (lightbox.classList.contains('parvus--is-opening')) {
@@ -676,54 +676,54 @@
     /**
      * Select a slide
      *
-     * @param {Number} newIndex
+     * @param {Number} index
      */
 
 
-    const select = function select(newIndex) {
+    const select = function select(index) {
       const OLD_INDEX = currentIndex;
 
       if (!isOpen()) {
         throw new Error('Ups, I\'m closed.');
       } else {
-        if (!newIndex && newIndex !== 0) {
+        if (!index && index !== 0) {
           throw new Error('Ups, no slide specified.');
         }
 
-        if (newIndex === currentIndex) {
-          throw new Error(`Ups, slide ${newIndex} is already selected.`);
+        if (index === currentIndex) {
+          throw new Error(`Ups, slide ${index} is already selected.`);
         }
 
-        if (newIndex === -1 || newIndex >= groups[activeGroup].gallery.length) {
-          throw new Error(`Ups, I can't find slide ${newIndex}.`);
+        if (index === -1 || index >= GROUPS[activeGroup].gallery.length) {
+          throw new Error(`Ups, I can't find slide ${index}.`);
         }
       }
 
       leaveSlide(OLD_INDEX);
-      loadSlide(newIndex);
-      loadImage(newIndex);
+      loadSlide(index);
+      loadImage(index);
 
-      if (newIndex < OLD_INDEX) {
+      if (index < OLD_INDEX) {
         currentIndex--;
         updateOffset();
         updateConfig();
         updateFocus('left');
-        preload(newIndex - 1);
+        preload(index - 1);
       }
 
-      if (newIndex > OLD_INDEX) {
+      if (index > OLD_INDEX) {
         currentIndex++;
         updateOffset();
         updateConfig();
         updateFocus('right');
-        preload(newIndex + 1);
+        preload(index + 1);
       }
 
       updateCounter(); // Create and dispatch a new event
 
       const SELECT_EVENT = new CustomEvent('select', {
         detail: {
-          source: groups[activeGroup].gallery[currentIndex]
+          source: GROUPS[activeGroup].gallery[currentIndex]
         }
       });
       lightbox.dispatchEvent(SELECT_EVENT);
@@ -746,7 +746,7 @@
 
 
     const next = function next() {
-      if (currentIndex < groups[activeGroup].gallery.length - 1) {
+      if (currentIndex < GROUPS[activeGroup].gallery.length - 1) {
         select(currentIndex + 1);
       }
     };
@@ -759,8 +759,8 @@
 
 
     const leaveSlide = function leaveSlide(index) {
-      groups[activeGroup].sliderElements[index].classList.remove('parvus__slide--is-active');
-      groups[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'true');
+      GROUPS[activeGroup].sliderElements[index].classList.remove('parvus__slide--is-active');
+      GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'true');
     };
     /**
      * Update offset
@@ -771,7 +771,7 @@
     const updateOffset = function updateOffset() {
       activeGroup = activeGroup !== null ? activeGroup : newGroup;
       offset = currentIndex * lightbox.offsetWidth * -1;
-      groups[activeGroup].slider.style.transform = `translate3d(${offset}px, 0, 0)`;
+      GROUPS[activeGroup].slider.style.transform = `translate3d(${offset}px, 0, 0)`;
       offsetTmp = offset;
     };
     /**
@@ -782,13 +782,13 @@
 
 
     const updateFocus = function updateFocus(dir) {
-      if (groups[activeGroup].gallery.length === 1) {
+      if (GROUPS[activeGroup].gallery.length === 1) {
         closeButton.focus();
       } else {
         // If the first slide is displayed
         if (currentIndex === 0) {
           nextButton.focus(); // If the last slide is displayed
-        } else if (currentIndex === groups[activeGroup].gallery.length - 1) {
+        } else if (currentIndex === GROUPS[activeGroup].gallery.length - 1) {
           previousButton.focus();
         } else {
           if (dir === 'left') {
@@ -806,7 +806,7 @@
 
 
     const updateCounter = function updateCounter() {
-      counter.textContent = `${currentIndex + 1}/${groups[activeGroup].gallery.length}`;
+      counter.textContent = `${currentIndex + 1}/${GROUPS[activeGroup].gallery.length}`;
     };
     /**
      * Clear drag after touchend event
@@ -836,7 +836,7 @@
 
       if (isDraggingX && MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex > 0) {
         previous();
-      } else if (isDraggingX && MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex !== groups[activeGroup].gallery.length - 1) {
+      } else if (isDraggingX && MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex !== GROUPS[activeGroup].gallery.length - 1) {
         next();
       } else if (isDraggingY && MOVEMENT_Y_DISTANCE > 0) {
         if (MOVEMENT_Y_DISTANCE >= config.threshold && config.swipeClose) {
@@ -857,12 +857,12 @@
 
 
     const updateConfig = function updateConfig() {
-      if (config.swipeClose && !groups[activeGroup].slider.classList.contains('parvus__slider--is-draggable') || groups[activeGroup].gallery.length > 1 && !groups[activeGroup].slider.classList.contains('parvus__slider--is-draggable')) {
-        groups[activeGroup].slider.classList.add('parvus__slider--is-draggable');
+      if (config.swipeClose && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable') || GROUPS[activeGroup].gallery.length > 1 && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable')) {
+        GROUPS[activeGroup].slider.classList.add('parvus__slider--is-draggable');
       } // Hide buttons if necessary
 
 
-      if (groups[activeGroup].gallery.length === 1) {
+      if (GROUPS[activeGroup].gallery.length === 1) {
         previousButton.setAttribute('aria-hidden', 'true');
         previousButton.disabled = true;
         nextButton.setAttribute('aria-hidden', 'true');
@@ -874,7 +874,7 @@
           previousButton.disabled = true;
           nextButton.setAttribute('aria-hidden', 'false');
           nextButton.disabled = false; // If the last slide is displayed
-        } else if (currentIndex === groups[activeGroup].gallery.length - 1) {
+        } else if (currentIndex === GROUPS[activeGroup].gallery.length - 1) {
           previousButton.setAttribute('aria-hidden', 'false');
           previousButton.disabled = false;
           nextButton.setAttribute('aria-hidden', 'true');
@@ -888,7 +888,7 @@
       } // Hide counter if necessary
 
 
-      if (groups[activeGroup].gallery.length === 1) {
+      if (GROUPS[activeGroup].gallery.length === 1) {
         counter.setAttribute('aria-hidden', 'true');
       } else {
         counter.setAttribute('aria-hidden', 'false');
@@ -904,8 +904,8 @@
       if (!resizeTicking) {
         resizeTicking = true;
         BROWSER_WINDOW.requestAnimationFrame(() => {
-          groups[activeGroup].sliderElements.forEach(function (slide, index) {
-            setImageDimension(groups[activeGroup].sliderElements[index], groups[activeGroup].images[index]);
+          GROUPS[activeGroup].sliderElements.forEach((slide, index) => {
+            setImageDimension(slide, GROUPS[activeGroup].images[index]);
           });
           updateOffset();
           resizeTicking = false;
@@ -933,7 +933,7 @@
       const newWidth = srcWidth * ratio || 0;
       const newHeight = srcHeight * ratio || 0;
 
-      if (imageEl.getAttribute('height') > newHeight && imageEl.getAttribute('height') < maxHeight && imageEl.getAttribute('width') > newWidth && imageEl.getAttribute('width') < maxWidth || imageEl.getAttribute('height') < newHeight && imageEl.getAttribute('height') < maxHeight && imageEl.getAttribute('width') < newWidth && imageEl.getAttribute('width') < maxWidth) {
+      if (srcHeight > newHeight && srcHeight < maxHeight && srcWidth > newWidth && srcWidth < maxWidth || srcHeight < newHeight && srcHeight < maxHeight && srcWidth < newWidth && srcWidth < maxWidth) {
         imageEl.style.width = '';
         imageEl.style.height = '';
       } else {
@@ -976,7 +976,7 @@
 
 
     const getFocusableChildren = function getFocusableChildren() {
-      return Array.prototype.slice.call(lightbox.querySelectorAll(`${FOCUSABLE_ELEMENTS.join(', ')}`)).filter(function (child) {
+      return Array.prototype.slice.call(lightbox.querySelectorAll(`${FOCUSABLE_ELEMENTS.join(', ')}`)).filter(child => {
         return !!(child.offsetWidth || child.offsetHeight || child.getClientRects().length);
       });
     };
@@ -1049,8 +1049,8 @@
       pointerDown = true;
       drag.startX = event.pageX;
       drag.startY = event.pageY;
-      groups[activeGroup].slider.classList.add('parvus__slider--is-dragging');
-      groups[activeGroup].slider.style.willChange = 'transform';
+      GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging');
+      GROUPS[activeGroup].slider.style.willChange = 'transform';
     };
     /**
      * Mousemove event handler
@@ -1076,8 +1076,8 @@
     const mouseupHandler = function mouseupHandler(event) {
       event.stopPropagation();
       pointerDown = false;
-      groups[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
-      groups[activeGroup].slider.style.willChange = 'auto';
+      GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
+      GROUPS[activeGroup].slider.style.willChange = 'auto';
 
       if (drag.endX || drag.endY) {
         updateAfterDrag();
@@ -1098,8 +1098,8 @@
       pointerDown = true;
       drag.startX = event.touches[0].pageX;
       drag.startY = event.touches[0].pageY;
-      groups[activeGroup].slider.classList.add('parvus__slider--is-dragging');
-      groups[activeGroup].slider.style.willChange = 'transform';
+      GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging');
+      GROUPS[activeGroup].slider.style.willChange = 'transform';
     };
     /**
      * Touchmove event handler
@@ -1126,8 +1126,8 @@
     const touchendHandler = function touchendHandler(event) {
       event.stopPropagation();
       pointerDown = false;
-      groups[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
-      groups[activeGroup].slider.style.willChange = 'auto';
+      GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
+      GROUPS[activeGroup].slider.style.willChange = 'auto';
 
       if (drag.endX || drag.endY) {
         updateAfterDrag();
@@ -1146,9 +1146,9 @@
       const MOVEMENT_Y = drag.endY - drag.startY;
       const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
 
-      if (Math.abs(MOVEMENT_X) > 0 && !isDraggingY && groups[activeGroup].gallery.length > 1) {
+      if (Math.abs(MOVEMENT_X) > 0 && !isDraggingY && GROUPS[activeGroup].gallery.length > 1) {
         // Horizontal swipe
-        groups[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`;
+        GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`;
         isDraggingX = true;
         isDraggingY = false;
       } else if (Math.abs(MOVEMENT_Y) > 0 && !isDraggingX && config.swipeClose) {
@@ -1160,7 +1160,7 @@
 
         lightbox.classList.add('parvus--is-vertical-closing');
         lightboxOverlay.style.opacity = lightboxOverlayOpacity;
-        groups[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`;
+        GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`;
         isDraggingX = false;
         isDraggingY = true;
       }
