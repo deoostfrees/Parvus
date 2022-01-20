@@ -62,6 +62,8 @@ You can install Parvus through npm or yarn like any other dependency:
 npm install parvus
 ```
 
+or
+
 ```
 yarn add parvus
 ```
@@ -71,6 +73,8 @@ Then you can import Parvus in your JavaScript codebase:
 ```js
 import Parvus from 'parvus'
 ```
+
+Remember to include the corresponding SCSS or CSS file.
 
 ## Usage
 
