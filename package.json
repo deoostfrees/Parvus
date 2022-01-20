@@ -30,7 +30,8 @@
     "globals": [
       "history",
       "CustomEvent",
-      "requestAnimationFrame"
+      "requestAnimationFrame",
+      "getComputedStyle"
     ]
   },
   "scripts": {
