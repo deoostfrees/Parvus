@@ -64,7 +64,7 @@ if (process.env.BUILDJS) {
         presets: [
           ['@babel/preset-env', {
             corejs: 3.15,
-            useBuiltIns: 'usage'
+            useBuiltIns: 'entry'
           }]
         ]
       }),
