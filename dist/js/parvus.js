@@ -83,6 +83,7 @@
         docClose: true,
         scrollClose: false,
         swipeClose: true,
+        simulateTouch: true,
         threshold: 50,
         backFocus: true,
         transitionDuration: 300,
@@ -859,7 +860,7 @@
 
 
     const updateConfig = function updateConfig() {
-      if (config.swipeClose && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable') || GROUPS[activeGroup].gallery.length > 1 && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable')) {
+      if ((config.simulateTouch || isTouchDevice()) && config.swipeClose && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable') || (config.simulateTouch || isTouchDevice()) && GROUPS[activeGroup].gallery.length > 1 && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable')) {
         GROUPS[activeGroup].slider.classList.add('parvus__slider--is-draggable');
       } // Hide buttons if necessary
 
@@ -1194,9 +1195,11 @@
       } // Mouse events
 
 
-      lightbox.addEventListener('mousedown', mousedownHandler);
-      lightbox.addEventListener('mouseup', mouseupHandler);
-      lightbox.addEventListener('mousemove', mousemoveHandler);
+      if (config.simulateTouch) {
+        lightbox.addEventListener('mousedown', mousedownHandler);
+        lightbox.addEventListener('mouseup', mouseupHandler);
+        lightbox.addEventListener('mousemove', mousemoveHandler);
+      }
     };
     /**
      * Unbind events
@@ -1225,9 +1228,11 @@
       } // Mouse events
 
 
-      lightbox.removeEventListener('mousedown', mousedownHandler);
-      lightbox.removeEventListener('mouseup', mouseupHandler);
-      lightbox.removeEventListener('mousemove', mousemoveHandler);
+      if (config.simulateTouch) {
+        lightbox.removeEventListener('mousedown', mousedownHandler);
+        lightbox.removeEventListener('mouseup', mouseupHandler);
+        lightbox.removeEventListener('mousemove', mousemoveHandler);
+      }
     };
     /**
      * Destroy Parvus

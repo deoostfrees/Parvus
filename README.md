@@ -221,6 +221,9 @@ The following options are available:
   // Swipe up/ down to close Parvus
   swipeClose: true,
 
+  // Accept mouse events like touch events (click and drag to change slides)
+  simulateTouch: true,
+
   // Touch dragging threshold (in px)
   threshold: 100,
 
