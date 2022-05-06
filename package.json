@@ -1,6 +1,6 @@
 {
   "name": "parvus",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "An accessible, open-source image lightbox with no dependencies.",
   "main": "dist/js/parvus.js",
   "style": "dist/css/parvus.css",
