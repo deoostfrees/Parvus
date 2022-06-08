@@ -14,7 +14,7 @@ Overlays sucks, don't use them. But if you must use one, use Parvus. Parvus trie
 - [Usage](#usage)
   - [Captions](#captions)
   - [Gallery](#gallery)
-  - [scrset](#scrset)
+  - [srcset](#srcset)
   - [Localization](#lokalization)
 - [Options](#options)
 - [API](#api)
@@ -164,7 +164,7 @@ const prvs = new Parvus({
 })
 ```
 
-### scrset
+### srcset
 
 ```html
 <a href="path/to/image.jpg" class="lightbox" data-srcset="path/to/large.jpg 1200w, path/to/medium.jpg 1000w, path/to/small.jpg 700w">
