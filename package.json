@@ -5,20 +5,20 @@
   "main": "dist/js/parvus.js",
   "style": "dist/css/parvus.css",
   "devDependencies": {
-    "@babel/core": "^7.17.10",
-    "@babel/preset-env": "^7.17.10",
+    "@babel/core": "^7.18.5",
+    "@babel/preset-env": "^7.18.2",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-commonjs": "^22.0.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
-    "core-js": "^3.22.5",
-    "postcss": "^8.4.13",
-    "rollup": "^2.72.1",
-    "rollup-plugin-license": "^2.7.0",
+    "core-js": "^3.23.0",
+    "postcss": "^8.4.14",
+    "rollup": "^2.75.6",
+    "rollup-plugin-license": "^2.8.1",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-terser": "^7.0.2",
     "standard": "^17.0.0",
-    "sass": "^1.51.0",
-    "stylelint": "^14.8.2"
+    "sass": "^1.52.3",
+    "stylelint": "^14.9.1"
   },
   "browserslist": [
     "last 2 versions",
