@@ -257,6 +257,7 @@ export default function Parvus (userOptions) {
     // TODO: Remove elements dynamically
 
     GROUPS[GROUP].gallery.splice(GROUPS[GROUP].gallery.indexOf(el), 1)
+    GROUPS[GROUP].sliderElements.splice(GROUPS[GROUP].gallery.indexOf(el), 1)
 
     // Remove lightbox indicator icon if necessary
     if (el.classList.contains('parvus-zoom')) {
@@ -264,6 +265,12 @@ export default function Parvus (userOptions) {
 
       el.classList.remove('parvus-zoom')
       el.removeChild(LIGHTBOX_INDICATOR_ICON)
+    }
+
+    if (isOpen() && GROUP === activeGroup) {
+      updateConfig()
+      updateFocus()
+      updateCounter()
     }
 
     // Unbind click event handler
