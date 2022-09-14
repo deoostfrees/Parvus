@@ -53,7 +53,7 @@ export default function Parvus (userOptions) {
    * @param {Object} userOptions
    * @returns {Object}
    */
-  const mergeOptions = function mergeOptions (userOptions) {
+  const mergeOptions = (userOptions) => {
     // Default options
     const OPTIONS = {
       selector: '.lightbox',
@@ -90,7 +90,7 @@ export default function Parvus (userOptions) {
    */
   const MOTIONQUERY = window.matchMedia('(prefers-reduced-motion)')
 
-  const reducedMotionCheck = function reducedMotionCheck () {
+  const reducedMotionCheck = () => {
     if (MOTIONQUERY.matches) {
       isReducedMotion = true
       transitionDuration = config.reducedTransitionDuration
@@ -107,7 +107,7 @@ export default function Parvus (userOptions) {
    * Init
    *
    */
-  const init = function init (userOptions) {
+  const init = (userOptions) => {
     // Merge user options into defaults
     config = mergeOptions(userOptions)
 
@@ -166,7 +166,7 @@ export default function Parvus (userOptions) {
    * @param {HTMLElement} el
    * @return {String}
    */
-  const getGroup = function getGroup (el) {
+  const getGroup = (el) => {
     // Create a unique ID
     const GROUP_ID = Math.floor(Math.random() * 10000)
 
@@ -183,7 +183,7 @@ export default function Parvus (userOptions) {
    * @param {Object} object
    * @return {Object}
    */
-  const copyObject = function copyObject (object) {
+  const copyObject = (object) => {
     return JSON.parse(JSON.stringify(object))
   }
 
@@ -192,7 +192,7 @@ export default function Parvus (userOptions) {
    *
    * @param {HTMLElement} el
    */
-  const add = function add (el) {
+  const add = (el) => {
     if (!(el.tagName === 'A' && el.hasAttribute('href') && el.href.match(config.fileTypes)) && !(el.tagName === 'BUTTON' && el.hasAttribute('data-target') && el.getAttribute('data-target').match(config.fileTypes))) {
       throw new Error(el, `Use a link with the 'href' attribute or a button with the 'data-target' attribute. Both attributes must have a path to the image file. Supported image file types: ${config.fileTypes}.`)
     }
@@ -225,7 +225,7 @@ export default function Parvus (userOptions) {
 
       if (isOpen() && newGroup === activeGroup) {
         createSlide(GROUPS[newGroup].gallery.indexOf(el))
-        createImage(el, GROUPS[newGroup].gallery.indexOf(el), function () {
+        createImage(el, GROUPS[newGroup].gallery.indexOf(el), () => {
           loadImage(GROUPS[newGroup].gallery.indexOf(el))
         })
         updateConfig()
@@ -242,7 +242,7 @@ export default function Parvus (userOptions) {
    *
    * @param {HTMLElement} el
    */
-  const remove = function remove (el) {
+  const remove = (el) => {
     if (isOpen() || !lightbox || !el || !el.hasAttribute('data-group')) {
       return
     }
@@ -283,7 +283,7 @@ export default function Parvus (userOptions) {
    * Create the lightbox
    *
    */
-  const createLightbox = function createLightbox () {
+  const createLightbox = () => {
     // Create the lightbox container
     lightbox = document.createElement('div')
     lightbox.setAttribute('role', 'dialog')
@@ -362,7 +362,7 @@ export default function Parvus (userOptions) {
    * Create a slider
    *
    */
-  const createSlider = function createSlider () {
+  const createSlider = () => {
     GROUPS[activeGroup].slider = document.createElement('div')
     GROUPS[activeGroup].slider.className = 'parvus__slider'
 
@@ -377,7 +377,7 @@ export default function Parvus (userOptions) {
    *
    * @param {HTMLElement} el
    */
-  const createSlide = function createSlide (index) {
+  const createSlide = (index) => {
     if (GROUPS[activeGroup].sliderElements[index] !== undefined) {
       // Nothing
     } else {
@@ -414,7 +414,7 @@ export default function Parvus (userOptions) {
    *
    * @param {HTMLElement} el
    */
-  const open = function open (el) {
+  const open = (el) => {
     if (!lightbox || !el || !el.classList.contains('parvus-trigger') || isOpen()) {
       return
     }
@@ -470,7 +470,7 @@ export default function Parvus (userOptions) {
 
     loadSlide(currentIndex)
 
-    createImage(el, currentIndex, function () {
+    createImage(el, currentIndex, () => {
       loadImage(currentIndex)
 
       requestAnimationFrame(() => {
@@ -505,7 +505,7 @@ export default function Parvus (userOptions) {
    * Close Parvus
    *
    */
-  const close = function close () {
+  const close = () => {
     if (!isOpen()) {
       throw new Error('Ups, I\'m already closed.')
     }
@@ -596,13 +596,13 @@ export default function Parvus (userOptions) {
    *
    * @param {Number} index
    */
-  const preload = function preload (index) {
+  const preload = (index) => {
     if (GROUPS[activeGroup].gallery[index] === undefined) {
       return
     }
 
     createSlide(index)
-    createImage(GROUPS[activeGroup].gallery[index], index, function () {
+    createImage(GROUPS[activeGroup].gallery[index], index, () => {
       loadImage(index)
     })
   }
@@ -612,7 +612,7 @@ export default function Parvus (userOptions) {
    *
    * @param {Number} index
    */
-  const loadSlide = function loadSlide (index) {
+  const loadSlide = (index) => {
     GROUPS[activeGroup].sliderElements[index].classList.add('parvus__slide--is-active')
     GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false')
   }
@@ -624,7 +624,7 @@ export default function Parvus (userOptions) {
    * @param {Number} index
    * @param {Function} callback
    */
-  const createImage = function createImage (el, index, callback) {
+  const createImage = (el, index, callback) => {
     if (GROUPS[activeGroup].images[index] !== undefined) {
       // Nothing
     } else {
@@ -723,7 +723,7 @@ export default function Parvus (userOptions) {
    *
    * @param {Number} index
    */
-  const loadImage = function loadImage (index) {
+  const loadImage = (index) => {
     const IMAGE = GROUPS[activeGroup].images[index]
     const IMAGE_SIZE = IMAGE.getBoundingClientRect()
     const THUMBNAIL = GROUPS[activeGroup].gallery[index]
@@ -756,7 +756,7 @@ export default function Parvus (userOptions) {
    *
    * @param {Number} index
    */
-  const select = function select (index) {
+  const select = (index) => {
     const OLD_INDEX = currentIndex
 
     if (!isOpen()) {
@@ -814,7 +814,7 @@ export default function Parvus (userOptions) {
    * Select the previous slide
    *
    */
-  const previous = function previous () {
+  const previous = () => {
     if (currentIndex > 0) {
       select(currentIndex - 1)
     }
@@ -824,7 +824,7 @@ export default function Parvus (userOptions) {
    * Select the next slide
    *
    */
-  const next = function next () {
+  const next = () => {
     if (currentIndex < GROUPS[activeGroup].gallery.length - 1) {
       select(currentIndex + 1)
     }
@@ -836,7 +836,7 @@ export default function Parvus (userOptions) {
    *
    * @param {Number} index
    */
-  const leaveSlide = function leaveSlide (index) {
+  const leaveSlide = (index) => {
     GROUPS[activeGroup].sliderElements[index].classList.remove('parvus__slide--is-active')
     GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'true')
   }
@@ -845,7 +845,7 @@ export default function Parvus (userOptions) {
    * Update offset
    *
    */
-  const updateOffset = function updateOffset () {
+  const updateOffset = () => {
     activeGroup = activeGroup !== null ? activeGroup : newGroup
 
     offset = (currentIndex * lightbox.offsetWidth) * -1
@@ -859,7 +859,7 @@ export default function Parvus (userOptions) {
    *
    * @param {String} dir
    */
-  const updateFocus = function updateFocus (dir) {
+  const updateFocus = (dir) => {
     if (GROUPS[activeGroup].gallery.length === 1) {
       closeButton.focus()
     } else {
@@ -883,7 +883,7 @@ export default function Parvus (userOptions) {
    * Update counter
    *
    */
-  const updateCounter = function updateCounter () {
+  const updateCounter = () => {
     counter.textContent = `${currentIndex + 1}/${GROUPS[activeGroup].gallery.length}`
   }
 
@@ -891,7 +891,7 @@ export default function Parvus (userOptions) {
    * Clear drag after touchend event
    *
    */
-  const clearDrag = function clearDrag () {
+  const clearDrag = () => {
     drag = {
       startX: 0,
       endX: 0,
@@ -904,7 +904,7 @@ export default function Parvus (userOptions) {
    * Recalculate drag / swipe event
    *
    */
-  const updateAfterDrag = function updateAfterDrag () {
+  const updateAfterDrag = () => {
     const MOVEMENT_X = drag.endX - drag.startX
     const MOVEMENT_Y = drag.endY - drag.startY
     const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
@@ -933,7 +933,7 @@ export default function Parvus (userOptions) {
    * Update Config
    *
    */
-  const updateConfig = function updateConfig () {
+  const updateConfig = () => {
     if (((config.simulateTouch || isTouchDevice()) && config.swipeClose && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable')) || ((config.simulateTouch || isTouchDevice()) && GROUPS[activeGroup].gallery.length > 1 && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable'))) {
       GROUPS[activeGroup].slider.classList.add('parvus__slider--is-draggable')
     }
@@ -977,7 +977,7 @@ export default function Parvus (userOptions) {
    * Resize event
    *
    */
-  const resizeHandler = function resizeHandler () {
+  const resizeHandler = () => {
     if (!resizeTicking) {
       resizeTicking = true
 
@@ -999,7 +999,7 @@ export default function Parvus (userOptions) {
    * @param {HTMLElement} slideEl
    * @param {HTMLElement} imageEl
    */
-  const setImageDimension = function setImageDimension (slideEl, imageEl) {
+  const setImageDimension = (slideEl, imageEl) => {
     const computedStyle = getComputedStyle(slideEl)
     const captionRec = slideEl.querySelector('.parvus__caption') !== null ? slideEl.querySelector('.parvus__caption').getBoundingClientRect().height : 0
     const srcHeight = imageEl.getAttribute('height')
@@ -1039,7 +1039,7 @@ export default function Parvus (userOptions) {
    * Click event handler to trigger Parvus
    *
    */
-  const triggerParvus = function triggerParvus (event) {
+  const triggerParvus = (event) => {
     event.preventDefault()
 
     open(this)
@@ -1049,7 +1049,7 @@ export default function Parvus (userOptions) {
    * Click event handler
    *
    */
-  const clickHandler = function clickHandler (event) {
+  const clickHandler = (event) => {
     if (event.target === previousButton) {
       previous()
     } else if (event.target === nextButton) {
@@ -1066,7 +1066,7 @@ export default function Parvus (userOptions) {
    *
    * @return {Array<Element>}
    */
-  const getFocusableChildren = function getFocusableChildren () {
+  const getFocusableChildren = () => {
     return Array.prototype.slice.call(lightbox.querySelectorAll(`${FOCUSABLE_ELEMENTS.join(', ')}`)).filter((child) => {
       return !!(
         child.offsetWidth ||
@@ -1080,7 +1080,7 @@ export default function Parvus (userOptions) {
    * Set focus to first item
    *
    */
-  const setFocusToFirstItem = function setFocusToFirstItem () {
+  const setFocusToFirstItem = () => {
     const FOCUSABLE_CHILDREN = getFocusableChildren()
 
     FOCUSABLE_CHILDREN[0].focus()
@@ -1090,7 +1090,7 @@ export default function Parvus (userOptions) {
    * Keydown event handler
    *
    */
-  const keydownHandler = function keydownHandler (event) {
+  const keydownHandler = (event) => {
     const FOCUSABLE_CHILDREN = getFocusableChildren()
     const FOCUSED_ITEM_INDEX = FOCUSABLE_CHILDREN.indexOf(document.activeElement)
 
@@ -1126,7 +1126,7 @@ export default function Parvus (userOptions) {
    * Wheel event handler
    *
    */
-  const wheelHandler = function wheelHandler () {
+  const wheelHandler = () => {
     close()
   }
 
@@ -1134,7 +1134,7 @@ export default function Parvus (userOptions) {
    * Mousedown event handler
    *
    */
-  const mousedownHandler = function mousedownHandler (event) {
+  const mousedownHandler = (event) => {
     event.preventDefault()
     event.stopPropagation()
 
@@ -1154,7 +1154,7 @@ export default function Parvus (userOptions) {
    * Mousemove event handler
    *
    */
-  const mousemoveHandler = function mousemoveHandler (event) {
+  const mousemoveHandler = (event) => {
     event.preventDefault()
 
     if (pointerDown) {
@@ -1169,7 +1169,7 @@ export default function Parvus (userOptions) {
    * Mouseup event handler
    *
    */
-  const mouseupHandler = function mouseupHandler (event) {
+  const mouseupHandler = (event) => {
     event.stopPropagation()
 
     pointerDown = false
@@ -1188,7 +1188,7 @@ export default function Parvus (userOptions) {
    * Touchstart event handler
    *
    */
-  const touchstartHandler = function touchstartHandler (event) {
+  const touchstartHandler = (event) => {
     event.stopPropagation()
 
     isDraggingX = false
@@ -1207,7 +1207,7 @@ export default function Parvus (userOptions) {
    * Touchmove event handler
    *
    */
-  const touchmoveHandler = function touchmoveHandler (event) {
+  const touchmoveHandler = (event) => {
     event.stopPropagation()
 
     if (pointerDown) {
@@ -1224,7 +1224,7 @@ export default function Parvus (userOptions) {
    * Touchend event handler
    *
    */
-  const touchendHandler = function touchendHandler (event) {
+  const touchendHandler = (event) => {
     event.stopPropagation()
 
     pointerDown = false
@@ -1243,7 +1243,7 @@ export default function Parvus (userOptions) {
    * Decide whether to do horizontal of vertical swipe
    *
    */
-  const doSwipe = function doSwipe () {
+  const doSwipe = () => {
     const MOVEMENT_X = drag.startX - drag.endX
     const MOVEMENT_Y = drag.endY - drag.startY
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
@@ -1274,7 +1274,7 @@ export default function Parvus (userOptions) {
    * Bind events
    *
    */
-  const bindEvents = function bindEvents () {
+  const bindEvents = () => {
     BROWSER_WINDOW.addEventListener('keydown', keydownHandler)
     BROWSER_WINDOW.addEventListener('resize', resizeHandler)
 
@@ -1307,7 +1307,7 @@ export default function Parvus (userOptions) {
    * Unbind events
    *
    */
-  const unbindEvents = function unbindEvents () {
+  const unbindEvents = () => {
     BROWSER_WINDOW.removeEventListener('keydown', keydownHandler)
     BROWSER_WINDOW.removeEventListener('resize', resizeHandler)
 
@@ -1340,7 +1340,7 @@ export default function Parvus (userOptions) {
    * Destroy Parvus
    *
    */
-  const destroy = function destroy () {
+  const destroy = () => {
     if (!lightbox) {
       return
     }
@@ -1367,7 +1367,7 @@ export default function Parvus (userOptions) {
    * Check if Parvus is open
    *
    */
-  const isOpen = function isOpen () {
+  const isOpen = () => {
     return lightbox.getAttribute('aria-hidden') === 'false'
   }
 
@@ -1375,7 +1375,7 @@ export default function Parvus (userOptions) {
    * Detect whether device is touch capable
    *
    */
-  const isTouchDevice = function isTouchDevice () {
+  const isTouchDevice = () => {
     return 'ontouchstart' in window
   }
 
@@ -1383,7 +1383,7 @@ export default function Parvus (userOptions) {
    * Return current index
    *
    */
-  const getCurrentIndex = function getCurrentIndex () {
+  const getCurrentIndex = () => {
     return currentIndex
   }
 
@@ -1393,7 +1393,7 @@ export default function Parvus (userOptions) {
    * @param {String} eventName
    * @param {Function} callback
    */
-  const on = function on (eventName, callback) {
+  const on = (eventName, callback) => {
     if (lightbox) {
       lightbox.addEventListener(eventName, callback)
     }
@@ -1405,7 +1405,7 @@ export default function Parvus (userOptions) {
    * @param {String} eventName
    * @param {Function} callback
    */
-  const off = function off (eventName, callback) {
+  const off = (eventName, callback) => {
     if (lightbox) {
       lightbox.removeEventListener(eventName, callback)
     }

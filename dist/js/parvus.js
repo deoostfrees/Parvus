@@ -72,7 +72,7 @@
      * @returns {Object}
      */
 
-    const mergeOptions = function mergeOptions(userOptions) {
+    const mergeOptions = userOptions => {
       // Default options
       const OPTIONS = {
         selector: '.lightbox',
@@ -109,7 +109,7 @@
 
     const MOTIONQUERY = window.matchMedia('(prefers-reduced-motion)');
 
-    const reducedMotionCheck = function reducedMotionCheck() {
+    const reducedMotionCheck = () => {
       if (MOTIONQUERY.matches) {
         isReducedMotion = true;
         transitionDuration = config.reducedTransitionDuration;
@@ -126,7 +126,7 @@
      *
      */
 
-    const init = function init(userOptions) {
+    const init = userOptions => {
       // Merge user options into defaults
       config = mergeOptions(userOptions); // Check if an lightbox element is present
 
@@ -178,7 +178,7 @@
      */
 
 
-    const getGroup = function getGroup(el) {
+    const getGroup = el => {
       // Create a unique ID
       const GROUP_ID = Math.floor(Math.random() * 10000);
 
@@ -196,7 +196,7 @@
      */
 
 
-    const copyObject = function copyObject(object) {
+    const copyObject = object => {
       return JSON.parse(JSON.stringify(object));
     };
     /**
@@ -206,7 +206,7 @@
      */
 
 
-    const add = function add(el) {
+    const add = el => {
       if (!(el.tagName === 'A' && el.hasAttribute('href') && el.href.match(config.fileTypes)) && !(el.tagName === 'BUTTON' && el.hasAttribute('data-target') && el.getAttribute('data-target').match(config.fileTypes))) {
         throw new Error(el, `Use a link with the 'href' attribute or a button with the 'data-target' attribute. Both attributes must have a path to the image file. Supported image file types: ${config.fileTypes}.`);
       }
@@ -235,7 +235,7 @@
 
         if (isOpen() && newGroup === activeGroup) {
           createSlide(GROUPS[newGroup].gallery.indexOf(el));
-          createImage(el, GROUPS[newGroup].gallery.indexOf(el), function () {
+          createImage(el, GROUPS[newGroup].gallery.indexOf(el), () => {
             loadImage(GROUPS[newGroup].gallery.indexOf(el));
           });
           updateConfig();
@@ -253,7 +253,7 @@
      */
 
 
-    const remove = function remove(el) {
+    const remove = el => {
       if (isOpen() || !lightbox || !el || !el.hasAttribute('data-group')) {
         return;
       }
@@ -290,7 +290,7 @@
      */
 
 
-    const createLightbox = function createLightbox() {
+    const createLightbox = () => {
       // Create the lightbox container
       lightbox = document.createElement('div');
       lightbox.setAttribute('role', 'dialog');
@@ -353,7 +353,7 @@
      */
 
 
-    const createSlider = function createSlider() {
+    const createSlider = () => {
       GROUPS[activeGroup].slider = document.createElement('div');
       GROUPS[activeGroup].slider.className = 'parvus__slider'; // Hide slider
 
@@ -367,7 +367,7 @@
      */
 
 
-    const createSlide = function createSlide(index) {
+    const createSlide = index => {
       if (GROUPS[activeGroup].sliderElements[index] !== undefined) ; else {
         const SLIDER_ELEMENT = document.createElement('div');
         const SLIDER_ELEMENT_CONTENT = document.createElement('div');
@@ -398,7 +398,7 @@
      */
 
 
-    const open = function open(el) {
+    const open = el => {
       if (!lightbox || !el || !el.classList.contains('parvus-trigger') || isOpen()) {
         return;
       }
@@ -438,7 +438,7 @@
       updateCounter();
       setFocusToFirstItem();
       loadSlide(currentIndex);
-      createImage(el, currentIndex, function () {
+      createImage(el, currentIndex, () => {
         loadImage(currentIndex);
         requestAnimationFrame(() => {
           lightbox.classList.remove('parvus--is-opening');
@@ -468,7 +468,7 @@
      */
 
 
-    const close = function close() {
+    const close = () => {
       if (!isOpen()) {
         throw new Error('Ups, I\'m already closed.');
       }
@@ -541,13 +541,13 @@
      */
 
 
-    const preload = function preload(index) {
+    const preload = index => {
       if (GROUPS[activeGroup].gallery[index] === undefined) {
         return;
       }
 
       createSlide(index);
-      createImage(GROUPS[activeGroup].gallery[index], index, function () {
+      createImage(GROUPS[activeGroup].gallery[index], index, () => {
         loadImage(index);
       });
     };
@@ -558,7 +558,7 @@
      */
 
 
-    const loadSlide = function loadSlide(index) {
+    const loadSlide = index => {
       GROUPS[activeGroup].sliderElements[index].classList.add('parvus__slide--is-active');
       GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false');
     };
@@ -571,7 +571,7 @@
      */
 
 
-    const createImage = function createImage(el, index, callback) {
+    const createImage = (el, index, callback) => {
       if (GROUPS[activeGroup].images[index] !== undefined) ; else {
         const container = GROUPS[activeGroup].sliderElements[index].querySelector('div');
         const IMAGE = document.createElement('img');
@@ -658,7 +658,7 @@
      */
 
 
-    const loadImage = function loadImage(index) {
+    const loadImage = index => {
       const IMAGE = GROUPS[activeGroup].images[index];
       const IMAGE_SIZE = IMAGE.getBoundingClientRect();
       const THUMBNAIL = GROUPS[activeGroup].gallery[index];
@@ -690,7 +690,7 @@
      */
 
 
-    const select = function select(index) {
+    const select = index => {
       const OLD_INDEX = currentIndex;
 
       if (!isOpen()) {
@@ -744,7 +744,7 @@
      */
 
 
-    const previous = function previous() {
+    const previous = () => {
       if (currentIndex > 0) {
         select(currentIndex - 1);
       }
@@ -755,7 +755,7 @@
      */
 
 
-    const next = function next() {
+    const next = () => {
       if (currentIndex < GROUPS[activeGroup].gallery.length - 1) {
         select(currentIndex + 1);
       }
@@ -768,7 +768,7 @@
      */
 
 
-    const leaveSlide = function leaveSlide(index) {
+    const leaveSlide = index => {
       GROUPS[activeGroup].sliderElements[index].classList.remove('parvus__slide--is-active');
       GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'true');
     };
@@ -778,7 +778,7 @@
      */
 
 
-    const updateOffset = function updateOffset() {
+    const updateOffset = () => {
       activeGroup = activeGroup !== null ? activeGroup : newGroup;
       offset = currentIndex * lightbox.offsetWidth * -1;
       GROUPS[activeGroup].slider.style.transform = `translate3d(${offset}px, 0, 0)`;
@@ -791,7 +791,7 @@
      */
 
 
-    const updateFocus = function updateFocus(dir) {
+    const updateFocus = dir => {
       if (GROUPS[activeGroup].gallery.length === 1) {
         closeButton.focus();
       } else {
@@ -815,7 +815,7 @@
      */
 
 
-    const updateCounter = function updateCounter() {
+    const updateCounter = () => {
       counter.textContent = `${currentIndex + 1}/${GROUPS[activeGroup].gallery.length}`;
     };
     /**
@@ -824,7 +824,7 @@
      */
 
 
-    const clearDrag = function clearDrag() {
+    const clearDrag = () => {
       drag = {
         startX: 0,
         endX: 0,
@@ -838,7 +838,7 @@
      */
 
 
-    const updateAfterDrag = function updateAfterDrag() {
+    const updateAfterDrag = () => {
       const MOVEMENT_X = drag.endX - drag.startX;
       const MOVEMENT_Y = drag.endY - drag.startY;
       const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X);
@@ -866,7 +866,7 @@
      */
 
 
-    const updateConfig = function updateConfig() {
+    const updateConfig = () => {
       if ((config.simulateTouch || isTouchDevice()) && config.swipeClose && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable') || (config.simulateTouch || isTouchDevice()) && GROUPS[activeGroup].gallery.length > 1 && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable')) {
         GROUPS[activeGroup].slider.classList.add('parvus__slider--is-draggable');
       } // Hide buttons if necessary
@@ -910,7 +910,7 @@
      */
 
 
-    const resizeHandler = function resizeHandler() {
+    const resizeHandler = () => {
       if (!resizeTicking) {
         resizeTicking = true;
         BROWSER_WINDOW.requestAnimationFrame(() => {
@@ -930,7 +930,7 @@
      */
 
 
-    const setImageDimension = function setImageDimension(slideEl, imageEl) {
+    const setImageDimension = (slideEl, imageEl) => {
       const computedStyle = getComputedStyle(slideEl);
       const captionRec = slideEl.querySelector('.parvus__caption') !== null ? slideEl.querySelector('.parvus__caption').getBoundingClientRect().height : 0;
       const srcHeight = imageEl.getAttribute('height');
@@ -957,7 +957,7 @@
      */
 
 
-    const triggerParvus = function triggerParvus(event) {
+    const triggerParvus = event => {
       event.preventDefault();
       open(this);
     };
@@ -967,7 +967,7 @@
      */
 
 
-    const clickHandler = function clickHandler(event) {
+    const clickHandler = event => {
       if (event.target === previousButton) {
         previous();
       } else if (event.target === nextButton) {
@@ -985,7 +985,7 @@
      */
 
 
-    const getFocusableChildren = function getFocusableChildren() {
+    const getFocusableChildren = () => {
       return Array.prototype.slice.call(lightbox.querySelectorAll(`${FOCUSABLE_ELEMENTS.join(', ')}`)).filter(child => {
         return !!(child.offsetWidth || child.offsetHeight || child.getClientRects().length);
       });
@@ -996,7 +996,7 @@
      */
 
 
-    const setFocusToFirstItem = function setFocusToFirstItem() {
+    const setFocusToFirstItem = () => {
       const FOCUSABLE_CHILDREN = getFocusableChildren();
       FOCUSABLE_CHILDREN[0].focus();
     };
@@ -1006,7 +1006,7 @@
      */
 
 
-    const keydownHandler = function keydownHandler(event) {
+    const keydownHandler = event => {
       const FOCUSABLE_CHILDREN = getFocusableChildren();
       const FOCUSED_ITEM_INDEX = FOCUSABLE_CHILDREN.indexOf(document.activeElement);
 
@@ -1042,7 +1042,7 @@
      */
 
 
-    const wheelHandler = function wheelHandler() {
+    const wheelHandler = () => {
       close();
     };
     /**
@@ -1051,7 +1051,7 @@
      */
 
 
-    const mousedownHandler = function mousedownHandler(event) {
+    const mousedownHandler = event => {
       event.preventDefault();
       event.stopPropagation();
       isDraggingX = false;
@@ -1068,7 +1068,7 @@
      */
 
 
-    const mousemoveHandler = function mousemoveHandler(event) {
+    const mousemoveHandler = event => {
       event.preventDefault();
 
       if (pointerDown) {
@@ -1083,7 +1083,7 @@
      */
 
 
-    const mouseupHandler = function mouseupHandler(event) {
+    const mouseupHandler = event => {
       event.stopPropagation();
       pointerDown = false;
       GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
@@ -1101,7 +1101,7 @@
      */
 
 
-    const touchstartHandler = function touchstartHandler(event) {
+    const touchstartHandler = event => {
       event.stopPropagation();
       isDraggingX = false;
       isDraggingY = false;
@@ -1117,7 +1117,7 @@
      */
 
 
-    const touchmoveHandler = function touchmoveHandler(event) {
+    const touchmoveHandler = event => {
       event.stopPropagation();
 
       if (pointerDown) {
@@ -1133,7 +1133,7 @@
      */
 
 
-    const touchendHandler = function touchendHandler(event) {
+    const touchendHandler = event => {
       event.stopPropagation();
       pointerDown = false;
       GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
@@ -1151,7 +1151,7 @@
      */
 
 
-    const doSwipe = function doSwipe() {
+    const doSwipe = () => {
       const MOVEMENT_X = drag.startX - drag.endX;
       const MOVEMENT_Y = drag.endY - drag.startY;
       const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
@@ -1181,7 +1181,7 @@
      */
 
 
-    const bindEvents = function bindEvents() {
+    const bindEvents = () => {
       BROWSER_WINDOW.addEventListener('keydown', keydownHandler);
       BROWSER_WINDOW.addEventListener('resize', resizeHandler);
 
@@ -1214,7 +1214,7 @@
      */
 
 
-    const unbindEvents = function unbindEvents() {
+    const unbindEvents = () => {
       BROWSER_WINDOW.removeEventListener('keydown', keydownHandler);
       BROWSER_WINDOW.removeEventListener('resize', resizeHandler);
 
@@ -1247,7 +1247,7 @@
      */
 
 
-    const destroy = function destroy() {
+    const destroy = () => {
       if (!lightbox) {
         return;
       }
@@ -1271,7 +1271,7 @@
      */
 
 
-    const isOpen = function isOpen() {
+    const isOpen = () => {
       return lightbox.getAttribute('aria-hidden') === 'false';
     };
     /**
@@ -1280,7 +1280,7 @@
      */
 
 
-    const isTouchDevice = function isTouchDevice() {
+    const isTouchDevice = () => {
       return 'ontouchstart' in window;
     };
     /**
@@ -1289,7 +1289,7 @@
      */
 
 
-    const getCurrentIndex = function getCurrentIndex() {
+    const getCurrentIndex = () => {
       return currentIndex;
     };
     /**
@@ -1300,7 +1300,7 @@
      */
 
 
-    const on = function on(eventName, callback) {
+    const on = (eventName, callback) => {
       if (lightbox) {
         lightbox.addEventListener(eventName, callback);
       }
@@ -1313,7 +1313,7 @@
      */
 
 
-    const off = function off(eventName, callback) {
+    const off = (eventName, callback) => {
       if (lightbox) {
         lightbox.removeEventListener(eventName, callback);
       }
