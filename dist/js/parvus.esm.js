@@ -1275,7 +1275,7 @@ function Parvus(userOptions) {
 
 
   const isTouchDevice = () => {
-    return 'ontouchstart' in window;
+    return window.matchMedia('(pointer: none)').matches;
   };
   /**
    * Return current index
