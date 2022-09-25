@@ -1039,7 +1039,7 @@ export default function Parvus (userOptions) {
    * Click event handler to trigger Parvus
    *
    */
-  const triggerParvus = (event) => {
+  const triggerParvus = function triggerParvus (event) {
     event.preventDefault()
 
     open(this)
