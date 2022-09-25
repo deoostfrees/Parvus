@@ -951,7 +951,7 @@ function Parvus(userOptions) {
    */
 
 
-  const triggerParvus = event => {
+  const triggerParvus = function triggerParvus(event) {
     event.preventDefault();
     open(this);
   };
