@@ -1,6 +1,6 @@
 import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
-import { terser } from 'rollup-plugin-terser'
+import terser from '@rollup/plugin-terser'
 import postcss from 'rollup-plugin-postcss'
 import babel from '@rollup/plugin-babel'
 import license from 'rollup-plugin-license'
@@ -41,7 +41,12 @@ if (process.env.BUILDJS) {
         file: './dist/js/parvus.min.js',
         name: 'Parvus',
         plugins: [
-          terser()
+          terser(),
+          license({
+            banner: {
+              content: bannerContent
+            }
+          })
         ]
       },
       {
@@ -49,7 +54,12 @@ if (process.env.BUILDJS) {
         file: './dist/js/parvus.esm.min.js',
         name: 'Parvus',
         plugins: [
-          terser()
+          terser(),
+          license({
+            banner: {
+              content: bannerContent
+            }
+          })
         ]
       }
     ],
