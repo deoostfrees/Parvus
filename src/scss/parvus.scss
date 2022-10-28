@@ -34,8 +34,8 @@
     line-height: 1;
     padding: 0.5rem;
     position: absolute;
-    right: 0.5rem;
-    top: 0.5rem;
+    inset-inline-end: 0.5rem;
+    inset-block-start: 0.5rem;
 
 
     & svg {
@@ -62,18 +62,15 @@
 
 .parvus {
   align-items: center;
-  bottom: 0;
   box-sizing: border-box;
   contain: strict;
   display: flex;
   font: normal normal 400 1.125rem/1.7 -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  inset: 0;
   justify-content: center;
-  left: 0;
   line-height: 1.667;
   overflow: hidden;
   position: fixed;
-  right: 0;
-  top: 0;
   z-index: 1337;
 
 
@@ -89,19 +86,13 @@
 
   &__overlay {
     background-color: var(--parvus-overlay-color);
-    bottom: 0;
-    left: 0;
+    inset: 0;
     position: absolute;
-    right: 0;
-    top: 0;
   }
 
   &__slider {
-    bottom: 0;
-    left: 0;
+    inset: 0;
     position: absolute;
-    right: 0;
-    top: 0;
 
 
     &[aria-hidden='true'] {
@@ -130,10 +121,10 @@
     flex-direction: column;
     height: 100%;
     justify-content: center;
-    padding-bottom: 1rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-top: 3.75rem;
+    padding-block-end: 1rem;
+    padding-inline-start: 1rem;
+    padding-inline-end: 1rem;
+    padding-block-start: 3.75rem;
     width: 100%;
 
     @media screen and (prefers-reduced-motion: no-preference) {
@@ -146,8 +137,8 @@
 
     & .parvus__caption {
       color: var(--parvus-overlay-text);
-      padding-top: 0.5rem;
-      text-align: left;
+      padding-block-start: 0.5rem;
+      text-align: start;
       will-change: transform, opacity;
 
       @media screen and (prefers-reduced-motion: no-preference) {
@@ -158,8 +149,8 @@
     & img {
       display: block;
       height: auto;
-      margin-left: auto;
-      margin-right: auto;
+      margin-inline-start: auto;
+      margin-inline-end: auto;
       transform-origin: left top;
       width: auto;
     }
@@ -168,9 +159,9 @@
   &__loader {
     display: inline-block;
     height: 6.25rem;
-    left: 50%;
+    inset-inline-start: 50%;
     position: absolute;
-    top: 50%;
+    inset-block-start: 50%;
     transform: translate(-50%, -50%);
     width: 6.25rem;
 
@@ -180,12 +171,9 @@
       border-radius: 100%;
       border: 0.25rem solid var(--parvus-loader-background-color);
       border-top-color: var(--parvus-loader-color);
-      bottom: 0;
       content: '';
-      left: 0;
+      inset: 0;
       position: absolute;
-      right: 0;
-      top: 0;
       z-index: 1;
     }
   }
@@ -194,10 +182,10 @@
     align-items: center;
     display: flex;
     justify-content: space-between;
-    left: 1rem;
+    inset-inline-start: 1rem;
     position: absolute;
-    right: 1rem;
-    top: 1rem;
+    inset-inline-end: 1rem;
+    inset-block-start: 1rem;
   }
 
   &__btn {
@@ -231,16 +219,16 @@
     }
 
     &--previous {
-      left: 1rem;
+      inset-inline-start: 1rem;
       position: absolute;
-      top: calc(50% + 1.375rem);// 50% + (paddingTop / 2 - paddingBottom / 2) from .parvus__slide
+      inset-block-start: calc(50% + 1.375rem);// 50% + (paddingTop / 2 - paddingBottom / 2) from .parvus__slide
       transform: translateY(-50%);
     }
 
     &--next {
       position: absolute;
-      right: 1rem;
-      top: calc(50% + 1.375rem);// 50% + (paddingTop / 2 - paddingBottom / 2) from .parvus__slide
+      inset-inline-end: 1rem;
+      inset-block-start: calc(50% + 1.375rem);// 50% + (paddingTop / 2 - paddingBottom / 2) from .parvus__slide
       transform: translateY(-50%);
     }
 

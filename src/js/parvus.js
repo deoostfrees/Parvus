@@ -386,7 +386,7 @@ export default function Parvus (userOptions) {
 
       SLIDER_ELEMENT.className = 'parvus__slide'
       SLIDER_ELEMENT.style.position = 'absolute'
-      SLIDER_ELEMENT.style.left = `${index * 100}%`
+      SLIDER_ELEMENT.style.insetInlineStart = `${index * 100}%`
 
       // Hide slide
       SLIDER_ELEMENT.setAttribute('aria-hidden', 'true')
