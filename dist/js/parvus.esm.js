@@ -59,13 +59,13 @@ function Parvus(userOptions) {
   let resizeTicking = false;
   let transitionDuration = null;
   let isReducedMotion = true;
+
   /**
    * Merge default options with user options
    *
    * @param {Object} userOptions
    * @returns {Object}
    */
-
   const mergeOptions = userOptions => {
     // Default options
     const OPTIONS = {
@@ -90,19 +90,18 @@ function Parvus(userOptions) {
       l10n: en,
       fileTypes: /\.(png|jpe?g|webp|avif|svg)(\?.*)?$/i
     };
-    return { ...OPTIONS,
+    return {
+      ...OPTIONS,
       ...userOptions
     };
   };
+
   /**
    * Check prefers reduced motion
    * https://developer.mozilla.org/en-US/docs/Web/API/MediaQueryList
    *
    */
-
-
   const MOTIONQUERY = window.matchMedia('(prefers-reduced-motion)');
-
   const reducedMotionCheck = () => {
     if (MOTIONQUERY.matches) {
       isReducedMotion = true;
@@ -111,110 +110,106 @@ function Parvus(userOptions) {
       isReducedMotion = false;
       transitionDuration = config.transitionDuration;
     }
-  }; // Check for any OS level changes to the preference
+  };
 
-
+  // Check for any OS level changes to the preference
   MOTIONQUERY.addEventListener('change', reducedMotionCheck);
+
   /**
    * Init
    *
    */
-
   const init = userOptions => {
     // Merge user options into defaults
-    config = mergeOptions(userOptions); // Check if an lightbox element is present
+    config = mergeOptions(userOptions);
 
+    // Check if an lightbox element is present
     const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(config.selector);
-
     if (!LIGHTBOX_TRIGGER_ELS.length) {
       return; // No elements for the lightbox available
     }
 
-    reducedMotionCheck(); // Check if the lightbox already exists
+    reducedMotionCheck();
 
+    // Check if the lightbox already exists
     if (!lightbox) {
       createLightbox();
     }
-
     if (config.gallerySelector !== null) {
       // Get a list of all `gallerySelector` elements within the document
-      const GALLERY_ELS = document.querySelectorAll(config.gallerySelector); // Execute a few things once per element
+      const GALLERY_ELS = document.querySelectorAll(config.gallerySelector);
 
+      // Execute a few things once per element
       GALLERY_ELS.forEach((galleryEl, index) => {
-        const GALLERY_INDEX = index; // Get a list of all `selector` elements within the `gallerySelector`
+        const GALLERY_INDEX = index;
+        // Get a list of all `selector` elements within the `gallerySelector`
+        const LIGHTBOX_TRIGGER_ELS = galleryEl.querySelectorAll(config.selector);
 
-        const LIGHTBOX_TRIGGER_ELS = galleryEl.querySelectorAll(config.selector); // Execute a few things once per element
-
+        // Execute a few things once per element
         LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
           lightboxTriggerEl.setAttribute('data-group', `parvus-gallery-${GALLERY_INDEX}`);
           add(lightboxTriggerEl);
         });
-      }); // Get a list of the rest of the `selector` elements within the document
+      });
 
+      // Get a list of the rest of the `selector` elements within the document
       const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(`${config.selector}:not(.parvus-trigger)`);
       LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
         add(lightboxTriggerEl);
       });
     } else {
       // Get a list of all `selector` elements within the document
-      const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(config.selector); // Execute a few things once per element
+      const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(config.selector);
 
+      // Execute a few things once per element
       LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
         add(lightboxTriggerEl);
       });
     }
   };
+
   /**
    * Get group from element
    *
    * @param {HTMLElement} el
    * @return {String}
    */
-
-
   const getGroup = el => {
     // Create a unique ID
     const GROUP_ID = Math.floor(Math.random() * 10000);
-
     if (!el.hasAttribute('data-group') || el.getAttribute('data-group') === '') {
       el.setAttribute('data-group', `default-${GROUP_ID}`);
     }
-
     return el.getAttribute('data-group');
   };
+
   /**
    * Copy an object. (The secure way)
    *
    * @param {Object} object
    * @return {Object}
    */
-
-
   const copyObject = object => {
     return JSON.parse(JSON.stringify(object));
   };
+
   /**
    * Add element
    *
    * @param {HTMLElement} el
    */
-
-
   const add = el => {
     if (!(el.tagName === 'A' && el.hasAttribute('href') && el.href.match(config.fileTypes)) && !(el.tagName === 'BUTTON' && el.hasAttribute('data-target') && el.getAttribute('data-target').match(config.fileTypes))) {
       throw new Error(el, `Use a link with the 'href' attribute or a button with the 'data-target' attribute. Both attributes must have a path to the image file. Supported image file types: ${config.fileTypes}.`);
     }
-
     newGroup = getGroup(el);
-
     if (!Object.prototype.hasOwnProperty.call(GROUPS, newGroup)) {
       GROUPS[newGroup] = copyObject(GROUP_ATTS);
-    } // Check if element already exists
+    }
 
-
+    // Check if element already exists
     if (!GROUPS[newGroup].gallery.includes(el)) {
       GROUPS[newGroup].gallery.push(el);
-
       if (el.querySelector('img') !== null) {
         const LIGHTBOX_INDICATOR_ICON = document.createElement('div');
         el.classList.add('parvus-zoom');
@@ -222,11 +217,10 @@ function Parvus(userOptions) {
         LIGHTBOX_INDICATOR_ICON.innerHTML = config.lightboxIndicatorIcon;
         el.appendChild(LIGHTBOX_INDICATOR_ICON);
       }
+      el.classList.add('parvus-trigger');
 
-      el.classList.add('parvus-trigger'); // Bind click event handler
-
+      // Bind click event handler
       el.addEventListener('click', triggerParvus);
-
       if (isOpen() && newGroup === activeGroup) {
         createSlide(GROUPS[newGroup].gallery.indexOf(el));
         createImage(el, GROUPS[newGroup].gallery.indexOf(el), () => {
@@ -240,50 +234,49 @@ function Parvus(userOptions) {
       throw new Error('Ups, element already added.');
     }
   };
+
   /**
    * Remove element
    *
    * @param {HTMLElement} el
    */
-
-
   const remove = el => {
     if (isOpen() || !lightbox || !el || !el.hasAttribute('data-group')) {
       return;
     }
+    const GROUP = getGroup(el);
 
-    const GROUP = getGroup(el); // Check if element exists
-
+    // Check if element exists
     if (!GROUPS[GROUP].gallery.includes(el)) {
       throw new Error('Ups, I can\'t find the element.');
-    } // TODO: Remove elements dynamically
+    }
 
+    // TODO: Remove elements dynamically
 
     GROUPS[GROUP].gallery.splice(GROUPS[GROUP].gallery.indexOf(el), 1);
-    GROUPS[GROUP].sliderElements.splice(GROUPS[GROUP].gallery.indexOf(el), 1); // Remove lightbox indicator icon if necessary
+    GROUPS[GROUP].sliderElements.splice(GROUPS[GROUP].gallery.indexOf(el), 1);
 
+    // Remove lightbox indicator icon if necessary
     if (el.classList.contains('parvus-zoom')) {
       const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator');
       el.classList.remove('parvus-zoom');
       el.removeChild(LIGHTBOX_INDICATOR_ICON);
     }
-
     if (isOpen() && GROUP === activeGroup) {
       updateConfig();
       updateFocus();
       updateCounter();
-    } // Unbind click event handler
+    }
 
-
+    // Unbind click event handler
     el.removeEventListener('click', triggerParvus);
     el.classList.remove('parvus-trigger');
   };
+
   /**
    * Create the lightbox
    *
    */
-
-
   const createLightbox = () => {
     // Create the lightbox container
     lightbox = document.createElement('div');
@@ -292,92 +285,107 @@ function Parvus(userOptions) {
     lightbox.setAttribute('aria-hidden', 'true');
     lightbox.setAttribute('tabindex', '-1');
     lightbox.setAttribute('aria-label', config.l10n.lightboxLabel);
-    lightbox.classList.add('parvus'); // Create the lightbox overlay container
+    lightbox.classList.add('parvus');
 
+    // Create the lightbox overlay container
     lightboxOverlay = document.createElement('div');
     lightboxOverlay.classList.add('parvus__overlay');
-    lightboxOverlay.style.opacity = 0; // Add lightbox overlay container to lightbox container
+    lightboxOverlay.style.opacity = 0;
 
-    lightbox.appendChild(lightboxOverlay); // Create the toolbar
+    // Add lightbox overlay container to lightbox container
+    lightbox.appendChild(lightboxOverlay);
 
+    // Create the toolbar
     toolbar = document.createElement('div');
     toolbar.className = 'parvus__toolbar';
     toolbarLeft = document.createElement('div');
-    toolbarRight = document.createElement('div'); // Create the close button
+    toolbarRight = document.createElement('div');
 
+    // Create the close button
     closeButton = document.createElement('button');
     closeButton.className = 'parvus__btn parvus__btn--close';
     closeButton.setAttribute('type', 'button');
     closeButton.setAttribute('aria-label', config.l10n.closeButtonLabel);
-    closeButton.innerHTML = config.closeButtonIcon; // Add close button to right toolbar item
+    closeButton.innerHTML = config.closeButtonIcon;
 
-    toolbarRight.appendChild(closeButton); // Create the previous button
+    // Add close button to right toolbar item
+    toolbarRight.appendChild(closeButton);
 
+    // Create the previous button
     previousButton = document.createElement('button');
     previousButton.className = 'parvus__btn parvus__btn--previous';
     previousButton.setAttribute('type', 'button');
     previousButton.setAttribute('aria-label', config.l10n.previousButtonLabel);
-    previousButton.innerHTML = config.previousButtonIcon; // Add previous button to lightbox container
+    previousButton.innerHTML = config.previousButtonIcon;
 
-    lightbox.appendChild(previousButton); // Create the next button
+    // Add previous button to lightbox container
+    lightbox.appendChild(previousButton);
 
+    // Create the next button
     nextButton = document.createElement('button');
     nextButton.className = 'parvus__btn parvus__btn--next';
     nextButton.setAttribute('type', 'button');
     nextButton.setAttribute('aria-label', config.l10n.nextButtonLabel);
-    nextButton.innerHTML = config.nextButtonIcon; // Add next button to lightbox container
+    nextButton.innerHTML = config.nextButtonIcon;
 
-    lightbox.appendChild(nextButton); // Create the counter
+    // Add next button to lightbox container
+    lightbox.appendChild(nextButton);
 
+    // Create the counter
     counter = document.createElement('div');
-    counter.className = 'parvus__counter'; // Add counter to left toolbar item
+    counter.className = 'parvus__counter';
 
-    toolbarLeft.appendChild(counter); // Add toolbar items to toolbar
+    // Add counter to left toolbar item
+    toolbarLeft.appendChild(counter);
 
+    // Add toolbar items to toolbar
     toolbar.appendChild(toolbarLeft);
-    toolbar.appendChild(toolbarRight); // Add toolbar to lightbox container
+    toolbar.appendChild(toolbarRight);
 
-    lightbox.appendChild(toolbar); // Add lightbox container to body
+    // Add toolbar to lightbox container
+    lightbox.appendChild(toolbar);
 
+    // Add lightbox container to body
     document.body.appendChild(lightbox);
   };
+
   /**
    * Create a slider
    *
    */
-
-
   const createSlider = () => {
     GROUPS[activeGroup].slider = document.createElement('div');
-    GROUPS[activeGroup].slider.className = 'parvus__slider'; // Hide slider
+    GROUPS[activeGroup].slider.className = 'parvus__slider';
 
+    // Hide slider
     GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'true');
     lightbox.appendChild(GROUPS[activeGroup].slider);
   };
+
   /**
    * Create a slide
    *
    * @param {HTMLElement} el
    */
-
-
   const createSlide = index => {
     if (GROUPS[activeGroup].sliderElements[index] !== undefined) ; else {
       const SLIDER_ELEMENT = document.createElement('div');
       const SLIDER_ELEMENT_CONTENT = document.createElement('div');
       SLIDER_ELEMENT.className = 'parvus__slide';
       SLIDER_ELEMENT.style.position = 'absolute';
-      SLIDER_ELEMENT.style.left = `${index * 100}%`; // Hide slide
+      SLIDER_ELEMENT.style.insetInlineStart = `${index * 100}%`;
 
-      SLIDER_ELEMENT.setAttribute('aria-hidden', 'true'); // Add slide content container to slider element
+      // Hide slide
+      SLIDER_ELEMENT.setAttribute('aria-hidden', 'true');
 
+      // Add slide content container to slider element
       SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT);
-      GROUPS[activeGroup].sliderElements[index] = SLIDER_ELEMENT; // Add slider element to slider
+      GROUPS[activeGroup].sliderElements[index] = SLIDER_ELEMENT;
 
+      // Add slider element to slider
       if (index === currentIndex) {
         GROUPS[activeGroup].slider.appendChild(SLIDER_ELEMENT);
       }
-
       if (index > currentIndex) {
         GROUPS[activeGroup].sliderElements[currentIndex].after(SLIDER_ELEMENT);
       } else {
@@ -385,47 +393,50 @@ function Parvus(userOptions) {
       }
     }
   };
+
   /**
    * Open Parvus
    *
    * @param {HTMLElement} el
    */
-
-
   const open = el => {
     if (!lightbox || !el || !el.classList.contains('parvus-trigger') || isOpen()) {
       return;
     }
+    activeGroup = getGroup(el);
 
-    activeGroup = getGroup(el); // Check if element exists
-
+    // Check if element exists
     if (!GROUPS[activeGroup].gallery.includes(el)) {
       throw new Error('Ups, I can\'t find the element.');
     }
+    currentIndex = GROUPS[activeGroup].gallery.indexOf(el);
 
-    currentIndex = GROUPS[activeGroup].gallery.indexOf(el); // Save user’s focus
+    // Save user’s focus
+    lastFocus = document.activeElement;
 
-    lastFocus = document.activeElement; // Use `history.pushState()` to make sure the 'Back' button behavior
+    // Use `history.pushState()` to make sure the 'Back' button behavior
     // that aligns with the user's expectations
-
     const STATE_OBJ = {
       parvus: 'close'
     };
     const URL = window.location.href;
     history.pushState(STATE_OBJ, 'Image', URL);
-    bindEvents(); // Hide all non lightbox elements from assistive technology
+    bindEvents();
 
+    // Hide all non lightbox elements from assistive technology
     const nonLightboxEls = document.querySelectorAll('body > *:not([aria-hidden="true"])');
     nonLightboxEls.forEach(nonLightboxEl => {
       nonLightboxEl.setAttribute('aria-hidden', 'true');
       nonLightboxEl.classList.add('parvus-hidden');
     });
-    lightbox.classList.add('parvus--is-opening'); // Show lightbox
+    lightbox.classList.add('parvus--is-opening');
 
+    // Show lightbox
     lightbox.setAttribute('aria-hidden', 'false');
     createSlider();
-    createSlide(currentIndex); // Show slider
+    createSlide(currentIndex);
 
+    // Show slider
     GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false');
     updateOffset();
     updateConfig();
@@ -444,11 +455,13 @@ function Parvus(userOptions) {
         // Preload previous and next slide
         preload(currentIndex + 1);
         preload(currentIndex - 1);
-      }); // Add class for slider animation
+      });
 
+      // Add class for slider animation
       GROUPS[activeGroup].slider.classList.add('parvus__slider--animate');
-    }); // Create and dispatch a new event
+    });
 
+    // Create and dispatch a new event
     const OPEN_EVENT = new CustomEvent('open', {
       detail: {
         source: el
@@ -456,31 +469,30 @@ function Parvus(userOptions) {
     });
     lightbox.dispatchEvent(OPEN_EVENT);
   };
+
   /**
    * Close Parvus
    *
    */
-
-
   const close = () => {
     if (!isOpen()) {
       throw new Error('Ups, I\'m already closed.');
     }
-
     const IMAGE = GROUPS[activeGroup].images[currentIndex];
     const IMAGE_SIZE = IMAGE.getBoundingClientRect();
     const THUMBNAIL = config.backFocus ? GROUPS[activeGroup].gallery[currentIndex] : lastFocus;
     const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
     unbindEvents();
-    clearDrag(); // Remove entry in browser history
+    clearDrag();
 
+    // Remove entry in browser history
     if (history.state !== null) {
       if (history.state.parvus === 'close') {
         history.back();
       }
-    } // Show all non lightbox elements from assistive technology
+    }
 
-
+    // Show all non lightbox elements from assistive technology
     const nonLightboxEls = document.querySelectorAll('.parvus-hidden');
     nonLightboxEls.forEach(nonLightboxEl => {
       nonLightboxEl.removeAttribute('aria-hidden');
@@ -501,26 +513,30 @@ function Parvus(userOptions) {
     });
     lightboxOverlay.addEventListener('transitionend', () => {
       // Don't forget to cleanup our current element
-      leaveSlide(currentIndex); // Reenable the user’s focus
+      leaveSlide(currentIndex);
 
+      // Reenable the user’s focus
       lastFocus = config.backFocus ? GROUPS[activeGroup].gallery[currentIndex] : lastFocus;
       lastFocus.focus({
         preventScroll: true
-      }); // Hide lightbox
+      });
 
+      // Hide lightbox
       lightbox.setAttribute('aria-hidden', 'true');
       lightbox.classList.remove('parvus--is-closing');
       lightbox.classList.remove('parvus--is-vertical-closing');
-      IMAGE.style.transform = ''; // Reset GROUPS
+      IMAGE.style.transform = '';
 
+      // Reset GROUPS
       GROUPS[activeGroup].slider.remove();
       GROUPS[activeGroup].slider = null;
       GROUPS[activeGroup].sliderElements = [];
       GROUPS[activeGroup].images = [];
     }, {
       once: true
-    }); // Create and dispatch a new event
+    });
 
+    // Create and dispatch a new event
     const CLOSE_EVENT = new CustomEvent('close', {
       detail: {
         source: GROUPS[activeGroup].gallery[currentIndex]
@@ -528,34 +544,32 @@ function Parvus(userOptions) {
     });
     lightbox.dispatchEvent(CLOSE_EVENT);
   };
+
   /**
    * Preload slide
    *
    * @param {Number} index
    */
-
-
   const preload = index => {
     if (GROUPS[activeGroup].gallery[index] === undefined) {
       return;
     }
-
     createSlide(index);
     createImage(GROUPS[activeGroup].gallery[index], index, () => {
       loadImage(index);
     });
   };
+
   /**
    * Load slide
    *
    * @param {Number} index
    */
-
-
   const loadSlide = index => {
     GROUPS[activeGroup].sliderElements[index].classList.add('parvus__slide--is-active');
     GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false');
   };
+
   /**
    * Create Image
    *
@@ -563,8 +577,6 @@ function Parvus(userOptions) {
    * @param {Number} index
    * @param {Function} callback
    */
-
-
   const createImage = (el, index, callback) => {
     if (GROUPS[activeGroup].images[index] !== undefined) ; else {
       const container = GROUPS[activeGroup].sliderElements[index].querySelector('div');
@@ -574,29 +586,28 @@ function Parvus(userOptions) {
       const THUMBNAIL = el.querySelector('img');
       const LOADING_INDICATOR = document.createElement('div');
       IMAGE_CONTAINER.className = 'parvus__content';
-      CAPTION_CONTAINER.className = 'parvus__caption'; // Create loading indicator
+      CAPTION_CONTAINER.className = 'parvus__caption';
 
+      // Create loading indicator
       LOADING_INDICATOR.className = 'parvus__loader';
       LOADING_INDICATOR.setAttribute('role', 'progressbar');
-      LOADING_INDICATOR.setAttribute('aria-label', config.l10n.lightboxLoadingIndicatorLabel); // Add loading indicator to container
+      LOADING_INDICATOR.setAttribute('aria-label', config.l10n.lightboxLoadingIndicatorLabel);
 
+      // Add loading indicator to container
       container.appendChild(LOADING_INDICATOR);
-
       IMAGE.onload = () => {
-        container.removeChild(LOADING_INDICATOR); // Set image width and height
+        container.removeChild(LOADING_INDICATOR);
 
+        // Set image width and height
         IMAGE.setAttribute('width', IMAGE.naturalWidth);
         IMAGE.setAttribute('height', IMAGE.naturalHeight);
         setImageDimension(GROUPS[activeGroup].sliderElements[index], IMAGE);
-
         if (callback && typeof callback === 'function') {
           callback();
         }
       };
-
       if (el.tagName === 'A') {
         IMAGE.setAttribute('src', el.href);
-
         if (THUMBNAIL) {
           IMAGE.alt = THUMBNAIL.alt || '';
         } else {
@@ -605,21 +616,20 @@ function Parvus(userOptions) {
       } else {
         IMAGE.alt = el.getAttribute('data-alt') || '';
         IMAGE.setAttribute('src', el.getAttribute('data-target'));
-      } // Add srcset if available
+      }
 
-
+      // Add srcset if available
       if (el.hasAttribute('data-srcset') && el.getAttribute('data-srcset') !== '') {
         IMAGE.setAttribute('srcset', el.getAttribute('data-srcset'));
       }
-
       IMAGE.style.opacity = 0;
       IMAGE_CONTAINER.appendChild(IMAGE);
       GROUPS[activeGroup].images[index] = IMAGE;
-      container.appendChild(IMAGE_CONTAINER); // Add caption if available
+      container.appendChild(IMAGE_CONTAINER);
 
+      // Add caption if available
       if (config.captions) {
         let captionData = null;
-
         if (config.captionsSelector === 'self') {
           if (el.hasAttribute(config.captionsAttribute) && el.getAttribute(config.captionsAttribute) !== '') {
             captionData = el.getAttribute(config.captionsAttribute);
@@ -627,7 +637,6 @@ function Parvus(userOptions) {
         } else {
           if (el.querySelector(config.captionsSelector) !== null) {
             const CAPTION_SELECTOR = el.querySelector(config.captionsSelector);
-
             if (CAPTION_SELECTOR.hasAttribute(config.captionsAttribute) && CAPTION_SELECTOR.getAttribute(config.captionsAttribute) !== '') {
               captionData = CAPTION_SELECTOR.getAttribute(config.captionsAttribute);
             } else {
@@ -635,7 +644,6 @@ function Parvus(userOptions) {
             }
           }
         }
-
         if (captionData !== null) {
           GROUPS[activeGroup].sliderElements[index].setAttribute('aria-labelledby', `parvus__caption-${index}`);
           CAPTION_CONTAINER.id = `parvus__caption-${index}`;
@@ -645,19 +653,17 @@ function Parvus(userOptions) {
       }
     }
   };
+
   /**
    * Load Image
    *
    * @param {Number} index
    */
-
-
   const loadImage = index => {
     const IMAGE = GROUPS[activeGroup].images[index];
     const IMAGE_SIZE = IMAGE.getBoundingClientRect();
     const THUMBNAIL = GROUPS[activeGroup].gallery[index];
     const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
-
     if (lightbox.classList.contains('parvus--is-opening')) {
       widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
       heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
@@ -665,8 +671,9 @@ function Parvus(userOptions) {
       yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
       requestAnimationFrame(() => {
         IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
-        IMAGE.style.transition = 'transform 0s, opacity 0s'; // Animate the difference reversal on the next tick
+        IMAGE.style.transition = 'transform 0s, opacity 0s';
 
+        // Animate the difference reversal on the next tick
         requestAnimationFrame(() => {
           IMAGE.style.transform = '';
           IMAGE.style.opacity = 1;
@@ -677,36 +684,30 @@ function Parvus(userOptions) {
       IMAGE.style.opacity = 1;
     }
   };
+
   /**
    * Select a slide
    *
    * @param {Number} index
    */
-
-
   const select = index => {
     const OLD_INDEX = currentIndex;
-
     if (!isOpen()) {
       throw new Error('Ups, I\'m closed.');
     } else {
       if (!index && index !== 0) {
         throw new Error('Ups, no slide specified.');
       }
-
       if (index === currentIndex) {
         throw new Error(`Ups, slide ${index} is already selected.`);
       }
-
       if (index === -1 || index >= GROUPS[activeGroup].gallery.length) {
         throw new Error(`Ups, I can't find slide ${index}.`);
       }
     }
-
     leaveSlide(OLD_INDEX);
     loadSlide(index);
     loadImage(index);
-
     if (index < OLD_INDEX) {
       currentIndex--;
       updateOffset();
@@ -714,7 +715,6 @@ function Parvus(userOptions) {
       updateFocus('left');
       preload(index - 1);
     }
-
     if (index > OLD_INDEX) {
       currentIndex++;
       updateOffset();
@@ -722,9 +722,9 @@ function Parvus(userOptions) {
       updateFocus('right');
       preload(index + 1);
     }
+    updateCounter();
 
-    updateCounter(); // Create and dispatch a new event
-
+    // Create and dispatch a new event
     const SELECT_EVENT = new CustomEvent('select', {
       detail: {
         source: GROUPS[activeGroup].gallery[currentIndex]
@@ -732,66 +732,62 @@ function Parvus(userOptions) {
     });
     lightbox.dispatchEvent(SELECT_EVENT);
   };
+
   /**
    * Select the previous slide
    *
    */
-
-
   const previous = () => {
     if (currentIndex > 0) {
       select(currentIndex - 1);
     }
   };
+
   /**
    * Select the next slide
    *
    */
-
-
   const next = () => {
     if (currentIndex < GROUPS[activeGroup].gallery.length - 1) {
       select(currentIndex + 1);
     }
   };
+
   /**
    * Leave slide
    * Will be called before moving index
    *
    * @param {Number} index
    */
-
-
   const leaveSlide = index => {
     GROUPS[activeGroup].sliderElements[index].classList.remove('parvus__slide--is-active');
     GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'true');
   };
+
   /**
    * Update offset
    *
    */
-
-
   const updateOffset = () => {
     activeGroup = activeGroup !== null ? activeGroup : newGroup;
     offset = currentIndex * lightbox.offsetWidth * -1;
     GROUPS[activeGroup].slider.style.transform = `translate3d(${offset}px, 0, 0)`;
     offsetTmp = offset;
   };
+
   /**
    * Update focus
    *
    * @param {String} dir
    */
-
-
   const updateFocus = dir => {
     if (GROUPS[activeGroup].gallery.length === 1) {
       closeButton.focus();
     } else {
       // If the first slide is displayed
       if (currentIndex === 0) {
-        nextButton.focus(); // If the last slide is displayed
+        nextButton.focus();
+        // If the last slide is displayed
       } else if (currentIndex === GROUPS[activeGroup].gallery.length - 1) {
         previousButton.focus();
       } else {
@@ -803,21 +799,19 @@ function Parvus(userOptions) {
       }
     }
   };
+
   /**
    * Update counter
    *
    */
-
-
   const updateCounter = () => {
     counter.textContent = `${currentIndex + 1}/${GROUPS[activeGroup].gallery.length}`;
   };
+
   /**
    * Clear drag after touchend event
    *
    */
-
-
   const clearDrag = () => {
     drag = {
       startX: 0,
@@ -826,18 +820,16 @@ function Parvus(userOptions) {
       endY: 0
     };
   };
+
   /**
    * Recalculate drag / swipe event
    *
    */
-
-
   const updateAfterDrag = () => {
     const MOVEMENT_X = drag.endX - drag.startX;
     const MOVEMENT_Y = drag.endY - drag.startY;
     const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X);
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
-
     if (isDraggingX && MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex > 0) {
       previous();
     } else if (isDraggingX && MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex !== GROUPS[activeGroup].gallery.length - 1) {
@@ -854,18 +846,17 @@ function Parvus(userOptions) {
       updateOffset();
     }
   };
+
   /**
    * Update Config
    *
    */
-
-
   const updateConfig = () => {
     if ((config.simulateTouch || isTouchDevice()) && config.swipeClose && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable') || (config.simulateTouch || isTouchDevice()) && GROUPS[activeGroup].gallery.length > 1 && !GROUPS[activeGroup].slider.classList.contains('parvus__slider--is-draggable')) {
       GROUPS[activeGroup].slider.classList.add('parvus__slider--is-draggable');
-    } // Hide buttons if necessary
+    }
 
-
+    // Hide buttons if necessary
     if (GROUPS[activeGroup].gallery.length === 1) {
       previousButton.setAttribute('aria-hidden', 'true');
       previousButton.disabled = true;
@@ -877,7 +868,8 @@ function Parvus(userOptions) {
         previousButton.setAttribute('aria-hidden', 'true');
         previousButton.disabled = true;
         nextButton.setAttribute('aria-hidden', 'false');
-        nextButton.disabled = false; // If the last slide is displayed
+        nextButton.disabled = false;
+        // If the last slide is displayed
       } else if (currentIndex === GROUPS[activeGroup].gallery.length - 1) {
         previousButton.setAttribute('aria-hidden', 'false');
         previousButton.disabled = false;
@@ -889,21 +881,20 @@ function Parvus(userOptions) {
         nextButton.setAttribute('aria-hidden', 'false');
         nextButton.disabled = false;
       }
-    } // Hide counter if necessary
+    }
 
-
+    // Hide counter if necessary
     if (GROUPS[activeGroup].gallery.length === 1) {
       counter.setAttribute('aria-hidden', 'true');
     } else {
       counter.setAttribute('aria-hidden', 'false');
     }
   };
+
   /**
    * Resize event
    *
    */
-
-
   const resizeHandler = () => {
     if (!resizeTicking) {
       resizeTicking = true;
@@ -916,14 +907,13 @@ function Parvus(userOptions) {
       });
     }
   };
+
   /**
    * Set image with
    *
    * @param {HTMLElement} slideEl
    * @param {HTMLElement} imageEl
    */
-
-
   const setImageDimension = (slideEl, imageEl) => {
     const computedStyle = getComputedStyle(slideEl);
     const captionRec = slideEl.querySelector('.parvus__caption') !== null ? slideEl.querySelector('.parvus__caption').getBoundingClientRect().height : 0;
@@ -936,7 +926,6 @@ function Parvus(userOptions) {
     const ratio = Math.min(maxWidth / srcWidth || 0, maxHeight / srcHeight);
     const newWidth = srcWidth * ratio || 0;
     const newHeight = srcHeight * ratio || 0;
-
     if (srcHeight > newHeight && srcHeight < maxHeight && srcWidth > newWidth && srcWidth < maxWidth || srcHeight < newHeight && srcHeight < maxHeight && srcWidth < newWidth && srcWidth < maxWidth) {
       imageEl.style.width = '';
       imageEl.style.height = '';
@@ -945,22 +934,20 @@ function Parvus(userOptions) {
       imageEl.style.height = `${newHeight}px`;
     }
   };
+
   /**
    * Click event handler to trigger Parvus
    *
    */
-
-
   const triggerParvus = function triggerParvus(event) {
     event.preventDefault();
     open(this);
   };
+
   /**
    * Click event handler
    *
    */
-
-
   const clickHandler = event => {
     if (event.target === previousButton) {
       previous();
@@ -969,48 +956,44 @@ function Parvus(userOptions) {
     } else if (event.target === closeButton || !isDraggingY && !isDraggingX && event.target.classList.contains('parvus__slide') && config.docClose) {
       close();
     }
-
     event.stopPropagation();
   };
+
   /**
    * Get the focusable children of the given element
    *
    * @return {Array<Element>}
    */
-
-
   const getFocusableChildren = () => {
     return Array.prototype.slice.call(lightbox.querySelectorAll(`${FOCUSABLE_ELEMENTS.join(', ')}`)).filter(child => {
       return !!(child.offsetWidth || child.offsetHeight || child.getClientRects().length);
     });
   };
+
   /**
    * Set focus to first item
    *
    */
-
-
   const setFocusToFirstItem = () => {
     const FOCUSABLE_CHILDREN = getFocusableChildren();
     FOCUSABLE_CHILDREN[0].focus();
   };
+
   /**
    * Keydown event handler
    *
    */
-
-
   const keydownHandler = event => {
     const FOCUSABLE_CHILDREN = getFocusableChildren();
     const FOCUSED_ITEM_INDEX = FOCUSABLE_CHILDREN.indexOf(document.activeElement);
-
     if (event.code === 'Tab') {
       // If the SHIFT key is being pressed while tabbing (moving backwards) and
       // the currently focused item is the first one, move the focus to the last
       // focusable item
       if (event.shiftKey && FOCUSED_ITEM_INDEX === 0) {
         FOCUSABLE_CHILDREN[FOCUSABLE_CHILDREN.length - 1].focus();
-        event.preventDefault(); // If the SHIFT key is not being pressed (moving forwards) and the currently
+        event.preventDefault();
+        // If the SHIFT key is not being pressed (moving forwards) and the currently
         // focused item is the last one, move the focus to the first focusable item
       } else if (!event.shiftKey && FOCUSED_ITEM_INDEX === FOCUSABLE_CHILDREN.length - 1) {
         FOCUSABLE_CHILDREN[0].focus();
@@ -1030,21 +1013,19 @@ function Parvus(userOptions) {
       next();
     }
   };
+
   /**
    * Wheel event handler
    *
    */
-
-
   const wheelHandler = () => {
     close();
   };
+
   /**
    * Mousedown event handler
    *
    */
-
-
   const mousedownHandler = event => {
     event.preventDefault();
     event.stopPropagation();
@@ -1056,45 +1037,39 @@ function Parvus(userOptions) {
     GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging');
     GROUPS[activeGroup].slider.style.willChange = 'transform';
   };
+
   /**
    * Mousemove event handler
    *
    */
-
-
   const mousemoveHandler = event => {
     event.preventDefault();
-
     if (pointerDown) {
       drag.endX = event.pageX;
       drag.endY = event.pageY;
       doSwipe();
     }
   };
+
   /**
    * Mouseup event handler
    *
    */
-
-
   const mouseupHandler = event => {
     event.stopPropagation();
     pointerDown = false;
     GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
     GROUPS[activeGroup].slider.style.willChange = 'auto';
-
     if (drag.endX || drag.endY) {
       updateAfterDrag();
     }
-
     clearDrag();
   };
+
   /**
    * Touchstart event handler
    *
    */
-
-
   const touchstartHandler = event => {
     event.stopPropagation();
     isDraggingX = false;
@@ -1105,15 +1080,13 @@ function Parvus(userOptions) {
     GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging');
     GROUPS[activeGroup].slider.style.willChange = 'transform';
   };
+
   /**
    * Touchmove event handler
    *
    */
-
-
   const touchmoveHandler = event => {
     event.stopPropagation();
-
     if (pointerDown) {
       event.preventDefault();
       drag.endX = event.touches[0].pageX;
@@ -1121,35 +1094,30 @@ function Parvus(userOptions) {
       doSwipe();
     }
   };
+
   /**
    * Touchend event handler
    *
    */
-
-
   const touchendHandler = event => {
     event.stopPropagation();
     pointerDown = false;
     GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging');
     GROUPS[activeGroup].slider.style.willChange = 'auto';
-
     if (drag.endX || drag.endY) {
       updateAfterDrag();
     }
-
     clearDrag();
   };
+
   /**
    * Decide whether to do horizontal of vertical swipe
    *
    */
-
-
   const doSwipe = () => {
     const MOVEMENT_X = drag.startX - drag.endX;
     const MOVEMENT_Y = drag.endY - drag.startY;
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
-
     if (Math.abs(MOVEMENT_X) > 0 && !isDraggingY && GROUPS[activeGroup].gallery.length > 1) {
       // Horizontal swipe
       GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`;
@@ -1161,7 +1129,6 @@ function Parvus(userOptions) {
         // Set to 96 because otherwise event listener 'transitionend' does not fire if is vertical dragging
         lightboxOverlayOpacity = 1 - MOVEMENT_Y_DISTANCE / 100;
       }
-
       lightbox.classList.add('parvus--is-vertical-closing');
       lightboxOverlay.style.opacity = lightboxOverlayOpacity;
       GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`;
@@ -1169,150 +1136,138 @@ function Parvus(userOptions) {
       isDraggingY = true;
     }
   };
+
   /**
    * Bind events
    *
    */
-
-
   const bindEvents = () => {
     BROWSER_WINDOW.addEventListener('keydown', keydownHandler);
     BROWSER_WINDOW.addEventListener('resize', resizeHandler);
-
     if (config.scrollClose) {
       BROWSER_WINDOW.addEventListener('wheel', wheelHandler);
-    } // Popstate event
+    }
 
+    // Popstate event
+    BROWSER_WINDOW.addEventListener('popstate', close);
 
-    BROWSER_WINDOW.addEventListener('popstate', close); // Click event
-
+    // Click event
     lightbox.addEventListener('click', clickHandler);
-
     if (isTouchDevice()) {
       // Touch events
       lightbox.addEventListener('touchstart', touchstartHandler);
       lightbox.addEventListener('touchmove', touchmoveHandler);
       lightbox.addEventListener('touchend', touchendHandler);
-    } // Mouse events
+    }
 
-
+    // Mouse events
     if (config.simulateTouch) {
       lightbox.addEventListener('mousedown', mousedownHandler);
       lightbox.addEventListener('mouseup', mouseupHandler);
       lightbox.addEventListener('mousemove', mousemoveHandler);
     }
   };
+
   /**
    * Unbind events
    *
    */
-
-
   const unbindEvents = () => {
     BROWSER_WINDOW.removeEventListener('keydown', keydownHandler);
     BROWSER_WINDOW.removeEventListener('resize', resizeHandler);
-
     if (config.scrollClose) {
       BROWSER_WINDOW.removeEventListener('wheel', wheelHandler);
-    } // Popstate event
+    }
 
+    // Popstate event
+    BROWSER_WINDOW.removeEventListener('popstate', close);
 
-    BROWSER_WINDOW.removeEventListener('popstate', close); // Click event
-
+    // Click event
     lightbox.removeEventListener('click', clickHandler);
-
     if (isTouchDevice()) {
       // Touch events
       lightbox.removeEventListener('touchstart', touchstartHandler);
       lightbox.removeEventListener('touchmove', touchmoveHandler);
       lightbox.removeEventListener('touchend', touchendHandler);
-    } // Mouse events
+    }
 
-
+    // Mouse events
     if (config.simulateTouch) {
       lightbox.removeEventListener('mousedown', mousedownHandler);
       lightbox.removeEventListener('mouseup', mouseupHandler);
       lightbox.removeEventListener('mousemove', mousemoveHandler);
     }
   };
+
   /**
    * Destroy Parvus
    *
    */
-
-
   const destroy = () => {
     if (!lightbox) {
       return;
     }
-
     if (isOpen()) {
       close();
     }
-
     lightbox.remove();
     const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll('.parvus-trigger');
     LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
       remove(lightboxTriggerEl);
-    }); // Create and dispatch a new event
+    });
 
+    // Create and dispatch a new event
     const DESTROY_EVENT = new CustomEvent('destroy');
     lightbox.dispatchEvent(DESTROY_EVENT);
   };
+
   /**
    * Check if Parvus is open
    *
    */
-
-
   const isOpen = () => {
     return lightbox.getAttribute('aria-hidden') === 'false';
   };
+
   /**
    * Detect whether device is touch capable
    *
    */
-
-
   const isTouchDevice = () => {
     return window.matchMedia('(pointer: none)').matches;
   };
+
   /**
    * Return current index
    *
    */
-
-
   const getCurrentIndex = () => {
     return currentIndex;
   };
+
   /**
    * Bind event
    *
    * @param {String} eventName
    * @param {Function} callback
    */
-
-
   const on = (eventName, callback) => {
     if (lightbox) {
       lightbox.addEventListener(eventName, callback);
     }
   };
+
   /**
    * Unbind event
    *
    * @param {String} eventName
    * @param {Function} callback
    */
-
-
   const off = (eventName, callback) => {
     if (lightbox) {
       lightbox.removeEventListener(eventName, callback);
     }
   };
-
   init(userOptions);
   Parvus.init = init;
   Parvus.open = open;
