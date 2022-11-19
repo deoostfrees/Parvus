@@ -499,6 +499,8 @@ export default function Parvus (userOptions) {
     })
 
     lightbox.dispatchEvent(OPEN_EVENT)
+
+    document.body.classList.add('parvus-is-open')
   }
 
   /**
@@ -589,6 +591,8 @@ export default function Parvus (userOptions) {
     })
 
     lightbox.dispatchEvent(CLOSE_EVENT)
+
+    document.body.classList.remove('parvus-is-open')
   }
 
   /**
