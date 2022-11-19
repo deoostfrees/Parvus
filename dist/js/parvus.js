@@ -1242,7 +1242,7 @@
      *
      */
     const isTouchDevice = () => {
-      return window.matchMedia('(pointer: none)').matches;
+      return 'ontouchstart' in window;
     };
 
     /**
