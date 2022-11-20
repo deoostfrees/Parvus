@@ -914,12 +914,20 @@ export default function Parvus (userOptions) {
     const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
 
-    if (isDraggingX && MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex > 0) {
-      previous()
-    } else if (isDraggingX && MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex !== GROUPS[activeGroup].gallery.length - 1) {
-      next()
-    } else if (isDraggingY && MOVEMENT_Y_DISTANCE > 0) {
-      if (MOVEMENT_Y_DISTANCE >= config.threshold && config.swipeClose) {
+    if (isDraggingX && MOVEMENT_X > 2) {
+      if (MOVEMENT_X_DISTANCE >= config.threshold && currentIndex > 0) {
+        previous()
+      } else {
+        updateOffset()
+      }
+    } else if (isDraggingX && MOVEMENT_X < 2) {
+      if (MOVEMENT_X_DISTANCE >= config.threshold && currentIndex !== GROUPS[activeGroup].gallery.length - 1) {
+        next()
+      } else {
+        updateOffset()
+      }
+    } else if (isDraggingY && MOVEMENT_Y_DISTANCE > 2 && config.swipeClose) {
+      if (MOVEMENT_Y_DISTANCE >= config.threshold) {
         close()
       } else {
         lightboxOverlay.style.opacity = 1
@@ -928,8 +936,6 @@ export default function Parvus (userOptions) {
 
         updateOffset()
       }
-    } else {
-      updateOffset()
     }
   }
 
@@ -1252,13 +1258,13 @@ export default function Parvus (userOptions) {
     const MOVEMENT_Y = drag.endY - drag.startY
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
 
-    if (Math.abs(MOVEMENT_X) > 0 && !isDraggingY && GROUPS[activeGroup].gallery.length > 1) {
+    if (Math.abs(MOVEMENT_X) > 2 && !isDraggingY && GROUPS[activeGroup].gallery.length > 1) {
       // Horizontal swipe
       GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`
 
       isDraggingX = true
       isDraggingY = false
-    } else if (Math.abs(MOVEMENT_Y) > 0 && !isDraggingX && config.swipeClose) {
+    } else if (Math.abs(MOVEMENT_Y) > 2 && !isDraggingX && config.swipeClose) {
       // Vertical swipe
       if (MOVEMENT_Y_DISTANCE <= 96 && !isReducedMotion) { // Set to 96 because otherwise event listener 'transitionend' does not fire if is vertical dragging
         lightboxOverlayOpacity = 1 - (MOVEMENT_Y_DISTANCE / 100)
