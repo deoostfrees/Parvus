@@ -914,20 +914,16 @@ export default function Parvus (userOptions) {
     const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
 
-    if (isDraggingX && MOVEMENT_X > 2) {
-      if (MOVEMENT_X_DISTANCE >= config.threshold && currentIndex > 0) {
+    if (isDraggingX) {
+      if (MOVEMENT_X > 2 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex > 0) {
         previous()
-      } else {
-        updateOffset()
-      }
-    } else if (isDraggingX && MOVEMENT_X < 2) {
-      if (MOVEMENT_X_DISTANCE >= config.threshold && currentIndex !== GROUPS[activeGroup].gallery.length - 1) {
+      } else if (MOVEMENT_X < 2 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex !== GROUPS[activeGroup].gallery.length - 1) {
         next()
       } else {
         updateOffset()
       }
-    } else if (isDraggingY && MOVEMENT_Y_DISTANCE > 2 && config.swipeClose) {
-      if (MOVEMENT_Y_DISTANCE >= config.threshold) {
+    } else if (isDraggingY) {
+      if (MOVEMENT_Y_DISTANCE > 2 && config.swipeClose && MOVEMENT_Y_DISTANCE >= config.threshold) {
         close()
       } else {
         lightboxOverlay.style.opacity = 1
@@ -936,6 +932,8 @@ export default function Parvus (userOptions) {
 
         updateOffset()
       }
+    } else {
+      updateOffset()
     }
   }
 
