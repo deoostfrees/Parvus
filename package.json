@@ -8,17 +8,17 @@
     "@babel/core": "^7.20.5",
     "@babel/preset-env": "^7.20.2",
     "@rollup/plugin-babel": "^6.0.3",
-    "@rollup/plugin-commonjs": "^23.0.3",
+    "@rollup/plugin-commonjs": "^24.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "@rollup/plugin-terser": "^0.1.0",
+    "@rollup/plugin-terser": "^0.2.0",
     "core-js": "^3.26.1",
-    "postcss": "^8.4.19",
-    "rollup": "^3.5.0",
+    "postcss": "^8.4.20",
+    "rollup": "^3.7.5",
     "rollup-plugin-license": "^3.0.1",
     "rollup-plugin-postcss": "^4.0.2",
-    "sass": "^1.56.1",
+    "sass": "^1.57.1",
     "standard": "^17.0.0",
-    "stylelint": "^14.15.0"
+    "stylelint": "^14.16.0"
   },
   "browserslist": [
     "last 2 versions",
