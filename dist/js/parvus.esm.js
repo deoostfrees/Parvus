@@ -23,7 +23,7 @@ function Parvus(userOptions) {
    *
    */
   const BROWSER_WINDOW = window;
-  const FOCUSABLE_ELEMENTS = ['button:not([disabled]):not([inert])', '[tabindex]:not([tabindex^="-"]):not([inert])'];
+  const FOCUSABLE_ELEMENTS = ['a:not([inert]):not([tabindex^="-"])', 'button:not([inert]):not([tabindex^="-"]):not(:disabled)', '[tabindex]:not([inert]):not([tabindex^="-"])'];
   const GROUP_ATTS = {
     gallery: [],
     slider: null,
