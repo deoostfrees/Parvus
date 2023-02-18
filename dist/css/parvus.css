@@ -189,15 +189,15 @@
   color: var(--parvus-button-hover-text);
 }
 .parvus__btn--previous {
-  inset-inline-start: 1rem;
+  inset-inline-start: 0;
   position: absolute;
-  inset-block-start: calc(50% + 1.375rem);
+  inset-block-start: calc(50vh - 1rem);
   transform: translateY(-50%);
 }
 .parvus__btn--next {
   position: absolute;
-  inset-inline-end: 1rem;
-  inset-block-start: calc(50% + 1.375rem);
+  inset-inline-end: 0;
+  inset-block-start: calc(50vh - 1rem);
   transform: translateY(-50%);
 }
 .parvus__btn svg {
@@ -210,7 +210,7 @@
   stroke: currentColor;
   width: 2rem;
 }
-.parvus__btn[disabled] {
+.parvus__btn[aria-disabled=true] {
   display: none;
 }
 .parvus__counter {

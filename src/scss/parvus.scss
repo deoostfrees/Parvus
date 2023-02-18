@@ -224,16 +224,16 @@
     }
 
     &--previous {
-      inset-inline-start: 1rem;
+      inset-inline-start: 0;
       position: absolute;
-      inset-block-start: calc(50% + 1.375rem);// 50% + (paddingTop / 2 - paddingBottom / 2) from .parvus__slide
+      inset-block-start: calc(50vh - 1rem); // 50vh - paddingTop from .parvus__slide
       transform: translateY(-50%);
     }
 
     &--next {
       position: absolute;
-      inset-inline-end: 1rem;
-      inset-block-start: calc(50% + 1.375rem);// 50% + (paddingTop / 2 - paddingBottom / 2) from .parvus__slide
+      inset-inline-end: 0;
+      inset-block-start: calc(50vh - 1rem); // 50vh - paddingTop from .parvus__slide
       transform: translateY(-50%);
     }
 
@@ -248,7 +248,7 @@
       width: 2rem;
     }
 
-    &[disabled] {
+    &[aria-disabled='true'] {
       display: none;
     }
   }

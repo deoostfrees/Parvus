@@ -47,6 +47,7 @@
     let toolbar = null;
     let toolbarLeft = null;
     let toolbarRight = null;
+    let controls = null;
     let previousButton = null;
     let nextButton = null;
     let closeButton = null;
@@ -307,6 +308,14 @@
       toolbarLeft = document.createElement('div');
       toolbarRight = document.createElement('div');
 
+      // Create the controls
+      controls = document.createElement('div');
+      controls.setAttribute('role', 'group');
+      controls.setAttribute('aria-label', 'Slide controls'); // TODO: Add to language file
+
+      // Add controls to right toolbar item
+      toolbarRight.appendChild(controls);
+
       // Create the close button
       closeButton = document.createElement('button');
       closeButton.className = 'parvus__btn parvus__btn--close';
@@ -314,8 +323,8 @@
       closeButton.setAttribute('aria-label', config.l10n.closeButtonLabel);
       closeButton.innerHTML = config.closeButtonIcon;
 
-      // Add close button to right toolbar item
-      toolbarRight.appendChild(closeButton);
+      // Add close button to the controls
+      controls.appendChild(closeButton);
 
       // Create the previous button
       previousButton = document.createElement('button');
@@ -324,8 +333,8 @@
       previousButton.setAttribute('aria-label', config.l10n.previousButtonLabel);
       previousButton.innerHTML = config.previousButtonIcon;
 
-      // Add previous button to lightbox container
-      lightbox.appendChild(previousButton);
+      // Add previous button to the controls
+      controls.appendChild(previousButton);
 
       // Create the next button
       nextButton = document.createElement('button');
@@ -334,8 +343,8 @@
       nextButton.setAttribute('aria-label', config.l10n.nextButtonLabel);
       nextButton.innerHTML = config.nextButtonIcon;
 
-      // Add next button to lightbox container
-      lightbox.appendChild(nextButton);
+      // Add next button to the controls
+      controls.appendChild(nextButton);
 
       // Create the counter
       counter = document.createElement('div');
@@ -363,6 +372,13 @@
       GROUPS[activeGroup].slider = document.createElement('div');
       GROUPS[activeGroup].slider.className = 'parvus__slider';
 
+      // Add extra output for screen reader if there is more than one image
+      if (GROUPS[activeGroup].gallery.length > 1) {
+        GROUPS[activeGroup].slider.setAttribute('role', 'region');
+        GROUPS[activeGroup].slider.setAttribute('aria-roledescription', 'carousel');
+        GROUPS[activeGroup].slider.setAttribute('aria-label', 'Images'); // TODO: Add to language file
+      }
+
       // Hide slider
       GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'true');
       lightbox.appendChild(GROUPS[activeGroup].slider);
@@ -380,6 +396,12 @@
         SLIDER_ELEMENT.className = 'parvus__slide';
         SLIDER_ELEMENT.style.position = 'absolute';
         SLIDER_ELEMENT.style.insetInlineStart = `${index * 100}%`;
+
+        // Add extra output for screen reader if there is more than one image
+        if (GROUPS[activeGroup].gallery.length > 1) {
+          SLIDER_ELEMENT.setAttribute('role', 'group');
+          SLIDER_ELEMENT.setAttribute('aria-label', `Image ${index + 1} of ${GROUPS[activeGroup].gallery.length}`); // TODO: Add to language file
+        }
 
         // Hide slide
         SLIDER_ELEMENT.setAttribute('aria-hidden', 'true');
@@ -871,27 +893,27 @@
       // Hide buttons if necessary
       if (GROUPS[activeGroup].gallery.length === 1) {
         previousButton.setAttribute('aria-hidden', 'true');
-        previousButton.disabled = true;
+        previousButton.setAttribute('aria-disabled', 'true');
         nextButton.setAttribute('aria-hidden', 'true');
-        nextButton.disabled = true;
+        nextButton.setAttribute('aria-disabled', 'true');
       } else {
         // If the first slide is displayed
         if (currentIndex === 0) {
           previousButton.setAttribute('aria-hidden', 'true');
-          previousButton.disabled = true;
+          previousButton.setAttribute('aria-disabled', 'true');
           nextButton.setAttribute('aria-hidden', 'false');
-          nextButton.disabled = false;
+          nextButton.setAttribute('aria-disabled', 'false');
           // If the last slide is displayed
         } else if (currentIndex === GROUPS[activeGroup].gallery.length - 1) {
           previousButton.setAttribute('aria-hidden', 'false');
-          previousButton.disabled = false;
+          previousButton.setAttribute('aria-disabled', 'false');
           nextButton.setAttribute('aria-hidden', 'true');
-          nextButton.disabled = true;
+          nextButton.setAttribute('aria-disabled', 'true');
         } else {
           previousButton.setAttribute('aria-hidden', 'false');
-          previousButton.disabled = false;
+          previousButton.setAttribute('aria-disabled', 'false');
           nextButton.setAttribute('aria-hidden', 'false');
-          nextButton.disabled = false;
+          nextButton.setAttribute('aria-disabled', 'false');
         }
       }
 
