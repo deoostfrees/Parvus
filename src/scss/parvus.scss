@@ -65,13 +65,10 @@
  */
 
 .parvus {
-  align-items: center;
   box-sizing: border-box;
   contain: strict;
-  display: flex;
   font: normal normal 400 1.125rem/1.7 -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   inset: 0;
-  justify-content: center;
   line-height: 1.667;
   overflow: hidden;
   overscroll-behavior: contain;
@@ -121,15 +118,14 @@
   }
 
   &__slide {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
+    display: grid;
     height: 100%;
     justify-content: center;
     padding-block-end: 1rem;
-    padding-inline-start: 1rem;
-    padding-inline-end: 1rem;
     padding-block-start: 3.75rem;
+    padding-inline-end: 1rem;
+    padding-inline-start: 1rem;
+    place-items: center;
     width: 100%;
 
     @media screen and (prefers-reduced-motion: no-preference) {
@@ -191,6 +187,11 @@
     position: absolute;
     inset-inline-end: 1rem;
     inset-block-start: 1rem;
+  }
+
+  &__controls {
+    display: flex;
+    gap: 0.5rem;
   }
 
   &__btn {

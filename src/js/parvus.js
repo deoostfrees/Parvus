@@ -314,6 +314,7 @@ export default function Parvus (userOptions) {
 
     // Create the controls
     controls = document.createElement('div')
+    controls.className = 'parvus__controls'
     controls.setAttribute('role', 'group')
     controls.setAttribute('aria-label', 'Slide controls') // TODO: Add to language file
 
