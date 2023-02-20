@@ -803,10 +803,8 @@ export default function Parvus (userOptions) {
       }
     }
 
-    leaveSlide(OLD_INDEX)
-
-    loadSlide(index)
     loadImage(index)
+    loadSlide(index)
 
     if (index < OLD_INDEX) {
       currentIndex--
@@ -825,6 +823,8 @@ export default function Parvus (userOptions) {
       updateFocus('right')
       preload(index + 1)
     }
+
+    leaveSlide(OLD_INDEX)
 
     updateCounter()
 

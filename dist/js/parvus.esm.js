@@ -730,9 +730,8 @@ function Parvus(userOptions) {
         throw new Error(`Ups, I can't find slide ${index}.`);
       }
     }
-    leaveSlide(OLD_INDEX);
-    loadSlide(index);
     loadImage(index);
+    loadSlide(index);
     if (index < OLD_INDEX) {
       currentIndex--;
       updateOffset();
@@ -747,6 +746,7 @@ function Parvus(userOptions) {
       updateFocus('right');
       preload(index + 1);
     }
+    leaveSlide(OLD_INDEX);
     updateCounter();
 
     // Create and dispatch a new event
