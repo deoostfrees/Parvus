@@ -13,7 +13,7 @@
   },
   "style": "dist/css/parvus.css",
   "devDependencies": {
-    "@babel/core": "^7.20.12",
+    "@babel/core": "^7.21.0",
     "@babel/preset-env": "^7.20.2",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^24.0.1",
@@ -21,7 +21,7 @@
     "@rollup/plugin-terser": "^0.4.0",
     "core-js": "^3.28.0",
     "postcss": "^8.4.21",
-    "rollup": "^3.17.2",
+    "rollup": "^3.17.3",
     "rollup-plugin-license": "^3.0.1",
     "rollup-plugin-postcss": "^4.0.2",
     "sass": "^1.58.3",
