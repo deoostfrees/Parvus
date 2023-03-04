@@ -185,16 +185,6 @@ function Parvus(userOptions) {
   };
 
   /**
-   * Copy an object. (The secure way)
-   *
-   * @param {Object} object
-   * @return {Object}
-   */
-  const copyObject = object => {
-    return JSON.parse(JSON.stringify(object));
-  };
-
-  /**
    * Add element
    *
    * @param {HTMLElement} el
@@ -205,7 +195,8 @@ function Parvus(userOptions) {
     }
     newGroup = getGroup(el);
     if (!Object.prototype.hasOwnProperty.call(GROUPS, newGroup)) {
-      GROUPS[newGroup] = copyObject(GROUP_ATTS);
+      // Create new group with copied GROUP_ATTS object
+      GROUPS[newGroup] = structuredClone(GROUP_ATTS);
     }
 
     // Check if element already exists
