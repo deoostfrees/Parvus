@@ -1,6 +1,6 @@
 :root {
   --parvus-transition-duration: 300ms;
-  --parvus-transition-timing-function: cubic-bezier(0.4, 0, 0.22, 1);
+  --parvus-transition-timing-function: cubic-bezier(0.62, 0.16, 0.13, 1.01);
   --parvus-overlay-color: hsl(23, 40%, 96%);
   --parvus-overlay-text: hsl(228, 24%, 23%);
   --parvus-button-color: hsl(228, 24%, 23%);
@@ -179,11 +179,6 @@
   will-change: transform, opacity;
   z-index: 7;
 }
-@media screen and (prefers-reduced-motion: no-preference) {
-  .parvus__btn {
-    transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function);
-  }
-}
 .parvus__btn:hover {
   background-color: var(--parvus-button-hover-color);
   color: var(--parvus-button-hover-text);
@@ -217,15 +212,13 @@
   position: relative;
   z-index: 7;
 }
-@media screen and (prefers-reduced-motion: no-preference) {
-  .parvus__counter {
-    transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function);
-  }
-}
 .parvus__counter[aria-hidden=true] {
   display: none;
 }
 @media screen and (prefers-reduced-motion: no-preference) {
+  .parvus__counter, .parvus__btn--close, .parvus__btn--previous, .parvus__btn--next, .parvus__caption {
+    transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function);
+  }
   .parvus--is-opening .parvus__counter, .parvus--is-opening .parvus__btn--close, .parvus--is-opening .parvus__btn--previous, .parvus--is-opening .parvus__btn--next, .parvus--is-opening .parvus__caption, .parvus--is-closing .parvus__counter, .parvus--is-closing .parvus__btn--close, .parvus--is-closing .parvus__btn--previous, .parvus--is-closing .parvus__btn--next, .parvus--is-closing .parvus__caption {
     opacity: 0;
   }
