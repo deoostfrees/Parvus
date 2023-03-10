@@ -106,63 +106,6 @@ export default function Parvus (userOptions) {
   MOTIONQUERY.addEventListener('change', reducedMotionCheck)
 
   /**
-   * Init
-   *
-   */
-  const init = (userOptions) => {
-    // Merge user options into defaults
-    config = mergeOptions(userOptions)
-
-    // Check if an lightbox element is present
-    const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(config.selector)
-
-    if (!LIGHTBOX_TRIGGER_ELS.length) {
-      return // No elements for the lightbox available
-    }
-
-    reducedMotionCheck()
-
-    // Check if the lightbox already exists
-    if (!lightbox) {
-      createLightbox()
-    }
-
-    if (config.gallerySelector !== null) {
-      // Get a list of all `gallerySelector` elements within the document
-      const GALLERY_ELS = document.querySelectorAll(config.gallerySelector)
-
-      // Execute a few things once per element
-      GALLERY_ELS.forEach((galleryEl, index) => {
-        const GALLERY_INDEX = index
-        // Get a list of all `selector` elements within the `gallerySelector`
-        const LIGHTBOX_TRIGGER_ELS = galleryEl.querySelectorAll(config.selector)
-
-        // Execute a few things once per element
-        LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
-          lightboxTriggerEl.setAttribute('data-group', `parvus-gallery-${GALLERY_INDEX}`)
-
-          add(lightboxTriggerEl)
-        })
-      })
-
-      // Get a list of the rest of the `selector` elements within the document
-      const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(`${config.selector}:not(.parvus-trigger)`)
-
-      LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
-        add(lightboxTriggerEl)
-      })
-    } else {
-      // Get a list of all `selector` elements within the document
-      const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(config.selector)
-
-      // Execute a few things once per element
-      LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
-        add(lightboxTriggerEl)
-      })
-    }
-  }
-
-  /**
    * Get group from element
    *
    * @param {HTMLElement} el
@@ -1434,7 +1377,54 @@ export default function Parvus (userOptions) {
     }
   }
 
-  init(userOptions)
+  /**
+   * Init
+   *
+   */
+  const init = () => {
+    // Merge user options into defaults
+    config = mergeOptions(userOptions)
+
+    // Check if an lightbox element is present
+    if (!document.querySelectorAll(config.selector).length) {
+      return // No elements for the lightbox available
+    }
+
+    reducedMotionCheck()
+
+    // Check if the lightbox already exists
+    if (!lightbox) {
+      createLightbox()
+    }
+
+    if (config.gallerySelector !== null) {
+      // Get a list of all `gallerySelector` elements within the document
+      const GALLERY_ELS = document.querySelectorAll(config.gallerySelector)
+
+      // Execute a few things once per element
+      GALLERY_ELS.forEach((galleryEl, index) => {
+        const GALLERY_INDEX = index
+        // Get a list of all `selector` elements within the `gallerySelector`
+        const LIGHTBOX_TRIGGER_GALLERY_ELS = galleryEl.querySelectorAll(config.selector)
+
+        // Execute a few things once per element
+        LIGHTBOX_TRIGGER_GALLERY_ELS.forEach((lightboxTriggerEl) => {
+          lightboxTriggerEl.setAttribute('data-group', `parvus-gallery-${GALLERY_INDEX}`)
+
+          add(lightboxTriggerEl)
+        })
+      })
+    }
+
+    // Get a list of all `selector` elements outside or without the `gallerySelector`
+    const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(`${config.selector}:not(.parvus-trigger)`)
+
+    LIGHTBOX_TRIGGER_ELS.forEach((lightboxTriggerEl) => {
+      add(lightboxTriggerEl)
+    })
+  }
+
+  init()
 
   Parvus.init = init
   Parvus.open = open
