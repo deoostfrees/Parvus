@@ -11,9 +11,12 @@
 var en = {
   lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
   lightboxLoadingIndicatorLabel: 'Image loading',
+  controlsLabel: 'Controls',
   previousButtonLabel: 'Previous image',
   nextButtonLabel: 'Next image',
-  closeButtonLabel: 'Close dialog window'
+  closeButtonLabel: 'Close dialog window',
+  sliderLabel: 'Images',
+  slideLabel: 'Image'
 };
 
 // Default language
@@ -115,59 +118,6 @@ function Parvus(userOptions) {
 
   // Check for any OS level changes to the preference
   MOTIONQUERY.addEventListener('change', reducedMotionCheck);
-
-  /**
-   * Init
-   *
-   */
-  const init = userOptions => {
-    // Merge user options into defaults
-    config = mergeOptions(userOptions);
-
-    // Check if an lightbox element is present
-    const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(config.selector);
-    if (!LIGHTBOX_TRIGGER_ELS.length) {
-      return; // No elements for the lightbox available
-    }
-
-    reducedMotionCheck();
-
-    // Check if the lightbox already exists
-    if (!lightbox) {
-      createLightbox();
-    }
-    if (config.gallerySelector !== null) {
-      // Get a list of all `gallerySelector` elements within the document
-      const GALLERY_ELS = document.querySelectorAll(config.gallerySelector);
-
-      // Execute a few things once per element
-      GALLERY_ELS.forEach((galleryEl, index) => {
-        const GALLERY_INDEX = index;
-        // Get a list of all `selector` elements within the `gallerySelector`
-        const LIGHTBOX_TRIGGER_ELS = galleryEl.querySelectorAll(config.selector);
-
-        // Execute a few things once per element
-        LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
-          lightboxTriggerEl.setAttribute('data-group', `parvus-gallery-${GALLERY_INDEX}`);
-          add(lightboxTriggerEl);
-        });
-      });
-
-      // Get a list of the rest of the `selector` elements within the document
-      const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(`${config.selector}:not(.parvus-trigger)`);
-      LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
-        add(lightboxTriggerEl);
-      });
-    } else {
-      // Get a list of all `selector` elements within the document
-      const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(config.selector);
-
-      // Execute a few things once per element
-      LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
-        add(lightboxTriggerEl);
-      });
-    }
-  };
 
   /**
    * Get group from element
@@ -297,7 +247,7 @@ function Parvus(userOptions) {
     controls = document.createElement('div');
     controls.className = 'parvus__controls';
     controls.setAttribute('role', 'group');
-    controls.setAttribute('aria-label', 'Slide controls'); // TODO: Add to language file
+    controls.setAttribute('aria-label', config.l10n.controlsLabel);
 
     // Add controls to right toolbar item
     toolbarRight.appendChild(controls);
@@ -362,7 +312,7 @@ function Parvus(userOptions) {
     if (GROUPS[activeGroup].gallery.length > 1) {
       GROUPS[activeGroup].slider.setAttribute('role', 'region');
       GROUPS[activeGroup].slider.setAttribute('aria-roledescription', 'carousel');
-      GROUPS[activeGroup].slider.setAttribute('aria-label', 'Images'); // TODO: Add to language file
+      GROUPS[activeGroup].slider.setAttribute('aria-label', config.l10n.sliderLabel);
     }
 
     // Hide slider
@@ -386,7 +336,7 @@ function Parvus(userOptions) {
       // Add extra output for screen reader if there is more than one image
       if (GROUPS[activeGroup].gallery.length > 1) {
         SLIDER_ELEMENT.setAttribute('role', 'group');
-        SLIDER_ELEMENT.setAttribute('aria-label', `Image ${index + 1} of ${GROUPS[activeGroup].gallery.length}`); // TODO: Add to language file
+        SLIDER_ELEMENT.setAttribute('aria-label', `${config.l10n.slideLabel} ${index + 1}/${GROUPS[activeGroup].gallery.length}`);
       }
 
       // Hide slide
@@ -724,14 +674,14 @@ function Parvus(userOptions) {
     loadImage(index);
     loadSlide(index);
     if (index < OLD_INDEX) {
-      currentIndex--;
+      currentIndex -= 1;
       updateOffset();
       updateConfig();
       updateFocus('left');
       preload(index - 1);
     }
     if (index > OLD_INDEX) {
-      currentIndex++;
+      currentIndex += 1;
       updateOffset();
       updateConfig();
       updateFocus('right');
@@ -1288,7 +1238,51 @@ function Parvus(userOptions) {
       lightbox.removeEventListener(eventName, callback);
     }
   };
-  init(userOptions);
+
+  /**
+   * Init
+   *
+   */
+  const init = () => {
+    // Merge user options into defaults
+    config = mergeOptions(userOptions);
+
+    // Check if an lightbox element is present
+    if (!document.querySelectorAll(config.selector).length) {
+      return; // No elements for the lightbox available
+    }
+
+    reducedMotionCheck();
+
+    // Check if the lightbox already exists
+    if (!lightbox) {
+      createLightbox();
+    }
+    if (config.gallerySelector !== null) {
+      // Get a list of all `gallerySelector` elements within the document
+      const GALLERY_ELS = document.querySelectorAll(config.gallerySelector);
+
+      // Execute a few things once per element
+      GALLERY_ELS.forEach((galleryEl, index) => {
+        const GALLERY_INDEX = index;
+        // Get a list of all `selector` elements within the `gallerySelector`
+        const LIGHTBOX_TRIGGER_GALLERY_ELS = galleryEl.querySelectorAll(config.selector);
+
+        // Execute a few things once per element
+        LIGHTBOX_TRIGGER_GALLERY_ELS.forEach(lightboxTriggerEl => {
+          lightboxTriggerEl.setAttribute('data-group', `parvus-gallery-${GALLERY_INDEX}`);
+          add(lightboxTriggerEl);
+        });
+      });
+    }
+
+    // Get a list of all `selector` elements outside or without the `gallerySelector`
+    const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(`${config.selector}:not(.parvus-trigger)`);
+    LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
+      add(lightboxTriggerEl);
+    });
+  };
+  init();
   Parvus.init = init;
   Parvus.open = open;
   Parvus.close = close;
