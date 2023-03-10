@@ -71,7 +71,7 @@ export default function Parvus (userOptions) {
       backFocus: true,
       transitionDuration: 300,
       reducedTransitionDuration: 0.1,
-      transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.22, 1)',
+      transitionTimingFunction: 'cubic-bezier(0.62, 0.16, 0.13, 1.01)',
       lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
       previousButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18" /></svg>',
       nextButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="9 6 15 12 9 18" /></svg>',
@@ -1222,8 +1222,10 @@ export default function Parvus (userOptions) {
       isDraggingY = false
     } else if (Math.abs(MOVEMENT_Y) > 2 && !isDraggingX && config.swipeClose) {
       // Vertical swipe
-      if (MOVEMENT_Y_DISTANCE <= 96 && !isReducedMotion) { // Set to 96 because otherwise event listener 'transitionend' does not fire if is vertical dragging
-        lightboxOverlayOpacity = 1 - (MOVEMENT_Y_DISTANCE / 100)
+      if (!isReducedMotion) {
+        if (MOVEMENT_Y_DISTANCE <= 96) { // Set to 96 because otherwise event listener 'transitionend' does not fire if is vertical dragging
+          lightboxOverlayOpacity = 1 - (MOVEMENT_Y_DISTANCE / 100)
+        }
       }
 
       lightbox.classList.add('parvus--is-vertical-closing')
