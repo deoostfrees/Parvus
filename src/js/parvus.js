@@ -798,7 +798,7 @@ export default function Parvus (userOptions) {
     loadSlide(index)
 
     if (index < OLD_INDEX) {
-      currentIndex--
+      currentIndex -= 1
 
       updateOffset()
       updateConfig()
@@ -807,7 +807,7 @@ export default function Parvus (userOptions) {
     }
 
     if (index > OLD_INDEX) {
-      currentIndex++
+      currentIndex += 1
 
       updateOffset()
       updateConfig()
