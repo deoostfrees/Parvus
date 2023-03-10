@@ -250,7 +250,7 @@ export default function Parvus (userOptions) {
     controls = document.createElement('div')
     controls.className = 'parvus__controls'
     controls.setAttribute('role', 'group')
-    controls.setAttribute('aria-label', 'Slide controls') // TODO: Add to language file
+    controls.setAttribute('aria-label', config.l10n.controlsLabel)
 
     // Add controls to right toolbar item
     toolbarRight.appendChild(controls)
@@ -315,7 +315,7 @@ export default function Parvus (userOptions) {
     if (GROUPS[activeGroup].gallery.length > 1) {
       GROUPS[activeGroup].slider.setAttribute('role', 'region')
       GROUPS[activeGroup].slider.setAttribute('aria-roledescription', 'carousel')
-      GROUPS[activeGroup].slider.setAttribute('aria-label', 'Images') // TODO: Add to language file
+      GROUPS[activeGroup].slider.setAttribute('aria-label', config.l10n.sliderLabel)
     }
 
     // Hide slider
@@ -343,7 +343,7 @@ export default function Parvus (userOptions) {
       // Add extra output for screen reader if there is more than one image
       if (GROUPS[activeGroup].gallery.length > 1) {
         SLIDER_ELEMENT.setAttribute('role', 'group')
-        SLIDER_ELEMENT.setAttribute('aria-label', `Image ${index + 1} of ${GROUPS[activeGroup].gallery.length}`) // TODO: Add to language file
+        SLIDER_ELEMENT.setAttribute('aria-label', `${config.l10n.slideLabel} ${index + 1}/${GROUPS[activeGroup].gallery.length}`)
       }
 
       // Hide slide
