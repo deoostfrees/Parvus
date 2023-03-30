@@ -2,7 +2,7 @@
  * Parvus
  *
  * @author Benjamin de Oostfrees
- * @version 2.2.1
+ * @version 2.3.0
  * @url https://github.com/deoostfrees/parvus
  *
  * MIT license
@@ -85,7 +85,6 @@ function Parvus(userOptions) {
       threshold: 50,
       backFocus: true,
       transitionDuration: 300,
-      reducedTransitionDuration: 0.1,
       transitionTimingFunction: 'cubic-bezier(0.62, 0.16, 0.13, 1.01)',
       lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
       previousButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18" /></svg>',
@@ -109,7 +108,7 @@ function Parvus(userOptions) {
   const reducedMotionCheck = () => {
     if (MOTIONQUERY.matches) {
       isReducedMotion = true;
-      transitionDuration = config.reducedTransitionDuration;
+      transitionDuration = 0.1;
     } else {
       isReducedMotion = false;
       transitionDuration = config.transitionDuration;
