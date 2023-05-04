@@ -126,13 +126,6 @@
     place-items: center;
     width: 100%;
 
-    @media screen and (prefers-reduced-motion: no-preference) {
-      transition: visibility var(--parvus-transition-duration) var(--parvus-transition-timing-function);
-    }
-
-    &:not(&--is-active) {
-      visibility: hidden;
-    }
 
     & .parvus__caption {
       color: var(--parvus-overlay-text);

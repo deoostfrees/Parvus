@@ -104,14 +104,6 @@
   place-items: center;
   width: 100%;
 }
-@media screen and (prefers-reduced-motion: no-preference) {
-  .parvus__slide {
-    transition: visibility var(--parvus-transition-duration) var(--parvus-transition-timing-function);
-  }
-}
-.parvus__slide:not(.parvus__slide--is-active) {
-  visibility: hidden;
-}
 .parvus__slide .parvus__caption {
   color: var(--parvus-overlay-text);
   padding-block-start: 0.5rem;
