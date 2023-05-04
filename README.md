@@ -243,10 +243,7 @@ The following options are available:
   closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6L6 18M6 6l12 12"/></svg>',
 
   // Localization of strings
-  l10n: en,
-
-  // Regular expression for supported image file types
-  fileTypes: /\.(png|jpe?g|webp|avif|svg)(\?.*)?$/i
+  l10n: en
 }
 ```
 
