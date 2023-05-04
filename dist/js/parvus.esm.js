@@ -90,8 +90,7 @@ function Parvus(userOptions) {
       previousButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18" /></svg>',
       nextButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="9 6 15 12 9 18" /></svg>',
       closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6L6 18M6 6l12 12"/></svg>',
-      l10n: en,
-      fileTypes: /\.(png|jpe?g|webp|avif|svg)(\?.*)?$/i
+      l10n: en
     };
     return {
       ...OPTIONS,
@@ -139,8 +138,8 @@ function Parvus(userOptions) {
    * @param {HTMLElement} el
    */
   const add = el => {
-    if (!(el.tagName === 'A' && el.hasAttribute('href') && el.href.match(config.fileTypes)) && !(el.tagName === 'BUTTON' && el.hasAttribute('data-target') && el.getAttribute('data-target').match(config.fileTypes))) {
-      throw new Error(el, `Use a link with the 'href' attribute or a button with the 'data-target' attribute. Both attributes must have a path to the image file. Supported image file types: ${config.fileTypes}.`);
+    if (!(el.tagName === 'A' && el.hasAttribute('href')) && !(el.tagName === 'BUTTON' && el.hasAttribute('data-target'))) {
+      throw new Error(el, 'Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must have a path to the image file.');
     }
     newGroup = getGroup(el);
     if (!Object.prototype.hasOwnProperty.call(GROUPS, newGroup)) {
@@ -544,7 +543,7 @@ function Parvus(userOptions) {
   const createImage = (el, index, callback) => {
     if (GROUPS[activeGroup].images[index] !== undefined) ; else {
       const container = GROUPS[activeGroup].sliderElements[index].querySelector('div');
-      const IMAGE = document.createElement('img');
+      const IMAGE = new Image();
       const IMAGE_CONTAINER = document.createElement('div');
       const CAPTION_CONTAINER = document.createElement('div');
       const THUMBNAIL = el.querySelector('img');
@@ -559,7 +558,11 @@ function Parvus(userOptions) {
 
       // Add loading indicator to container
       container.appendChild(LOADING_INDICATOR);
-      IMAGE.onload = () => {
+      const loadImage = new Promise((resolve, reject) => {
+        IMAGE.onload = () => resolve(IMAGE);
+        IMAGE.onerror = reject;
+      });
+      loadImage.then(function () {
         container.removeChild(LOADING_INDICATOR);
 
         // Set image width and height
@@ -569,7 +572,15 @@ function Parvus(userOptions) {
         if (callback && typeof callback === 'function') {
           callback();
         }
-      };
+      }, function () {
+        container.removeChild(LOADING_INDICATOR);
+        if (callback && typeof callback === 'function') {
+          callback();
+        }
+
+        // TODO: Show error message
+      });
+
       if (el.tagName === 'A') {
         IMAGE.setAttribute('src', el.href);
         if (THUMBNAIL) {
