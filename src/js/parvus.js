@@ -574,7 +574,6 @@ export default function Parvus (userOptions) {
    * @param {Number} index
    */
   const loadSlide = (index) => {
-    GROUPS[activeGroup].sliderElements[index].classList.add('parvus__slide--is-active')
     GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false')
   }
 
@@ -798,7 +797,6 @@ export default function Parvus (userOptions) {
    * @param {Number} index
    */
   const leaveSlide = (index) => {
-    GROUPS[activeGroup].sliderElements[index].classList.remove('parvus__slide--is-active')
     GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'true')
   }
 
