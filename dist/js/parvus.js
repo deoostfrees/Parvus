@@ -1095,7 +1095,6 @@
         // Vertical swipe
         if (!isReducedMotion) {
           if (MOVEMENT_Y_DISTANCE <= 100) {
-            // Set to 96 because otherwise event listener 'transitionend' does not fire if is vertical dragging
             lightboxOverlay.style.opacity = lightboxOverlayOpacity - MOVEMENT_Y_DISTANCE / 100;
           }
         }
