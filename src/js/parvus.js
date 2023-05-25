@@ -630,7 +630,8 @@ export default function Parvus (userOptions) {
           callback()
         }
 
-        // TODO: Show error message
+        IMAGE_CONTAINER.classList.add('parvus__content--error')
+        IMAGE_CONTAINER.innerHTML = config.l10n.lightboxLoadingError
       })
 
       if (el.tagName === 'A') {
@@ -720,9 +721,7 @@ export default function Parvus (userOptions) {
         })
       })
     } else {
-      TEST_IMAGE[index].then((IMAGE) => {
-        IMAGE.style.opacity = 1
-      })
+      IMAGE.style.opacity = 1
     }
   }
 
