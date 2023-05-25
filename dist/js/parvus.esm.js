@@ -458,11 +458,13 @@ function Parvus(userOptions) {
     });
     lightbox.classList.add('parvus--is-closing');
     requestAnimationFrame(() => {
-      widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
-      heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
-      xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
-      yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
-      IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
+      if (IMAGE.tagName === 'IMG') {
+        widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
+        heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
+        xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
+        yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
+        IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
+      }
       IMAGE.style.opacity = 0;
       IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction} ${transitionDuration / 2}ms`;
     });
@@ -555,6 +557,7 @@ function Parvus(userOptions) {
         IMAGE.onerror = ERROR => reject(ERROR);
       });
       TEST_IMAGE[index].then(IMAGE => {
+        GROUPS[activeGroup].images[index] = IMAGE;
         container.removeChild(LOADING_INDICATOR);
 
         // Set image width and height
@@ -565,12 +568,16 @@ function Parvus(userOptions) {
           callback();
         }
       }).catch(ERROR => {
+        IMAGE_CONTAINER.classList.add('parvus__content--error');
+        IMAGE_CONTAINER.innerHTML = '';
+        const ERROR_EL = document.createElement('div');
+        ERROR_EL.innerHTML = config.l10n.lightboxLoadingError;
+        IMAGE_CONTAINER.appendChild(ERROR_EL);
+        GROUPS[activeGroup].images[index] = ERROR_EL;
         container.removeChild(LOADING_INDICATOR);
         if (callback && typeof callback === 'function') {
           callback();
         }
-        IMAGE_CONTAINER.classList.add('parvus__content--error');
-        IMAGE_CONTAINER.innerHTML = config.l10n.lightboxLoadingError;
       });
       if (el.tagName === 'A') {
         IMAGE.setAttribute('src', el.href);
@@ -590,7 +597,6 @@ function Parvus(userOptions) {
       }
       IMAGE.style.opacity = 0;
       IMAGE_CONTAINER.appendChild(IMAGE);
-      GROUPS[activeGroup].images[index] = IMAGE;
       container.appendChild(IMAGE_CONTAINER);
 
       // Add caption if available
@@ -627,25 +633,29 @@ function Parvus(userOptions) {
    */
   const loadImage = index => {
     const IMAGE = GROUPS[activeGroup].images[index];
-    const IMAGE_SIZE = IMAGE.getBoundingClientRect();
-    const THUMBNAIL = GROUPS[activeGroup].gallery[index];
-    const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
-    if (lightbox.classList.contains('parvus--is-opening')) {
-      widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
-      heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
-      xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
-      yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
-      requestAnimationFrame(() => {
-        IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
-        IMAGE.style.transition = 'transform 0s, opacity 0s';
-
-        // Animate the difference reversal on the next tick
+    if (IMAGE.tagName === 'IMG') {
+      const IMAGE_SIZE = IMAGE.getBoundingClientRect();
+      const THUMBNAIL = GROUPS[activeGroup].gallery[index];
+      const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
+      if (lightbox.classList.contains('parvus--is-opening')) {
+        widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
+        heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
+        xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
+        yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
         requestAnimationFrame(() => {
-          IMAGE.style.transform = '';
-          IMAGE.style.opacity = 1;
-          IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration / 2}ms ${config.transitionTimingFunction}`;
+          IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
+          IMAGE.style.transition = 'transform 0s, opacity 0s';
+
+          // Animate the difference reversal on the next tick
+          requestAnimationFrame(() => {
+            IMAGE.style.transform = '';
+            IMAGE.style.opacity = 1;
+            IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration / 2}ms ${config.transitionTimingFunction}`;
+          });
         });
-      });
+      } else {
+        IMAGE.style.opacity = 1;
+      }
     } else {
       IMAGE.style.opacity = 1;
     }
@@ -884,23 +894,25 @@ function Parvus(userOptions) {
    * @param {HTMLElement} imageEl
    */
   const setImageDimension = (slideEl, imageEl) => {
-    const computedStyle = getComputedStyle(slideEl);
-    const captionRec = slideEl.querySelector('.parvus__caption') !== null ? slideEl.querySelector('.parvus__caption').getBoundingClientRect().height : 0;
-    const srcHeight = imageEl.getAttribute('height');
-    const srcWidth = imageEl.getAttribute('width');
-    let maxHeight = slideEl.getBoundingClientRect().height;
-    let maxWidth = slideEl.getBoundingClientRect().width;
-    maxHeight -= parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom) + parseFloat(captionRec);
-    maxWidth -= parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
-    const ratio = Math.min(maxWidth / srcWidth || 0, maxHeight / srcHeight);
-    const newWidth = srcWidth * ratio || 0;
-    const newHeight = srcHeight * ratio || 0;
-    if (srcHeight > newHeight && srcHeight < maxHeight && srcWidth > newWidth && srcWidth < maxWidth || srcHeight < newHeight && srcHeight < maxHeight && srcWidth < newWidth && srcWidth < maxWidth) {
-      imageEl.style.width = '';
-      imageEl.style.height = '';
-    } else {
-      imageEl.style.width = `${newWidth}px`;
-      imageEl.style.height = `${newHeight}px`;
+    if (imageEl.tagName === 'IMG') {
+      const computedStyle = getComputedStyle(slideEl);
+      const captionRec = slideEl.querySelector('.parvus__caption') !== null ? slideEl.querySelector('.parvus__caption').getBoundingClientRect().height : 0;
+      const srcHeight = imageEl.getAttribute('height');
+      const srcWidth = imageEl.getAttribute('width');
+      let maxHeight = slideEl.getBoundingClientRect().height;
+      let maxWidth = slideEl.getBoundingClientRect().width;
+      maxHeight -= parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom) + parseFloat(captionRec);
+      maxWidth -= parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
+      const ratio = Math.min(maxWidth / srcWidth || 0, maxHeight / srcHeight);
+      const newWidth = srcWidth * ratio || 0;
+      const newHeight = srcHeight * ratio || 0;
+      if (srcHeight > newHeight && srcHeight < maxHeight && srcWidth > newWidth && srcWidth < maxWidth || srcHeight < newHeight && srcHeight < maxHeight && srcWidth < newWidth && srcWidth < maxWidth) {
+        imageEl.style.width = '';
+        imageEl.style.height = '';
+      } else {
+        imageEl.style.width = `${newWidth}px`;
+        imageEl.style.height = `${newHeight}px`;
+      }
     }
   };
 
