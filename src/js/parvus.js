@@ -1214,7 +1214,7 @@ export default function Parvus (userOptions) {
     } else if (Math.abs(MOVEMENT_Y) > 2 && !isDraggingX && config.swipeClose) {
       // Vertical swipe
       if (!isReducedMotion) {
-        if (MOVEMENT_Y_DISTANCE <= 100) { // Set to 96 because otherwise event listener 'transitionend' does not fire if is vertical dragging
+        if (MOVEMENT_Y_DISTANCE <= 100) {
           lightboxOverlay.style.opacity = lightboxOverlayOpacity - (MOVEMENT_Y_DISTANCE / 100)
         }
       }
