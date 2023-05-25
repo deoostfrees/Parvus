@@ -17,6 +17,7 @@
   var en = {
     lightboxLabel: 'This is a dialog window which overlays the main content of the page. The modal shows the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
     lightboxLoadingIndicatorLabel: 'Image loading',
+    lightboxLoadingError: 'The requested image cannot be loaded.',
     controlsLabel: 'Controls',
     previousButtonLabel: 'Previous image',
     nextButtonLabel: 'Next image',
@@ -584,10 +585,9 @@
           if (callback && typeof callback === 'function') {
             callback();
           }
-
-          // TODO: Show error message
+          IMAGE_CONTAINER.classList.add('parvus__content--error');
+          IMAGE_CONTAINER.innerHTML = config.l10n.lightboxLoadingError;
         });
-
         if (el.tagName === 'A') {
           IMAGE.setAttribute('src', el.href);
           if (THUMBNAIL) {
@@ -663,9 +663,7 @@
           });
         });
       } else {
-        TEST_IMAGE[index].then(IMAGE => {
-          IMAGE.style.opacity = 1;
-        });
+        IMAGE.style.opacity = 1;
       }
     };
 
