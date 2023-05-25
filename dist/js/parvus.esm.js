@@ -42,6 +42,7 @@ function Parvus(userOptions) {
   let config = {};
   let lightbox = null;
   let lightboxOverlay = null;
+  let lightboxOverlayOpacity = 1;
   let toolbar = null;
   let toolbarLeft = null;
   let toolbarRight = null;
@@ -1002,6 +1003,7 @@ function Parvus(userOptions) {
     GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging');
     GROUPS[activeGroup].slider.style.willChange = 'transform';
     event.stopPropagation();
+    lightboxOverlayOpacity = window.getComputedStyle(lightboxOverlay).getPropertyValue('opacity');
   };
 
   /**
@@ -1042,6 +1044,7 @@ function Parvus(userOptions) {
     drag.startY = parseInt(event.changedTouches[0].clientY);
     GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging');
     GROUPS[activeGroup].slider.style.willChange = 'transform';
+    lightboxOverlayOpacity = window.getComputedStyle(lightboxOverlay).getPropertyValue('opacity');
     event.stopPropagation();
   };
 
@@ -1087,7 +1090,7 @@ function Parvus(userOptions) {
       if (!isReducedMotion) {
         if (MOVEMENT_Y_DISTANCE <= 100) {
           // Set to 96 because otherwise event listener 'transitionend' does not fire if is vertical dragging
-          lightboxOverlay.style.opacity = 1 - MOVEMENT_Y_DISTANCE / 100;
+          lightboxOverlay.style.opacity = lightboxOverlayOpacity - MOVEMENT_Y_DISTANCE / 100;
         }
       }
       lightbox.classList.add('parvus--is-vertical-closing');
