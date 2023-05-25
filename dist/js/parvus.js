@@ -48,7 +48,6 @@
     let config = {};
     let lightbox = null;
     let lightboxOverlay = null;
-    let lightboxOverlayOpacity = 1;
     let toolbar = null;
     let toolbarLeft = null;
     let toolbarRight = null;
@@ -238,7 +237,6 @@
       // Create the lightbox overlay container
       lightboxOverlay = document.createElement('div');
       lightboxOverlay.classList.add('parvus__overlay');
-      lightboxOverlay.style.opacity = 0;
 
       // Add lightbox overlay container to lightbox container
       lightbox.appendChild(lightboxOverlay);
@@ -415,17 +413,11 @@
       loadSlide(currentIndex);
       createImage(el, currentIndex, () => {
         loadImage(currentIndex);
-        requestAnimationFrame(() => {
-          lightbox.classList.remove('parvus--is-opening');
-          lightboxOverlay.style.opacity = 1;
-          lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
-          lightboxOverlay.style.willChange = 'opacity';
-        });
-        lightboxOverlay.addEventListener('transitionend', () => {
-          // Preload previous and next slide
-          preload(currentIndex + 1);
-          preload(currentIndex - 1);
-        });
+        lightbox.classList.remove('parvus--is-opening');
+
+        // Preload previous and next slide
+        preload(currentIndex + 1);
+        preload(currentIndex - 1);
 
         // Add class for slider animation
         GROUPS[activeGroup].slider.classList.add('parvus__slider--animate');
@@ -478,11 +470,8 @@
         IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`;
         IMAGE.style.opacity = 0;
         IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction} ${transitionDuration / 2}ms`;
-        lightboxOverlay.style.opacity = 0;
-        lightboxOverlay.style.transition = `opacity ${transitionDuration}ms ${config.transitionTimingFunction}`;
-        lightboxOverlay.style.willChange = 'auto';
       });
-      lightboxOverlay.addEventListener('transitionend', () => {
+      IMAGE.addEventListener('transitionend', () => {
         // Don't forget to cleanup our current element
         leaveSlide(currentIndex);
 
@@ -823,10 +812,10 @@
         if (MOVEMENT_Y_DISTANCE > 2 && config.swipeClose && MOVEMENT_Y_DISTANCE >= config.threshold) {
           close();
         } else {
-          lightboxOverlay.style.opacity = 1;
           lightbox.classList.remove('parvus--is-vertical-closing');
           updateOffset();
         }
+        lightboxOverlay.style.opacity = '';
       } else {
         updateOffset();
       }
@@ -1102,13 +1091,12 @@
       } else if (Math.abs(MOVEMENT_Y) > 2 && !isDraggingX && config.swipeClose) {
         // Vertical swipe
         if (!isReducedMotion) {
-          if (MOVEMENT_Y_DISTANCE <= 96) {
+          if (MOVEMENT_Y_DISTANCE <= 100) {
             // Set to 96 because otherwise event listener 'transitionend' does not fire if is vertical dragging
-            lightboxOverlayOpacity = 1 - MOVEMENT_Y_DISTANCE / 100;
+            lightboxOverlay.style.opacity = 1 - MOVEMENT_Y_DISTANCE / 100;
           }
         }
         lightbox.classList.add('parvus--is-vertical-closing');
-        lightboxOverlay.style.opacity = lightboxOverlayOpacity;
         GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`;
         isDraggingX = false;
         isDraggingY = true;

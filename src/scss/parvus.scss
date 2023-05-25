@@ -103,6 +103,7 @@
 
       &--animate:not(&--is-dragging) {
         transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function);
+        will-change: transform;
       }
     }
 
@@ -127,17 +128,6 @@
     width: 100%;
 
 
-    & .parvus__caption {
-      color: var(--parvus-overlay-text);
-      padding-block-start: 0.5rem;
-      text-align: start;
-      will-change: transform, opacity;
-
-      @media screen and (prefers-reduced-motion: no-preference) {
-        transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function);
-      }
-    }
-
     & img {
       display: block;
       height: auto;
@@ -146,6 +136,12 @@
       transform-origin: left top;
       width: auto;
     }
+  }
+
+  &__caption {
+    color: var(--parvus-overlay-text);
+    padding-block-start: 0.5rem;
+    text-align: start;
   }
 
   &__loader {
@@ -247,19 +243,21 @@
 
   @media screen and (prefers-reduced-motion: no-preference) {
 
+    &__overlay,
     &__counter,
     &__btn--close,
     &__btn--previous,
     &__btn--next,
     &__caption {
       transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function);
+      will-change: transform, opacity;
     }
 
     &--is-opening,
     &--is-closing {
 
 
-
+      & .parvus__overlay,
       & .parvus__counter,
       & .parvus__btn--close,
       & .parvus__btn--previous,

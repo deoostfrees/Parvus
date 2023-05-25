@@ -85,6 +85,7 @@
 @media screen and (prefers-reduced-motion: no-preference) {
   .parvus__slider--animate:not(.parvus__slider--is-dragging) {
     transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function);
+    will-change: transform;
   }
 }
 .parvus__slider--is-draggable {
@@ -104,17 +105,6 @@
   place-items: center;
   width: 100%;
 }
-.parvus__slide .parvus__caption {
-  color: var(--parvus-overlay-text);
-  padding-block-start: 0.5rem;
-  text-align: start;
-  will-change: transform, opacity;
-}
-@media screen and (prefers-reduced-motion: no-preference) {
-  .parvus__slide .parvus__caption {
-    transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function);
-  }
-}
 .parvus__slide img {
   display: block;
   height: auto;
@@ -122,6 +112,11 @@
   margin-inline-end: auto;
   transform-origin: left top;
   width: auto;
+}
+.parvus__caption {
+  color: var(--parvus-overlay-text);
+  padding-block-start: 0.5rem;
+  text-align: start;
 }
 .parvus__loader {
   display: inline-block;
@@ -208,10 +203,11 @@
   display: none;
 }
 @media screen and (prefers-reduced-motion: no-preference) {
-  .parvus__counter, .parvus__btn--close, .parvus__btn--previous, .parvus__btn--next, .parvus__caption {
+  .parvus__overlay, .parvus__counter, .parvus__btn--close, .parvus__btn--previous, .parvus__btn--next, .parvus__caption {
     transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function);
+    will-change: transform, opacity;
   }
-  .parvus--is-opening .parvus__counter, .parvus--is-opening .parvus__btn--close, .parvus--is-opening .parvus__btn--previous, .parvus--is-opening .parvus__btn--next, .parvus--is-opening .parvus__caption, .parvus--is-closing .parvus__counter, .parvus--is-closing .parvus__btn--close, .parvus--is-closing .parvus__btn--previous, .parvus--is-closing .parvus__btn--next, .parvus--is-closing .parvus__caption {
+  .parvus--is-opening .parvus__overlay, .parvus--is-opening .parvus__counter, .parvus--is-opening .parvus__btn--close, .parvus--is-opening .parvus__btn--previous, .parvus--is-opening .parvus__btn--next, .parvus--is-opening .parvus__caption, .parvus--is-closing .parvus__overlay, .parvus--is-closing .parvus__counter, .parvus--is-closing .parvus__btn--close, .parvus--is-closing .parvus__btn--previous, .parvus--is-closing .parvus__btn--next, .parvus--is-closing .parvus__caption {
     opacity: 0;
   }
   .parvus--is-vertical-closing .parvus__counter, .parvus--is-vertical-closing .parvus__btn--close {
