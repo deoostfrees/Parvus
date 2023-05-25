@@ -19,6 +19,7 @@ export default function Parvus (userOptions) {
     images: []
   }
   const GROUPS = {}
+  const TEST_IMAGE = []
   let newGroup = null
   let activeGroup = null
   let currentIndex = 0
@@ -605,35 +606,32 @@ export default function Parvus (userOptions) {
       // Add loading indicator to container
       container.appendChild(LOADING_INDICATOR)
 
-      const loadImage = new Promise((resolve, reject) => {
+      TEST_IMAGE[index] = new Promise((resolve, reject) => {
         IMAGE.onload = () => resolve(IMAGE)
-        IMAGE.onerror = reject
+        IMAGE.onerror = (ERROR) => reject(ERROR)
       })
 
-      loadImage.then(
-        function () {
-          container.removeChild(LOADING_INDICATOR)
+      TEST_IMAGE[index].then((IMAGE) => {
+        container.removeChild(LOADING_INDICATOR)
 
-          // Set image width and height
-          IMAGE.setAttribute('width', IMAGE.naturalWidth)
-          IMAGE.setAttribute('height', IMAGE.naturalHeight)
+        // Set image width and height
+        IMAGE.setAttribute('width', IMAGE.naturalWidth)
+        IMAGE.setAttribute('height', IMAGE.naturalHeight)
 
-          setImageDimension(GROUPS[activeGroup].sliderElements[index], IMAGE)
+        setImageDimension(GROUPS[activeGroup].sliderElements[index], IMAGE)
 
-          if (callback && typeof callback === 'function') {
-            callback()
-          }
-        },
-        function () {
-          container.removeChild(LOADING_INDICATOR)
-
-          if (callback && typeof callback === 'function') {
-            callback()
-          }
-
-          // TODO: Show error message
+        if (callback && typeof callback === 'function') {
+          callback()
         }
-      )
+      }).catch((ERROR) => {
+        container.removeChild(LOADING_INDICATOR)
+
+        if (callback && typeof callback === 'function') {
+          callback()
+        }
+
+        // TODO: Show error message
+      })
 
       if (el.tagName === 'A') {
         IMAGE.setAttribute('src', el.href)
@@ -722,7 +720,9 @@ export default function Parvus (userOptions) {
         })
       })
     } else {
-      IMAGE.style.opacity = 1
+      TEST_IMAGE[index].then((IMAGE) => {
+        IMAGE.style.opacity = 1
+      })
     }
   }
 
@@ -1078,25 +1078,28 @@ export default function Parvus (userOptions) {
       // focusable item
       if (event.shiftKey && FOCUSED_ITEM_INDEX === 0) {
         FOCUSABLE_CHILDREN[FOCUSABLE_CHILDREN.length - 1].focus()
-        event.preventDefault()
         // If the SHIFT key is not being pressed (moving forwards) and the currently
         // focused item is the last one, move the focus to the first focusable item
       } else if (!event.shiftKey && FOCUSED_ITEM_INDEX === FOCUSABLE_CHILDREN.length - 1) {
         FOCUSABLE_CHILDREN[0].focus()
-        event.preventDefault()
       }
+
+      event.preventDefault()
     } else if (event.code === 'Escape') {
       // `ESC` Key: Close Parvus
-      event.preventDefault()
       close()
+
+      event.preventDefault()
     } else if (event.code === 'ArrowLeft') {
       // `PREV` Key: Show the previous slide
-      event.preventDefault()
       previous()
+
+      event.preventDefault()
     } else if (event.code === 'ArrowRight') {
       // `NEXT` Key: Show the next slide
-      event.preventDefault()
       next()
+
+      event.preventDefault()
     }
   }
 
@@ -1113,9 +1116,6 @@ export default function Parvus (userOptions) {
    *
    */
   const mousedownHandler = (event) => {
-    event.preventDefault()
-    event.stopPropagation()
-
     isDraggingX = false
     isDraggingY = false
 
@@ -1126,6 +1126,8 @@ export default function Parvus (userOptions) {
 
     GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging')
     GROUPS[activeGroup].slider.style.willChange = 'transform'
+
+    event.stopPropagation()
   }
 
   /**
@@ -1133,14 +1135,14 @@ export default function Parvus (userOptions) {
    *
    */
   const mousemoveHandler = (event) => {
-    event.preventDefault()
-
     if (pointerDown) {
       drag.endX = event.pageX
       drag.endY = event.pageY
 
       doSwipe()
     }
+
+    event.preventDefault()
   }
 
   /**
@@ -1148,8 +1150,6 @@ export default function Parvus (userOptions) {
    *
    */
   const mouseupHandler = (event) => {
-    event.stopPropagation()
-
     pointerDown = false
 
     GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging')
@@ -1167,18 +1167,16 @@ export default function Parvus (userOptions) {
    *
    */
   const touchstartHandler = (event) => {
-    event.stopPropagation()
-
     isDraggingX = false
     isDraggingY = false
 
-    pointerDown = true
-
-    drag.startX = event.touches[0].pageX
-    drag.startY = event.touches[0].pageY
+    drag.startX = parseInt(event.changedTouches[0].clientX)
+    drag.startY = parseInt(event.changedTouches[0].clientY)
 
     GROUPS[activeGroup].slider.classList.add('parvus__slider--is-dragging')
     GROUPS[activeGroup].slider.style.willChange = 'transform'
+
+    event.stopPropagation()
   }
 
   /**
@@ -1186,27 +1184,19 @@ export default function Parvus (userOptions) {
    *
    */
   const touchmoveHandler = (event) => {
-    event.stopPropagation()
+    drag.endX = parseInt(event.changedTouches[0].clientX)
+    drag.endY = parseInt(event.changedTouches[0].clientY)
 
-    if (pointerDown) {
-      event.preventDefault()
+    doSwipe()
 
-      drag.endX = event.touches[0].pageX
-      drag.endY = event.touches[0].pageY
-
-      doSwipe()
-    }
+    event.preventDefault()
   }
 
   /**
    * Touchend event handler
    *
    */
-  const touchendHandler = (event) => {
-    event.stopPropagation()
-
-    pointerDown = false
-
+  const touchendHandler = () => {
     GROUPS[activeGroup].slider.classList.remove('parvus__slider--is-dragging')
     GROUPS[activeGroup].slider.style.willChange = 'auto'
 
