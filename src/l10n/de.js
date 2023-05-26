@@ -1,5 +1,5 @@
 export default {
-  lightboxLabel: 'Dies ist ein Dialogfenster, das den Hauptinhalt der Seite überlagert. Das Modal zeigt das vergrößerte Bild. Durch Drücken der Escape-Taste wird das Modal geschlossen und Sie kehren an die Stelle zurück, an der Sie sich auf der Seite befanden.',
+  lightboxLabel: 'Dies ist ein Dialogfenster, das den Hauptinhalt der Seite überlagert. Das Modal zeigt das vergrößerte Bild an. Durch Drücken der Escape-Taste wird das Modal geschlossen und Sie gelangen zurück zu Ihrem vorherigen Standpunkt auf der Seite.',
   lightboxLoadingIndicatorLabel: 'Bild wird geladen',
   lightboxLoadingError: 'Das angeforderte Bild kann nicht geladen werden.',
   controlsLabel: 'Steuerungen',
