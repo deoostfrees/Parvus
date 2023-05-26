@@ -931,41 +931,41 @@ export default function Parvus (userOptions) {
    *
    */
   const updateConfig = () => {
-    const slider = GROUPS[activeGroup].slider
-    const triggerElements = GROUPS[activeGroup].triggerElements
-    const triggerLength = triggerElements.length
+    const SLIDER = GROUPS[activeGroup].slider
+    const TRIGGER_ELEMENTS = GROUPS[activeGroup].triggerElements
+    const TOTAL_TRIGGER_ELEMENTS = TRIGGER_ELEMENTS.length
 
-    const isTouch = config.simulateTouch || isTouchDevice()
-    const isDraggable = slider.classList.contains('parvus__slider--is-draggable')
+    const IS_TOUCH = config.simulateTouch || isTouchDevice()
+    const IS_DRAGGABLE = SLIDER.classList.contains('parvus__slider--is-draggable')
 
-    if ((isTouch && config.swipeClose && !isDraggable) || (isTouch && triggerLength > 1 && !isDraggable)) {
-      slider.classList.add('parvus__slider--is-draggable')
+    if ((IS_TOUCH && config.swipeClose && !IS_DRAGGABLE) || (IS_TOUCH && TOTAL_TRIGGER_ELEMENTS > 1 && !IS_DRAGGABLE)) {
+      SLIDER.classList.add('parvus__slider--is-draggable')
     } else {
-      slider.classList.remove('parvus__slider--is-draggable')
+      SLIDER.classList.remove('parvus__slider--is-draggable')
     }
 
-    const hideButtons = triggerLength === 1
-    const firstSlide = currentIndex === 0
-    const lastSlide = currentIndex === triggerLength - 1
+    const HIDE_BUTTONS = TOTAL_TRIGGER_ELEMENTS === 1
+    const FIRST_SLIDE = currentIndex === 0
+    const LAST_SLIDE = currentIndex === TOTAL_TRIGGER_ELEMENTS - 1
 
-    previousButton.setAttribute('aria-hidden', hideButtons ? 'true' : 'false')
-    previousButton.setAttribute('aria-disabled', hideButtons ? 'true' : 'false')
-    nextButton.setAttribute('aria-hidden', hideButtons ? 'true' : 'false')
-    nextButton.setAttribute('aria-disabled', hideButtons ? 'true' : 'false')
+    previousButton.setAttribute('aria-hidden', HIDE_BUTTONS ? 'true' : 'false')
+    previousButton.setAttribute('aria-disabled', HIDE_BUTTONS ? 'true' : 'false')
+    nextButton.setAttribute('aria-hidden', HIDE_BUTTONS ? 'true' : 'false')
+    nextButton.setAttribute('aria-disabled', HIDE_BUTTONS ? 'true' : 'false')
 
-    if (firstSlide) {
+    if (FIRST_SLIDE && !HIDE_BUTTONS) {
       previousButton.setAttribute('aria-hidden', 'true')
       previousButton.setAttribute('aria-disabled', 'true')
       nextButton.setAttribute('aria-hidden', 'false')
       nextButton.setAttribute('aria-disabled', 'false')
-    } else if (lastSlide) {
+    } else if (LAST_SLIDE && !HIDE_BUTTONS) {
       previousButton.setAttribute('aria-hidden', 'false')
       previousButton.setAttribute('aria-disabled', 'false')
       nextButton.setAttribute('aria-hidden', 'true')
       nextButton.setAttribute('aria-disabled', 'true')
     }
 
-    counter.setAttribute('aria-hidden', triggerLength === 1 ? 'true' : 'false')
+    counter.setAttribute('aria-hidden', TOTAL_TRIGGER_ELEMENTS === 1 ? 'true' : 'false')
   }
 
   /**
