@@ -5,7 +5,7 @@ import postcss from 'rollup-plugin-postcss'
 import babel from '@rollup/plugin-babel'
 import license from 'rollup-plugin-license'
 
-const pkg = require('./package.json')
+import pkg from './package.json'
 
 const bannerContent = `
   Parvus
@@ -16,14 +16,14 @@ const bannerContent = `
 
   ${pkg.license} license`
 
-let rollupBuilds
+const rollupBuilds = []
 
 /**
  * Build JavaScript
  *
  */
 if (process.env.BUILDJS) {
-  rollupBuilds = [{
+  rollupBuilds.push({
     input: './src/js/parvus.js',
     output: [
       {
@@ -87,7 +87,7 @@ if (process.env.BUILDJS) {
     watch: {
       clearScreen: false
     }
-  }]
+  })
 }
 
 /**
@@ -95,57 +95,59 @@ if (process.env.BUILDJS) {
  *
  */
 if (process.env.BUILDCSS) {
-  rollupBuilds = [{
-    input: './src/scss/parvus.scss',
-    output: [
-      {
-        file: './dist/css/parvus.css'
-      }
-    ],
-    plugins: [
-      resolve({
-        browser: true
-      }),
-      commonjs(),
-      postcss({
-        extract: true
-      }),
-      license({
-        banner: {
-          content: bannerContent
+  rollupBuilds.push(
+    {
+      input: './src/scss/parvus.scss',
+      output: [
+        {
+          file: './dist/css/parvus.css'
         }
-      })
-    ],
-    watch: {
-      clearScreen: false
-    }
-  },
-  {
-    input: './src/scss/parvus.scss',
-    output: [
-      {
-        file: './dist/css/parvus.min.css'
+      ],
+      plugins: [
+        resolve({
+          browser: true
+        }),
+        commonjs(),
+        postcss({
+          extract: true
+        }),
+        license({
+          banner: {
+            content: bannerContent
+          }
+        })
+      ],
+      watch: {
+        clearScreen: false
       }
-    ],
-    plugins: [
-      resolve({
-        browser: true
-      }),
-      commonjs(),
-      postcss({
-        extract: true,
-        minimize: true
-      }),
-      license({
-        banner: {
-          content: bannerContent
+    },
+    {
+      input: './src/scss/parvus.scss',
+      output: [
+        {
+          file: './dist/css/parvus.min.css'
         }
-      })
-    ],
-    watch: {
-      clearScreen: false
+      ],
+      plugins: [
+        resolve({
+          browser: true
+        }),
+        commonjs(),
+        postcss({
+          extract: true,
+          minimize: true
+        }),
+        license({
+          banner: {
+            content: bannerContent
+          }
+        })
+      ],
+      watch: {
+        clearScreen: false
+      }
     }
-  }]
+  )
 }
 
 export default rollupBuilds
