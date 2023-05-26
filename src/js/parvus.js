@@ -165,10 +165,11 @@ export default function Parvus (userOptions) {
     el.addEventListener('click', triggerParvus)
 
     if (isOpen() && newGroup === activeGroup) {
-      const index = GROUPS[newGroup].triggerElements.indexOf(el)
-      createSlide(index)
-      createImage(el, index, () => {
-        loadImage(index)
+      const EL_INDEX = GROUPS[newGroup].triggerElements.indexOf(el)
+
+      createSlide(EL_INDEX)
+      createImage(el, EL_INDEX, () => {
+        loadImage(EL_INDEX)
       })
       updateConfig()
       updateFocus()
@@ -193,10 +194,10 @@ export default function Parvus (userOptions) {
       return
     }
 
-    const TRIGGER_EL_INDEX = GROUPS[GROUP].triggerElements.indexOf(el)
+    const EL_INDEX = GROUPS[GROUP].triggerElements.indexOf(el)
 
-    GROUPS[GROUP].triggerElements.splice(TRIGGER_EL_INDEX, 1)
-    GROUPS[GROUP].sliderElements.splice(TRIGGER_EL_INDEX, 1)
+    GROUPS[GROUP].triggerElements.splice(EL_INDEX, 1)
+    GROUPS[GROUP].sliderElements.splice(EL_INDEX, 1)
 
     // Remove lightbox indicator icon if necessary
     if (el.classList.contains('parvus-zoom')) {
@@ -332,9 +333,9 @@ export default function Parvus (userOptions) {
    */
   const getNextSlideIndex = (currentIndex) => {
     const SLIDE_ELEMENTS = GROUPS[activeGroup].sliderElements
-    const TOTAL_SLIDES = SLIDE_ELEMENTS.length
+    const TOTAL_SLIDE_ELEMENTS = SLIDE_ELEMENTS.length
 
-    for (let i = currentIndex + 1; i < TOTAL_SLIDES; i++) {
+    for (let i = currentIndex + 1; i < TOTAL_SLIDE_ELEMENTS; i++) {
       if (SLIDE_ELEMENTS[i] !== undefined) {
         return i
       }
@@ -389,18 +390,18 @@ export default function Parvus (userOptions) {
     GROUPS[activeGroup].sliderElements[index] = SLIDER_ELEMENT
 
     if (index >= currentIndex) {
-      const nextSlideIndex = getNextSlideIndex(index)
+      const NEXT_SLIDE_INDEX = getNextSlideIndex(index)
 
-      if (nextSlideIndex !== -1) {
-        GROUPS[activeGroup].sliderElements[nextSlideIndex].before(SLIDER_ELEMENT)
+      if (NEXT_SLIDE_INDEX !== -1) {
+        GROUPS[activeGroup].sliderElements[NEXT_SLIDE_INDEX].before(SLIDER_ELEMENT)
       } else {
         GROUPS[activeGroup].slider.appendChild(SLIDER_ELEMENT)
       }
     } else {
-      const previousSlideIndex = getPreviousSlideIndex(index)
+      const PREVIOUS_SLIDE_INDEX = getPreviousSlideIndex(index)
 
-      if (previousSlideIndex !== -1) {
-        GROUPS[activeGroup].sliderElements[previousSlideIndex].after(SLIDER_ELEMENT)
+      if (PREVIOUS_SLIDE_INDEX !== -1) {
+        GROUPS[activeGroup].sliderElements[PREVIOUS_SLIDE_INDEX].after(SLIDER_ELEMENT)
       } else {
         GROUPS[activeGroup].slider.prepend(SLIDER_ELEMENT)
       }
@@ -431,9 +432,9 @@ export default function Parvus (userOptions) {
 
     bindEvents()
 
-    const nonLightboxEls = document.querySelectorAll('body > *:not([aria-hidden="true"])')
+    const NON_LIGHTBOX_ELEMENTS = document.querySelectorAll('body > *:not([aria-hidden="true"])')
 
-    nonLightboxEls.forEach(nonLightboxEl => {
+    NON_LIGHTBOX_ELEMENTS.forEach(nonLightboxEl => {
       nonLightboxEl.setAttribute('aria-hidden', 'true')
       nonLightboxEl.classList.add('parvus-hidden')
     })
@@ -488,8 +489,8 @@ export default function Parvus (userOptions) {
       history.back()
     }
 
-    const nonLightboxEls = document.querySelectorAll('.parvus-hidden')
-    nonLightboxEls.forEach(nonLightboxEl => {
+    const NON_LIGHTBOX_ELEMENTS = document.querySelectorAll('.parvus-hidden')
+    NON_LIGHTBOX_ELEMENTS.forEach(nonLightboxEl => {
       nonLightboxEl.removeAttribute('aria-hidden')
       nonLightboxEl.classList.remove('parvus-hidden')
     })
@@ -501,12 +502,12 @@ export default function Parvus (userOptions) {
 
       if (IMAGE && IMAGE.tagName === 'IMG') {
         const IMAGE_SIZE = IMAGE.getBoundingClientRect()
-        const widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
-        const heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
-        const xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
-        const yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
+        const WIDTH_DIFFERENCE = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
+        const HEIGHT_DIFFERENCE = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
+        const X_DIFFERENCE = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
+        const Y_DIFFERENCE = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
 
-        IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
+        IMAGE.style.transform = `translate(${X_DIFFERENCE}px, ${Y_DIFFERENCE}px) scale(${WIDTH_DIFFERENCE}, ${HEIGHT_DIFFERENCE})`
       }
 
       IMAGE.style.opacity = 0
@@ -599,10 +600,10 @@ export default function Parvus (userOptions) {
     }
 
     if (captionData !== null) {
-      const captionId = `parvus__caption-${index}`
+      const CAPTION_ID = `parvus__caption-${index}`
 
-      CAPTION_CONTAINER.setAttribute('aria-labelledby', captionId)
-      CAPTION_CONTAINER.id = captionId
+      CAPTION_CONTAINER.setAttribute('aria-labelledby', CAPTION_ID)
+      CAPTION_CONTAINER.id = CAPTION_ID
       CAPTION_CONTAINER.innerHTML = `<p>${captionData}</p>`
 
       containerEl.appendChild(CAPTION_CONTAINER)
@@ -712,13 +713,13 @@ export default function Parvus (userOptions) {
         const IMAGE_SIZE = IMAGE.getBoundingClientRect()
         const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect()
 
-        const widthDifference = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
-        const heightDifference = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
-        const xDifference = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
-        const yDifference = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
+        const WIDTH_DIFFERENCE = THUMBNAIL_SIZE.width / IMAGE_SIZE.width
+        const HEIGHT_DIFFERENCE = THUMBNAIL_SIZE.height / IMAGE_SIZE.height
+        const X_DIFFERENCE = THUMBNAIL_SIZE.left - IMAGE_SIZE.left
+        const Y_DIFFERENCE = THUMBNAIL_SIZE.top - IMAGE_SIZE.top
 
         requestAnimationFrame(() => {
-          IMAGE.style.transform = `translate(${xDifference}px, ${yDifference}px) scale(${widthDifference}, ${heightDifference})`
+          IMAGE.style.transform = `translate(${X_DIFFERENCE}px, ${Y_DIFFERENCE}px) scale(${WIDTH_DIFFERENCE}, ${HEIGHT_DIFFERENCE})`
           IMAGE.style.transition = 'transform 0s, opacity 0s'
 
           // Animate the difference reversal on the next tick
@@ -851,13 +852,13 @@ export default function Parvus (userOptions) {
    */
   const updateFocus = (dir) => {
     const { triggerElements } = GROUPS[activeGroup]
-    const numSlides = triggerElements.length
+    const TOTAL_TRIGGER_ELEMENTS = triggerElements.length
 
-    if (numSlides === 1) {
+    if (TOTAL_TRIGGER_ELEMENTS === 1) {
       closeButton.focus()
     } else if (currentIndex === 0) {
       nextButton.focus()
-    } else if (currentIndex === numSlides - 1) {
+    } else if (currentIndex === TOTAL_TRIGGER_ELEMENTS - 1) {
       previousButton.focus()
     } else {
       if (dir === 'left') {
@@ -902,12 +903,12 @@ export default function Parvus (userOptions) {
     const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
     const { triggerElements } = GROUPS[activeGroup]
-    const numSlides = triggerElements.length
+    const TOTAL_TRIGGER_ELEMENTS = triggerElements.length
 
     if (isDraggingX) {
       if (MOVEMENT_X > 2 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex > 0) {
         previous()
-      } else if (MOVEMENT_X < 2 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex !== numSlides - 1) {
+      } else if (MOVEMENT_X < 2 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex !== TOTAL_TRIGGER_ELEMENTS - 1) {
         next()
       } else {
         updateOffset()
@@ -999,32 +1000,32 @@ export default function Parvus (userOptions) {
       return
     }
 
-    const computedStyle = getComputedStyle(slideEl)
-    const captionEl = slideEl.querySelector('.parvus__caption')
-    const captionRec = captionEl ? captionEl.getBoundingClientRect().height : 0
-    const srcHeight = contentEl.getAttribute('height')
-    const srcWidth = contentEl.getAttribute('width')
+    const COMPUTED_STYLE = getComputedStyle(slideEl)
+    const CAPTION_EL = slideEl.querySelector('.parvus__caption')
+    const CAPTION_REC = CAPTION_EL ? CAPTION_EL.getBoundingClientRect().height : 0
+    const SRC_HEIGHT = contentEl.getAttribute('height')
+    const SRC_WIDTH = contentEl.getAttribute('width')
 
     let maxHeight = slideEl.offsetHeight
     let maxWidth = slideEl.offsetWidth
 
-    maxHeight -= parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom) + parseFloat(captionRec)
-    maxWidth -= parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight)
+    maxHeight -= parseFloat(COMPUTED_STYLE.paddingTop) + parseFloat(COMPUTED_STYLE.paddingBottom) + parseFloat(CAPTION_REC)
+    maxWidth -= parseFloat(COMPUTED_STYLE.paddingLeft) + parseFloat(COMPUTED_STYLE.paddingRight)
 
-    const ratio = Math.min(maxWidth / srcWidth || 0, maxHeight / srcHeight)
+    const RATIO = Math.min(maxWidth / SRC_WIDTH || 0, maxHeight / SRC_HEIGHT)
 
-    const newWidth = srcWidth * ratio || 0
-    const newHeight = srcHeight * ratio || 0
+    const NEW_WIDTH = SRC_WIDTH * RATIO || 0
+    const NEW_HEIGHT = SRC_HEIGHT * RATIO || 0
 
     if (
-      (srcHeight > newHeight && srcHeight < maxHeight && srcWidth > newWidth && srcWidth < maxWidth) ||
-      (srcHeight < newHeight && srcHeight < maxHeight && srcWidth < newWidth && srcWidth < maxWidth)
+      (SRC_HEIGHT > NEW_HEIGHT && SRC_HEIGHT < maxHeight && SRC_WIDTH > NEW_WIDTH && SRC_WIDTH < maxWidth) ||
+      (SRC_HEIGHT < NEW_HEIGHT && SRC_HEIGHT < maxHeight && SRC_WIDTH < NEW_WIDTH && SRC_WIDTH < maxWidth)
     ) {
       contentEl.style.width = ''
       contentEl.style.height = ''
     } else {
-      contentEl.style.width = `${newWidth}px`
-      contentEl.style.height = `${newHeight}px`
+      contentEl.style.width = `${NEW_WIDTH}px`
+      contentEl.style.height = `${NEW_HEIGHT}px`
     }
   }
 
