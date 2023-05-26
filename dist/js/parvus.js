@@ -69,10 +69,10 @@
     let isReducedMotion = true;
 
     /**
-     * Merge default options with user options
+     * Merge default options with user-provided options
      *
-     * @param {Object} userOptions
-     * @returns {Object}
+     * @param {Object} userOptions - User-provided options
+     * @returns {Object} - Merged options object
      */
     const mergeOptions = userOptions => {
       // Default options
@@ -121,19 +121,19 @@
     MOTIONQUERY.addEventListener('change', reducedMotionCheck);
 
     /**
-     * Get group from element
+     * Get the group from element
      *
-     * @param {HTMLElement} triggerEl
-     * @return {String}
+     * @param {HTMLElement} el - The element to retrieve the group from
+     * @return {String} - The group of the element
      */
-    const getGroup = triggerEl => {
+    const getGroup = el => {
       // Check if the data attribute "group" exists or set an alternative value
-      const EL_GROUP = triggerEl.dataset.group || `default-${groupIdCounter}`;
+      const EL_GROUP = el.dataset.group || `default-${groupIdCounter}`;
       ++groupIdCounter;
 
       // Set the "group" data attribute if it doesn't exist
-      if (!triggerEl.hasAttribute('data-group')) {
-        triggerEl.setAttribute('data-group', EL_GROUP);
+      if (!el.hasAttribute('data-group')) {
+        el.setAttribute('data-group', EL_GROUP);
       }
       return EL_GROUP;
     };
@@ -141,42 +141,42 @@
     /**
      * Add zoom indicator to element
      *
-     * @param {HTMLElement} triggerEl
+     * @param {HTMLElement} el - The element to add the zoom indicator to
      */
-    const addZoomIndicator = triggerEl => {
-      if (triggerEl.querySelector('img')) {
+    const addZoomIndicator = el => {
+      if (el.querySelector('img')) {
         const LIGHTBOX_INDICATOR_ICON = document.createElement('div');
-        triggerEl.classList.add('parvus-zoom');
+        el.classList.add('parvus-zoom');
         LIGHTBOX_INDICATOR_ICON.className = 'parvus-zoom__indicator';
         LIGHTBOX_INDICATOR_ICON.innerHTML = config.lightboxIndicatorIcon;
-        triggerEl.appendChild(LIGHTBOX_INDICATOR_ICON);
+        el.appendChild(LIGHTBOX_INDICATOR_ICON);
       }
     };
 
     /**
-     * Add element
+     * Add an element
      *
-     * @param {HTMLElement} triggerEl
+     * @param {HTMLElement} el - The element to be added
      */
-    const add = triggerEl => {
-      if (!(triggerEl.tagName === 'A' && triggerEl.hasAttribute('href') || triggerEl.tagName === 'BUTTON' && triggerEl.hasAttribute('data-target'))) {
+    const add = el => {
+      if (!(el.tagName === 'A' && el.hasAttribute('href') || el.tagName === 'BUTTON' && el.hasAttribute('data-target'))) {
         throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must have a path to the image file.');
       }
-      newGroup = getGroup(triggerEl);
+      newGroup = getGroup(el);
       if (!GROUPS[newGroup]) {
         GROUPS[newGroup] = structuredClone(GROUP_ATTS);
       }
-      if (GROUPS[newGroup].triggerElements.includes(triggerEl)) {
+      if (GROUPS[newGroup].triggerElements.includes(el)) {
         throw new Error('Ups, element already added.');
       }
-      GROUPS[newGroup].triggerElements.push(triggerEl);
-      addZoomIndicator(triggerEl);
-      triggerEl.classList.add('parvus-trigger');
-      triggerEl.addEventListener('click', triggerParvus);
+      GROUPS[newGroup].triggerElements.push(el);
+      addZoomIndicator(el);
+      el.classList.add('parvus-trigger');
+      el.addEventListener('click', triggerParvus);
       if (isOpen() && newGroup === activeGroup) {
-        const index = GROUPS[newGroup].triggerElements.indexOf(triggerEl);
+        const index = GROUPS[newGroup].triggerElements.indexOf(el);
         createSlide(index);
-        createImage(triggerEl, index, () => {
+        createImage(el, index, () => {
           loadImage(index);
         });
         updateConfig();
@@ -186,29 +186,29 @@
     };
 
     /**
-     * Remove element
+     * Remove an element
      *
-     * @param {HTMLElement} triggerEl
+     * @param {HTMLElement} el - The element to be removed
      */
-    const remove = triggerEl => {
-      if (!triggerEl || !triggerEl.hasAttribute('data-group')) {
+    const remove = el => {
+      if (!el || !el.hasAttribute('data-group')) {
         return;
       }
-      const GROUP = getGroup(triggerEl);
+      const GROUP = getGroup(el);
 
       // Check if element exists
-      if (!GROUPS[GROUP] || !GROUPS[GROUP].triggerElements.indexOf(triggerEl)) {
+      if (!GROUPS[GROUP] || !GROUPS[GROUP].triggerElements.indexOf(el)) {
         return;
       }
-      const TRIGGER_EL_INDEX = GROUPS[GROUP].triggerElements.indexOf(triggerEl);
+      const TRIGGER_EL_INDEX = GROUPS[GROUP].triggerElements.indexOf(el);
       GROUPS[GROUP].triggerElements.splice(TRIGGER_EL_INDEX, 1);
       GROUPS[GROUP].sliderElements.splice(TRIGGER_EL_INDEX, 1);
 
       // Remove lightbox indicator icon if necessary
-      if (triggerEl.classList.contains('parvus-zoom')) {
-        const LIGHTBOX_INDICATOR_ICON = triggerEl.querySelector('.parvus-zoom__indicator');
-        triggerEl.classList.remove('parvus-zoom');
-        triggerEl.removeChild(LIGHTBOX_INDICATOR_ICON);
+      if (el.classList.contains('parvus-zoom')) {
+        const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator');
+        el.classList.remove('parvus-zoom');
+        el.removeChild(LIGHTBOX_INDICATOR_ICON);
       }
       if (isOpen() && GROUP === activeGroup) {
         updateConfig();
@@ -217,8 +217,8 @@
       }
 
       // Unbind click event handler
-      triggerEl.removeEventListener('click', triggerParvus);
-      triggerEl.classList.remove('parvus-trigger');
+      el.removeEventListener('click', triggerParvus);
+      el.classList.remove('parvus-trigger');
     };
 
     /**
@@ -342,9 +342,10 @@
     };
 
     /**
-     * Get next slide index
+     * Get previous slide index
      *
-     * @param {Number} index
+     * @param {number} index - The current slide index
+     * @returns {number} - The index of the previous slide, or -1 if there is no previous slide
      */
     const getPreviousSlideIndex = currentIndex => {
       const SLIDE_ELEMENTS = GROUPS[activeGroup].sliderElements;
@@ -359,7 +360,7 @@
     /**
      * Create a slide
      *
-     * @param {HTMLElement} el
+     * @param {Number} index - The index of the slide
      */
     const createSlide = index => {
       if (GROUPS[activeGroup].sliderElements[index] !== undefined) {
@@ -507,9 +508,9 @@
     };
 
     /**
-     * Preload slide
+     * Preload slide with the specified index
      *
-     * @param {Number} index
+     * @param {Number} index - The index of the slide to be preloaded
      */
     const preload = index => {
       if (index < 0 || index >= GROUPS[activeGroup].triggerElements.length || GROUPS[activeGroup].sliderElements[index] !== undefined) {
@@ -522,31 +523,31 @@
     };
 
     /**
-     * Load slide
+     * Load slide with the specified index
      *
-     * @param {Number} index
+     * @param {Number} index - The index of the slide to be loaded
      */
     const loadSlide = index => {
       GROUPS[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false');
     };
 
     /**
-     * Add caption
+     * Add caption to the container element
      *
-     * @param {HTMLElement} containerEl
-     * @param {HTMLElement} triggerEl
-     * @param {Number} index
+     * @param {HTMLElement} containerEl - The container element to which the caption will be added
+     * @param {HTMLElement} el - The trigger element associated with the caption
+     * @param {Number} index - The index of the caption
      */
-    const addCaption = (containerEl, triggerEl, index) => {
+    const addCaption = (containerEl, el, index) => {
       const CAPTION_CONTAINER = document.createElement('div');
       let captionData = null;
       CAPTION_CONTAINER.className = 'parvus__caption';
       if (config.captionsSelector === 'self') {
-        if (triggerEl.hasAttribute(config.captionsAttribute) && triggerEl.getAttribute(config.captionsAttribute) !== '') {
-          captionData = triggerEl.getAttribute(config.captionsAttribute);
+        if (el.hasAttribute(config.captionsAttribute) && el.getAttribute(config.captionsAttribute) !== '') {
+          captionData = el.getAttribute(config.captionsAttribute);
         }
       } else {
-        const CAPTION_SELECTOR = triggerEl.querySelector(config.captionsSelector);
+        const CAPTION_SELECTOR = el.querySelector(config.captionsSelector);
         if (CAPTION_SELECTOR !== null) {
           if (CAPTION_SELECTOR.hasAttribute(config.captionsAttribute) && CAPTION_SELECTOR.getAttribute(config.captionsAttribute) !== '') {
             captionData = CAPTION_SELECTOR.getAttribute(config.captionsAttribute);
@@ -563,7 +564,7 @@
         containerEl.appendChild(CAPTION_CONTAINER);
       }
     };
-    const createImage = (triggerEl, index, callback) => {
+    const createImage = (el, index, callback) => {
       const {
         contentElements,
         sliderElements
@@ -577,7 +578,7 @@
       const CONTENT_CONTAINER_EL = sliderElements[index].querySelector('div');
       const IMAGE = new Image();
       const IMAGE_CONTAINER = document.createElement('div');
-      const THUMBNAIL = triggerEl.querySelector('img');
+      const THUMBNAIL = el.querySelector('img');
       const LOADING_INDICATOR = document.createElement('div');
       IMAGE_CONTAINER.className = 'parvus__content';
 
@@ -594,7 +595,7 @@
       });
       checkImagePromise.then(loadedImage => {
         // Add srcset if available
-        const srcset = triggerEl.getAttribute('data-srcset');
+        const srcset = el.getAttribute('data-srcset');
         if (srcset) {
           loadedImage.setAttribute('srcset', srcset);
         }
@@ -604,7 +605,7 @@
 
         // Add caption if available
         if (config.captions) {
-          addCaption(CONTENT_CONTAINER_EL, triggerEl, index);
+          addCaption(CONTENT_CONTAINER_EL, el, index);
         }
         contentElements[index] = loadedImage;
 
@@ -625,23 +626,23 @@
           callback();
         }
       });
-      if (triggerEl.tagName === 'A') {
-        IMAGE.setAttribute('src', triggerEl.href);
+      if (el.tagName === 'A') {
+        IMAGE.setAttribute('src', el.href);
         if (THUMBNAIL) {
           IMAGE.alt = THUMBNAIL.alt || '';
         } else {
-          IMAGE.alt = triggerEl.getAttribute('data-alt') || '';
+          IMAGE.alt = el.getAttribute('data-alt') || '';
         }
       } else {
-        IMAGE.alt = triggerEl.getAttribute('data-alt') || '';
-        IMAGE.setAttribute('src', triggerEl.getAttribute('data-target'));
+        IMAGE.alt = el.getAttribute('data-alt') || '';
+        IMAGE.setAttribute('src', el.getAttribute('data-target'));
       }
     };
 
     /**
      * Load Image
      *
-     * @param {Number} index
+     * @param {Number} index - The index of the image to load
      */
     const loadImage = (index, animate) => {
       const IMAGE = GROUPS[activeGroup].contentElements[index];
@@ -721,6 +722,7 @@
 
     /**
      * Select the previous slide
+     *
      */
     const previous = () => {
       if (currentIndex > 0) {
@@ -730,6 +732,7 @@
 
     /**
      * Select the next slide
+     *
      */
     const next = () => {
       const {
@@ -742,9 +745,10 @@
 
     /**
      * Leave slide
-     * Will be called before moving index
      *
-     * @param {Number} index
+     * This function is called after moving the index to a new slide.
+     *
+     * @param {Number} index - The index of the slide to leave.
      */
     const leaveSlide = index => {
       if (GROUPS[activeGroup].sliderElements[index] !== undefined) {
@@ -766,7 +770,9 @@
     /**
      * Update focus
      *
-     * @param {String} dir
+     * This function updates the focus based on the specified direction.
+     *
+     * @param {String} dir - The direction of the focus update.
      */
     const updateFocus = dir => {
       const {
@@ -791,6 +797,7 @@
     /**
      * Update counter
      *
+     * This function updates the counter display based on the current slide index.
      */
     const updateCounter = () => {
       counter.textContent = `${currentIndex + 1}/${GROUPS[activeGroup].triggerElements.length}`;
@@ -799,6 +806,7 @@
     /**
      * Clear drag after touchend event
      *
+     * This function clears the drag state after the touchend event is triggered.
      */
     const clearDrag = () => {
       drag = {
@@ -810,7 +818,7 @@
     };
 
     /**
-     * Recalculate drag / swipe event
+     * Recalculate drag/swipe event
      *
      */
     const updateAfterDrag = () => {
@@ -886,7 +894,7 @@
     };
 
     /**
-     * Resize event
+     * Resize event handler
      *
      */
     const resizeHandler = () => {
@@ -905,8 +913,8 @@
     /**
      * Set image dimension
      *
-     * @param {HTMLElement} slideEl
-     * @param {HTMLElement} contentEl
+     * @param {HTMLElement} slideEl - The slide element
+     * @param {HTMLElement} contentEl - The content element
      */
     const setImageDimension = (slideEl, contentEl) => {
       if (contentEl.tagName !== 'IMG') {
@@ -936,6 +944,7 @@
     /**
      * Click event handler to trigger Parvus
      *
+     * @param {Event} event - The click event object
      */
     const triggerParvus = function triggerParvus(event) {
       event.preventDefault();
@@ -943,8 +952,9 @@
     };
 
     /**
-     * Click event handler
+     * Event handler for click events
      *
+     * @param {Event} event - The click event object
      */
     const clickHandler = event => {
       const {
@@ -963,14 +973,14 @@
     /**
      * Get the focusable children of the given element
      *
-     * @return {Array<Element>}
+     * @return {Array<Element>} - An array of focusable children
      */
     const getFocusableChildren = () => {
       return Array.from(lightbox.querySelectorAll(FOCUSABLE_ELEMENTS.join(', '))).filter(child => child.offsetParent !== null);
     };
 
     /**
-     * Set focus to first item
+     * Set focus to the first item in the list
      *
      */
     const setFocusToFirstItem = () => {
@@ -979,8 +989,9 @@
     };
 
     /**
-     * Keydown event handler
+     * Event handler for the keydown event
      *
+     * @param {Event} event - The keydown event object
      */
     const keydownHandler = event => {
       const FOCUSABLE_CHILDREN = getFocusableChildren();
@@ -989,14 +1000,15 @@
       switch (event.code) {
         case 'Tab':
           {
+            // Use the TAB key to navigate backwards and forwards
             if (event.shiftKey) {
-              // Moving backwards
+              // Navigate backwards
               if (FOCUSED_ITEM_INDEX === 0) {
                 FOCUSABLE_CHILDREN[lastIndex].focus();
                 event.preventDefault();
               }
             } else {
-              // Moving forwards
+              // Navigate forwards
               if (FOCUSED_ITEM_INDEX === lastIndex) {
                 FOCUSABLE_CHILDREN[0].focus();
                 event.preventDefault();
@@ -1006,21 +1018,21 @@
           }
         case 'Escape':
           {
-            // `ESC` Key: Close Parvus
+            // Close Parvus when the ESC key is pressed
             close();
             event.preventDefault();
             break;
           }
         case 'ArrowLeft':
           {
-            // `PREV` Key: Show the previous slide
+            // Show the previous slide when the PREV key is pressed
             previous();
             event.preventDefault();
             break;
           }
         case 'ArrowRight':
           {
-            // `NEXT` Key: Show the next slide
+            // Show the next slide when the NEXT key is pressed
             next();
             event.preventDefault();
             break;
@@ -1029,7 +1041,12 @@
     };
 
     /**
-     * Mousedown event handler
+     * Event handler for the mousedown event.
+     *
+     * This function is called when the mouse button is pressed down.
+     * It handles the necessary actions and logic related to the mousedown event.
+     *
+     * @param {Event} event - The mousedown event object
      */
     const mousedownHandler = event => {
       isDraggingX = false;
@@ -1051,7 +1068,12 @@
     };
 
     /**
-     * Mousemove event handler
+     * Event handler for the mousemove event.
+     *
+     * This function is called when the mouse is moved.
+     * It handles the necessary actions and logic related to the mousemove event.
+     *
+     * @param {Event} event - The mousemove event object
      */
     const mousemoveHandler = event => {
       if (pointerDown) {
@@ -1067,7 +1089,10 @@
     };
 
     /**
-     * Mouseup event handler
+     * Event handler for the mouseup event.
+     *
+     * This function is called when a mouse button is released.
+     * It handles the necessary actions and logic related to the mouseup event.
      */
     const mouseupHandler = () => {
       pointerDown = false;
@@ -1083,7 +1108,12 @@
     };
 
     /**
-     * Touchstart event handler
+     * Event handler for the touchstart event.
+     *
+     * This function is called when a touch interaction begins.
+     * It handles the necessary actions and logic related to the touchstart event.
+     *
+     * @param {Event} event - The touchstart event object
      */
     const touchstartHandler = event => {
       isDraggingX = false;
@@ -1104,7 +1134,12 @@
     };
 
     /**
-     * Touchmove event handler
+     * Event handler for the touchmove event.
+     *
+     * This function is called when the touch position changes during a touch interaction.
+     * It handles the necessary actions and logic related to the touchmove event.
+     *
+     * @param {Event} event - The touchmove event object
      */
     const touchmoveHandler = event => {
       const {
@@ -1118,7 +1153,10 @@
     };
 
     /**
-     * Touchend event handler
+     * Event handler for the touchend event.
+     *
+     * This function is called when the touch interaction ends. It handles the necessary
+     * actions and logic related to the touchend event.
      */
     const touchendHandler = () => {
       const {
@@ -1133,7 +1171,10 @@
     };
 
     /**
-     * Decide whether to do horizontal or vertical swipe
+     * Determine the swipe direction (horizontal or vertical).
+     *
+     * This function analyzes the swipe gesture and decides whether it is a horizontal
+     * or vertical swipe based on the direction and angle of the swipe.
      */
     const doSwipe = () => {
       const {
@@ -1163,7 +1204,7 @@
     };
 
     /**
-     * Bind events
+     * Bind specified events
      *
      */
     const bindEvents = () => {
@@ -1192,7 +1233,7 @@
     };
 
     /**
-     * Unbind events
+     * Unbind specified events
      *
      */
     const unbindEvents = () => {
@@ -1243,32 +1284,35 @@
     /**
      * Check if Parvus is open
      *
+     * @returns {boolean} - True if Parvus is open, otherwise false
      */
     const isOpen = () => {
       return lightbox.getAttribute('aria-hidden') === 'false';
     };
 
     /**
-     * Detect whether device is touch capable
+     * Check if the device supports touch events
      *
+     * @returns {boolean} - True if the device is touch capable, otherwise false
      */
     const isTouchDevice = () => {
       return 'ontouchstart' in window;
     };
 
     /**
-     * Return current index
+     * Get the current index
      *
+     * @returns {number} - The current index
      */
     const getCurrentIndex = () => {
       return currentIndex;
     };
 
     /**
-     * Bind event
+     * Bind a specific event listener
      *
-     * @param {String} eventName
-     * @param {Function} callback
+     * @param {String} eventName - The name of the event to Bind
+     * @param {Function} callback - The callback function
      */
     const on = (eventName, callback) => {
       if (lightbox) {
@@ -1277,10 +1321,10 @@
     };
 
     /**
-     * Unbind event
+     * Unbind a specific event listener
      *
-     * @param {String} eventName
-     * @param {Function} callback
+     * @param {String} eventName - The name of the event to unbind
+     * @param {Function} callback - The callback function
      */
     const off = (eventName, callback) => {
       if (lightbox) {
