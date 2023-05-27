@@ -11,6 +11,12 @@
   --parvus-button-hover-color: hsl(229, 24%, 33%);
   --parvus-button-hover-text: hsl(0, 0%, 100%);
 
+  --parvus-caption-background-color: transparent;
+  --parvus-caption-color: hsl(228, 24%, 23%);
+
+  --parvus-error-loading-error-background-color: hsl(0, 0%, 100%);
+  --parvus-image-loading-error-color: hsl(228, 24%, 23%);
+
   --parvus-loader-background-color: hsl(23, 40%, 96%);
   --parvus-loader-color: hsl(228, 24%, 23%);
 }
@@ -138,8 +144,21 @@
     }
   }
 
+  &__content {
+
+
+
+    &--error {
+      background-color: var(--parvus-error-loading-error-background-color);
+      color: var(--parvus-error-loading-error-color);
+      padding-block: 0.5rem;
+      padding-inline: 1rem;
+    }
+  }
+
   &__caption {
-    color: var(--parvus-overlay-text);
+    background-color: var(--parvus-caption-background-color);
+    color: var(--parvus-caption-color);
     padding-block-start: 0.5rem;
     text-align: start;
   }

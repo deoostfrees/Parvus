@@ -362,11 +362,19 @@ function Parvus(userOptions) {
     }
     const SLIDER_ELEMENT = document.createElement('div');
     const SLIDER_ELEMENT_CONTENT = document.createElement('div');
+    const TRIGGER_ELEMENTS = GROUPS[activeGroup].triggerElements;
+    const TOTAL_TRIGGER_ELEMENTS = TRIGGER_ELEMENTS.length;
     SLIDER_ELEMENT.className = 'parvus__slide';
     SLIDER_ELEMENT.style.position = 'absolute';
     SLIDER_ELEMENT.style.left = `${index * 100}%`;
     SLIDER_ELEMENT.setAttribute('aria-hidden', 'true');
     SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT);
+
+    // Add extra output for screen reader if there is more than one slide
+    if (TOTAL_TRIGGER_ELEMENTS > 1) {
+      SLIDER_ELEMENT.setAttribute('role', 'group');
+      SLIDER_ELEMENT.setAttribute('aria-label', `${config.l10n.slideLabel} ${index + 1}/${TOTAL_TRIGGER_ELEMENTS}`);
+    }
     GROUPS[activeGroup].sliderElements[index] = SLIDER_ELEMENT;
     if (index >= currentIndex) {
       const NEXT_SLIDE_INDEX = getNextSlideIndex(index);
@@ -608,7 +616,9 @@ function Parvus(userOptions) {
       setImageDimension(sliderElements[index], loadedImage);
     }).catch(() => {
       const ERROR_CONTAINER = document.createElement('div');
-      ERROR_CONTAINER.innerHTML = 'Error';
+      ERROR_CONTAINER.classList.add('parvus__content');
+      ERROR_CONTAINER.classList.add('parvus__content--error');
+      ERROR_CONTAINER.innerHTML = `${config.l10n.lightboxLoadingError}`;
       CONTENT_CONTAINER_EL.appendChild(ERROR_CONTAINER);
       contentElements[index] = ERROR_CONTAINER;
     }).finally(() => {
@@ -885,7 +895,7 @@ function Parvus(userOptions) {
       SLIDER.setAttribute('aria-label', config.l10n.sliderLabel);
       SLIDER_ELEMENTS.forEach((sliderElement, index) => {
         sliderElement.setAttribute('role', 'group');
-        sliderElement.setAttribute('aria-label', `${config.l10n.slideLabel} ${index + 1}/${TRIGGER_ELEMENTS.length}`);
+        sliderElement.setAttribute('aria-label', `${config.l10n.slideLabel} ${index + 1}/${TOTAL_TRIGGER_ELEMENTS}`);
       });
     } else {
       SLIDER.removeAttribute('role');
