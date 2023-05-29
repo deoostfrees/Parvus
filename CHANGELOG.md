@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 - Pinch zoom gestures
 
+## [2.3.1] - 2023-05-29
+
+### Fixed
+
+- The navigation buttons' visibility.
+
 ## [2.3.0] - 2023-05-27
 
 ### Added
