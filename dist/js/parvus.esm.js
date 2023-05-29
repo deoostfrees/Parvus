@@ -797,6 +797,10 @@ function Parvus(userOptions) {
       nextButton.setAttribute('aria-disabled', 'true');
       previousButton.focus();
     } else {
+      previousButton.setAttribute('aria-hidden', 'false');
+      previousButton.setAttribute('aria-disabled', 'false');
+      nextButton.setAttribute('aria-hidden', 'false');
+      nextButton.setAttribute('aria-disabled', 'false');
       if (dir === 'left') {
         previousButton.focus();
       } else {
