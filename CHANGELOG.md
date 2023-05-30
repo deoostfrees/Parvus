@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 - Pinch zoom gestures
 
+## [2.3.2] - 2023-05-30
+
+### Fixed
+
+- Set focus back to the correct element in the default behavior of the `backFocus` option.
+
 ## [2.3.1] - 2023-05-29
 
 ### Fixed
@@ -22,7 +28,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Replaced the custom `copyObject()` function with the built-in `structuredClone()` method for improved performance and reliability.
+- Replaced the custom `copyObject()` function with the built-in `structuredClone()` method.
 - Refactored code and comments to improve readability and optimize performance.
 - Updated the development dependencies to the latest versions.
 
