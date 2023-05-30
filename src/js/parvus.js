@@ -484,7 +484,7 @@ export default function Parvus (userOptions) {
     }
 
     const IMAGE = GROUPS[activeGroup].contentElements[currentIndex]
-    const THUMBNAIL = config.backFocus ? lastFocus : GROUPS[activeGroup].triggerElements[currentIndex]
+    const THUMBNAIL = GROUPS[activeGroup].triggerElements[currentIndex]
 
     unbindEvents()
     clearDrag()
@@ -520,7 +520,7 @@ export default function Parvus (userOptions) {
 
     const transitionendHandler = () => {
       leaveSlide(currentIndex)
-      lastFocus = config.backFocus ? GROUPS[activeGroup].triggerElements[currentIndex] : lastFocus
+      lastFocus = config.backFocus ? lastFocus : GROUPS[activeGroup].triggerElements[currentIndex]
       lastFocus.focus({ preventScroll: true })
 
       lightbox.setAttribute('aria-hidden', 'true')

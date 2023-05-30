@@ -459,7 +459,7 @@
         throw new Error('Ups, I\'m already closed.');
       }
       const IMAGE = GROUPS[activeGroup].contentElements[currentIndex];
-      const THUMBNAIL = config.backFocus ? lastFocus : GROUPS[activeGroup].triggerElements[currentIndex];
+      const THUMBNAIL = GROUPS[activeGroup].triggerElements[currentIndex];
       unbindEvents();
       clearDrag();
       if (history.state?.parvus === 'close') {
@@ -486,7 +486,7 @@
       });
       const transitionendHandler = () => {
         leaveSlide(currentIndex);
-        lastFocus = config.backFocus ? GROUPS[activeGroup].triggerElements[currentIndex] : lastFocus;
+        lastFocus = config.backFocus ? lastFocus : GROUPS[activeGroup].triggerElements[currentIndex];
         lastFocus.focus({
           preventScroll: true
         });
