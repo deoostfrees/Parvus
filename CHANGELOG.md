@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 - Pinch zoom gestures
 
+## [2.3.3] - 2023-05-30
+
+### Fixed
+
+- Animate current image and set focus back to the correct element in the default behavior of the `backFocus` option
+
 ## [2.3.2] - 2023-05-30
 
 ### Fixed
