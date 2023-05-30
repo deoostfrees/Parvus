@@ -459,7 +459,7 @@
         throw new Error('Ups, I\'m already closed.');
       }
       const IMAGE = GROUPS[activeGroup].contentElements[currentIndex];
-      const THUMBNAIL = config.backFocus ? GROUPS[activeGroup].triggerElements[currentIndex] : lastFocus;
+      const THUMBNAIL = config.backFocus ? lastFocus : GROUPS[activeGroup].triggerElements[currentIndex];
       unbindEvents();
       clearDrag();
       if (history.state?.parvus === 'close') {
