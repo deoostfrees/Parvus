@@ -2,7 +2,7 @@
  * Parvus
  *
  * @author Benjamin de Oostfrees
- * @version 2.3.3
+ * @version 2.4.0
  * @url https://github.com/deoostfrees/parvus
  *
  * MIT license
@@ -1152,7 +1152,7 @@
         slider
       } = GROUPS[activeGroup];
       slider.classList.remove('parvus__slider--is-dragging');
-      slider.style.willChange = 'auto';
+      slider.style.willChange = '';
       if (drag.endX || drag.endY) {
         updateAfterDrag();
       }
@@ -1215,7 +1215,7 @@
         slider
       } = GROUPS[activeGroup];
       slider.classList.remove('parvus__slider--is-dragging');
-      slider.style.willChange = 'auto';
+      slider.style.willChange = '';
       if (drag.endX || drag.endY) {
         updateAfterDrag();
       }
