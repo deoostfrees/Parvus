@@ -231,6 +231,9 @@ The following options are available:
   // Setting focus back to the trigger element after closing Parvus
   backFocus: true,
 
+  // Browser scrollbar visibility
+  hideScrollbar: true,
+
   // Duration of transition effects in milliseconds (ms)
   transitionDuration: 300,
 

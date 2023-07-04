@@ -65,6 +65,7 @@ export default function Parvus (userOptions) {
       simulateTouch: true,
       threshold: 50,
       backFocus: true,
+      hideScrollbar: true,
       transitionDuration: 300,
       transitionTimingFunction: 'cubic-bezier(0.62, 0.16, 0.13, 1.01)',
       lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
@@ -99,6 +100,15 @@ export default function Parvus (userOptions) {
 
   // Check for any OS level changes to the preference
   MOTIONQUERY.addEventListener('change', reducedMotionCheck)
+
+  /**
+   * Get scrollbar width
+   *
+   * @return {Number} - The scrollbar width
+   */
+  const getScrollbarWidth = () => {
+    return BROWSER_WINDOW.innerWidth - document.documentElement.clientWidth;
+  }
 
   /**
    * Get the group from element
@@ -442,6 +452,11 @@ export default function Parvus (userOptions) {
       nonLightboxEl.classList.add('parvus-hidden')
     })
 
+    if (config.hideScrollbar) {
+      document.body.style.marginInlineEnd = `${getScrollbarWidth()}px`
+      document.body.style.overflow = 'hidden'
+    }
+
     lightbox.classList.add('parvus--is-opening')
     lightbox.setAttribute('aria-hidden', 'false')
 
@@ -494,6 +509,7 @@ export default function Parvus (userOptions) {
     }
 
     const NON_LIGHTBOX_ELEMENTS = document.querySelectorAll('.parvus-hidden')
+
     NON_LIGHTBOX_ELEMENTS.forEach(nonLightboxEl => {
       nonLightboxEl.removeAttribute('aria-hidden')
       nonLightboxEl.classList.remove('parvus-hidden')
@@ -526,6 +542,7 @@ export default function Parvus (userOptions) {
       lightbox.setAttribute('aria-hidden', 'true')
       lightbox.classList.remove('parvus--is-closing')
       lightbox.classList.remove('parvus--is-vertical-closing')
+
       IMAGE.style.transform = ''
 
       GROUPS[activeGroup].slider.remove()
@@ -534,6 +551,11 @@ export default function Parvus (userOptions) {
       GROUPS[activeGroup].contentElements = []
 
       IMAGE.removeEventListener('transitionend', transitionendHandler)
+
+      if (config.hideScrollbar) {
+        document.body.style.marginInlineEnd = ''
+        document.body.style.overflow = ''
+      }
     }
 
     IMAGE.addEventListener('transitionend', transitionendHandler, { once: true })
@@ -872,6 +894,7 @@ export default function Parvus (userOptions) {
     } else if (FIRST_SLIDE && !HIDE_BUTTONS) {
       previousButton.setAttribute('aria-hidden', 'true')
       previousButton.setAttribute('aria-disabled', 'true')
+
       nextButton.setAttribute('aria-hidden', 'false')
       nextButton.setAttribute('aria-disabled', 'false')
 
@@ -879,6 +902,7 @@ export default function Parvus (userOptions) {
     } else if (LAST_SLIDE && !HIDE_BUTTONS) {
       previousButton.setAttribute('aria-hidden', 'false')
       previousButton.setAttribute('aria-disabled', 'false')
+
       nextButton.setAttribute('aria-hidden', 'true')
       nextButton.setAttribute('aria-disabled', 'true')
 
@@ -886,6 +910,7 @@ export default function Parvus (userOptions) {
     } else {
       previousButton.setAttribute('aria-hidden', 'false')
       previousButton.setAttribute('aria-disabled', 'false')
+
       nextButton.setAttribute('aria-hidden', 'false')
       nextButton.setAttribute('aria-disabled', 'false')
 
@@ -1005,6 +1030,7 @@ export default function Parvus (userOptions) {
     // Show or hide buttons
     previousButton.setAttribute('aria-hidden', HIDE_BUTTONS ? 'true' : 'false')
     previousButton.setAttribute('aria-disabled', HIDE_BUTTONS ? 'true' : 'false')
+
     nextButton.setAttribute('aria-hidden', HIDE_BUTTONS ? 'true' : 'false')
     nextButton.setAttribute('aria-disabled', HIDE_BUTTONS ? 'true' : 'false')
   }
@@ -1230,7 +1256,7 @@ export default function Parvus (userOptions) {
     const { slider } = GROUPS[activeGroup]
 
     slider.classList.remove('parvus__slider--is-dragging')
-    slider.style.willChange = 'auto'
+    slider.style.willChange = ''
 
     if (drag.endX || drag.endY) {
       updateAfterDrag()
@@ -1295,7 +1321,7 @@ export default function Parvus (userOptions) {
     const { slider } = GROUPS[activeGroup]
 
     slider.classList.remove('parvus__slider--is-dragging')
-    slider.style.willChange = 'auto'
+    slider.style.willChange = ''
 
     if (drag.endX || drag.endY) {
       updateAfterDrag()
