@@ -1,7 +1,7 @@
 {
   "name": "parvus",
   "type": "module",
-  "version": "2.3.3",
+  "version": "2.4.0",
   "description": "An accessible, open-source image lightbox with no dependencies.",
   "main": "./dist/js/parvus.js",
   "module": "./dist/js/parvus.esm.js",
