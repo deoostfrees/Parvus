@@ -81,6 +81,7 @@ function Parvus(userOptions) {
       simulateTouch: true,
       threshold: 50,
       backFocus: true,
+      hideScrollbar: true,
       transitionDuration: 300,
       transitionTimingFunction: 'cubic-bezier(0.62, 0.16, 0.13, 1.01)',
       lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
@@ -113,6 +114,15 @@ function Parvus(userOptions) {
 
   // Check for any OS level changes to the preference
   MOTIONQUERY.addEventListener('change', reducedMotionCheck);
+
+  /**
+   * Get scrollbar width
+   *
+   * @return {Number} - The scrollbar width
+   */
+  const getScrollbarWidth = () => {
+    return BROWSER_WINDOW.innerWidth - document.documentElement.clientWidth;
+  };
 
   /**
    * Get the group from element
@@ -417,6 +427,10 @@ function Parvus(userOptions) {
       nonLightboxEl.setAttribute('aria-hidden', 'true');
       nonLightboxEl.classList.add('parvus-hidden');
     });
+    if (config.hideScrollbar) {
+      document.body.style.marginInlineEnd = `${getScrollbarWidth()}px`;
+      document.body.style.overflow = 'hidden';
+    }
     lightbox.classList.add('parvus--is-opening');
     lightbox.setAttribute('aria-hidden', 'false');
     createSlider();
@@ -493,6 +507,10 @@ function Parvus(userOptions) {
       GROUPS[activeGroup].sliderElements = [];
       GROUPS[activeGroup].contentElements = [];
       IMAGE.removeEventListener('transitionend', transitionendHandler);
+      if (config.hideScrollbar) {
+        document.body.style.marginInlineEnd = '';
+        document.body.style.overflow = '';
+      }
     };
     IMAGE.addEventListener('transitionend', transitionendHandler, {
       once: true
