@@ -41,7 +41,6 @@
     color: var(--parvus-button-text);
     display: flex;
     justify-content: center;
-    line-height: 1;
     padding: 0.5rem;
     position: absolute;
     inset-inline-end: 0.5rem;
@@ -73,9 +72,7 @@
 .parvus {
   box-sizing: border-box;
   contain: strict;
-  font: normal normal 400 1.125rem/1.7 -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   inset: 0;
-  line-height: 1.667;
   overflow: hidden;
   overscroll-behavior: contain;
   position: fixed;
