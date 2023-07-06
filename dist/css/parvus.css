@@ -38,16 +38,6 @@
   inset-inline-end: 0.5rem;
   inset-block-start: 0.5rem;
 }
-.parvus-zoom__indicator svg {
-  fill: none;
-  height: 1.5rem;
-  pointer-events: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.5;
-  stroke: currentColor;
-  width: 1.5rem;
-}
 .parvus-zoom img {
   display: block;
 }
@@ -191,14 +181,7 @@
   transform: translateY(-50%);
 }
 .parvus__btn svg {
-  fill: none;
-  height: 2rem;
   pointer-events: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1;
-  stroke: currentColor;
-  width: 2rem;
 }
 .parvus__btn[aria-disabled=true] {
   display: none;
