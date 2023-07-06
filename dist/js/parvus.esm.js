@@ -449,12 +449,11 @@ function Parvus(userOptions) {
     });
     preload(currentIndex + 1);
     preload(currentIndex - 1);
-    const OPEN_EVENT = new CustomEvent('open', {
-      detail: {
-        source: el
-      }
+
+    // Create and dispatch a new event
+    fire('open', {
+      source: el
     });
-    lightbox.dispatchEvent(OPEN_EVENT);
     document.body.classList.add('parvus-is-open');
   };
 
@@ -515,12 +514,13 @@ function Parvus(userOptions) {
     IMAGE.addEventListener('transitionend', transitionendHandler, {
       once: true
     });
-    const CLOSE_EVENT = new CustomEvent('close', {
+
+    // Create and dispatch a new event
+    fire('close', {
       detail: {
         source: GROUPS[activeGroup].triggerElements[currentIndex]
       }
     });
-    lightbox.dispatchEvent(CLOSE_EVENT);
     document.body.classList.remove('parvus-is-open');
   };
 
@@ -730,12 +730,11 @@ function Parvus(userOptions) {
     updateCounter();
 
     // Create and dispatch a new event
-    const SELECT_EVENT = new CustomEvent('select', {
+    fire('select', {
       detail: {
         source: GROUPS[activeGroup].triggerElements[currentIndex]
       }
     });
-    lightbox.dispatchEvent(SELECT_EVENT);
   };
 
   /**
@@ -1323,8 +1322,7 @@ function Parvus(userOptions) {
     LIGHTBOX_TRIGGER_ELS.forEach(remove);
 
     // Create and dispatch a new event
-    const DESTROY_EVENT = new CustomEvent('destroy');
-    lightbox.dispatchEvent(DESTROY_EVENT);
+    fire('destroy');
   };
 
   /**
@@ -1352,6 +1350,21 @@ function Parvus(userOptions) {
    */
   const getCurrentIndex = () => {
     return currentIndex;
+  };
+
+  /**
+   * Dispatch a custom event
+   *
+   * @param {String} type - The type of the event to dispatch
+   * @param {Function} event - The event object
+   */
+  const fire = function (type) {
+    let event = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    const CUSTOM_EVENT = new CustomEvent(type, {
+      detail: event,
+      cancelable: true
+    });
+    lightbox.dispatchEvent(CUSTOM_EVENT);
   };
 
   /**
