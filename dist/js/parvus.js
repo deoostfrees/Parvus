@@ -190,7 +190,7 @@
           loadImage(EL_INDEX);
         });
         updateAttributes();
-        updateFocus();
+        updateSliderNavigationStatus();
         updateCounter();
       }
     };
@@ -222,7 +222,7 @@
       }
       if (isOpen() && EL_GROUP === activeGroup) {
         updateAttributes();
-        updateFocus();
+        updateSliderNavigationStatus();
         updateCounter();
       }
 
@@ -444,7 +444,7 @@
       GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false');
       updateOffset();
       updateAttributes();
-      updateFocus();
+      updateSliderNavigationStatus();
       updateCounter();
       setFocusToFirstItem();
       loadSlide(currentIndex);
@@ -731,10 +731,10 @@
       currentIndex = index;
       updateOffset();
       if (index < OLD_INDEX) {
-        updateFocus();
+        updateSliderNavigationStatus();
         preload(index - 1);
       } else if (index > OLD_INDEX) {
-        updateFocus();
+        updateSliderNavigationStatus();
         preload(index + 1);
       }
       leaveSlide(OLD_INDEX);
@@ -816,13 +816,13 @@
     };
 
     /**
-     * Update focus
+     * Update slider navigation status
      *
-     * This function updates the focus based on the specified direction.
+     * This function updates the disabled status of the slider navigation buttons
+     * based on the current slide position.
      *
-     * @param {String} dir - The direction of the focus update.
      */
-    const updateFocus = dir => {
+    const updateSliderNavigationStatus = () => {
       const {
         triggerElements
       } = GROUPS[activeGroup];
