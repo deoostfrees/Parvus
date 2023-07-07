@@ -223,10 +223,6 @@
     & svg {
       pointer-events: none;
     }
-
-    &[aria-disabled='true'] {
-      display: none;
-    }
   }
 
   &__counter {
