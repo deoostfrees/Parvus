@@ -87,22 +87,22 @@
 }
 .parvus__slide {
   display: grid;
-  height: 100%;
+  block-size: 100%;
   justify-content: center;
   padding-block-end: 1rem;
   padding-block-start: 3.75rem;
   padding-inline-end: 1rem;
   padding-inline-start: 1rem;
   place-items: center;
-  width: 100%;
+  inline-size: 100%;
 }
 .parvus__slide img {
   display: block;
-  height: auto;
+  block-size: auto;
   margin-inline-start: auto;
   margin-inline-end: auto;
   transform-origin: left top;
-  width: auto;
+  inline-size: auto;
 }
 .parvus__content--error {
   background-color: var(--parvus-error-loading-error-background-color);
@@ -118,12 +118,12 @@
 }
 .parvus__loader {
   display: inline-block;
-  height: 6.25rem;
+  block-size: 6.25rem;
   inset-inline-start: 50%;
   position: absolute;
   inset-block-start: 50%;
   transform: translate(-50%, -50%);
-  width: 6.25rem;
+  inline-size: 6.25rem;
 }
 .parvus__loader::before {
   animation: spin 1s infinite;
