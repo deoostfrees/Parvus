@@ -13,20 +13,20 @@
   },
   "style": "dist/css/parvus.css",
   "devDependencies": {
-    "@babel/core": "^7.22.6",
-    "@babel/preset-env": "^7.22.6",
+    "@babel/core": "^7.22.8",
+    "@babel/preset-env": "^7.22.7",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.2",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-terser": "^0.4.3",
-    "core-js": "^3.31.0",
-    "postcss": "^8.4.24",
-    "rollup": "^3.26.0",
+    "core-js": "^3.31.1",
+    "postcss": "^8.4.25",
+    "rollup": "^3.26.2",
     "rollup-plugin-license": "^3.0.1",
     "rollup-plugin-postcss": "^4.0.2",
     "sass": "^1.63.6",
     "standard": "^17.1.0",
-    "stylelint": "^15.9.0"
+    "stylelint": "^15.10.1"
   },
   "browserslist": [
     "last 2 versions",
