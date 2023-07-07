@@ -183,6 +183,9 @@
 .parvus__btn svg {
   pointer-events: none;
 }
+.parvus__btn[aria-hidden=true] {
+  display: none;
+}
 .parvus__counter {
   position: relative;
   z-index: 7;

@@ -547,12 +547,20 @@ export default function Parvus (userOptions) {
 
       IMAGE.style.transform = ''
 
+      IMAGE.removeEventListener('transitionend', transitionendHandler)
+
       GROUPS[activeGroup].slider.remove()
       GROUPS[activeGroup].slider = null
       GROUPS[activeGroup].sliderElements = []
       GROUPS[activeGroup].contentElements = []
 
-      IMAGE.removeEventListener('transitionend', transitionendHandler)
+      counter.removeAttribute('aria-hidden')
+
+      previousButton.removeAttribute('aria-hidden')
+      previousButton.removeAttribute('aria-disabled')
+
+      nextButton.removeAttribute('aria-hidden')
+      nextButton.removeAttribute('aria-disabled')
 
       if (config.hideScrollbar) {
         document.body.style.marginInlineEnd = ''
@@ -907,37 +915,20 @@ export default function Parvus (userOptions) {
 
     const FIRST_SLIDE = currentIndex === 0
     const LAST_SLIDE = currentIndex === TOTAL_TRIGGER_ELEMENTS - 1
-    const HIDE_BUTTONS = TOTAL_TRIGGER_ELEMENTS === 1
 
-    if (TOTAL_TRIGGER_ELEMENTS === 1) {
-      closeButton.focus()
-    } else if (FIRST_SLIDE && !HIDE_BUTTONS) {
-      previousButton.setAttribute('aria-hidden', 'true')
-      previousButton.setAttribute('aria-disabled', 'true')
+    if (TOTAL_TRIGGER_ELEMENTS > 1) {
+      if (FIRST_SLIDE) {
+        previousButton.setAttribute('aria-disabled', 'true')
 
-      nextButton.setAttribute('aria-hidden', 'false')
-      nextButton.setAttribute('aria-disabled', 'false')
+        nextButton.removeAttribute('aria-disabled')
+      } else if (LAST_SLIDE) {
+        previousButton.removeAttribute('aria-disabled')
 
-      nextButton.focus()
-    } else if (LAST_SLIDE && !HIDE_BUTTONS) {
-      previousButton.setAttribute('aria-hidden', 'false')
-      previousButton.setAttribute('aria-disabled', 'false')
-
-      nextButton.setAttribute('aria-hidden', 'true')
-      nextButton.setAttribute('aria-disabled', 'true')
-
-      previousButton.focus()
-    } else {
-      previousButton.setAttribute('aria-hidden', 'false')
-      previousButton.setAttribute('aria-disabled', 'false')
-
-      nextButton.setAttribute('aria-hidden', 'false')
-      nextButton.setAttribute('aria-disabled', 'false')
-
-      if (dir === 'left') {
-        previousButton.focus()
+        nextButton.setAttribute('aria-disabled', 'true')
       } else {
-        nextButton.focus()
+        previousButton.removeAttribute('aria-disabled')
+
+        nextButton.removeAttribute('aria-disabled')
       }
     }
   }
@@ -1008,8 +999,6 @@ export default function Parvus (userOptions) {
     const TRIGGER_ELEMENTS = GROUPS[activeGroup].triggerElements
     const TOTAL_TRIGGER_ELEMENTS = TRIGGER_ELEMENTS.length
 
-    const HIDE_BUTTONS = TOTAL_TRIGGER_ELEMENTS === 1
-
     const SLIDER = GROUPS[activeGroup].slider
     const SLIDER_ELEMENTS = GROUPS[activeGroup].sliderElements
 
@@ -1044,15 +1033,20 @@ export default function Parvus (userOptions) {
       })
     }
 
-    // Show or hide counter
-    counter.setAttribute('aria-hidden', TOTAL_TRIGGER_ELEMENTS === 1 ? 'true' : 'false')
-
     // Show or hide buttons
-    previousButton.setAttribute('aria-hidden', HIDE_BUTTONS ? 'true' : 'false')
-    previousButton.setAttribute('aria-disabled', HIDE_BUTTONS ? 'true' : 'false')
+    if (TOTAL_TRIGGER_ELEMENTS === 1) {
+      counter.setAttribute('aria-hidden', 'true')
 
-    nextButton.setAttribute('aria-hidden', HIDE_BUTTONS ? 'true' : 'false')
-    nextButton.setAttribute('aria-disabled', HIDE_BUTTONS ? 'true' : 'false')
+      previousButton.setAttribute('aria-hidden', 'true')
+
+      nextButton.setAttribute('aria-hidden', 'true')
+    } else {
+      counter.removeAttribute('aria-hidden')
+
+      previousButton.removeAttribute('aria-hidden')
+
+      nextButton.removeAttribute('aria-hidden')
+    }
   }
 
   /**
