@@ -616,11 +616,6 @@ function Parvus(userOptions) {
       IMAGE.onerror = error => reject(error);
     });
     checkImagePromise.then(loadedImage => {
-      // Add srcset if available
-      const srcset = el.getAttribute('data-srcset');
-      if (srcset) {
-        loadedImage.setAttribute('srcset', srcset);
-      }
       loadedImage.style.opacity = 0;
       IMAGE_CONTAINER.appendChild(loadedImage);
       CONTENT_CONTAINER_EL.appendChild(IMAGE_CONTAINER);
@@ -650,16 +645,31 @@ function Parvus(userOptions) {
         callback();
       }
     });
+
+    // Add `sizes` attribute
+    if (el.hasAttribute('data-sizes') && el.getAttribute('data-sizes') !== '') {
+      IMAGE.setAttribute('sizes', el.getAttribute('data-sizes'));
+    }
+
+    // Add `srcset` attribute
+    if (el.hasAttribute('data-srcset') && el.getAttribute('data-srcset') !== '') {
+      IMAGE.setAttribute('srcset', el.getAttribute('data-srcset'));
+    }
+
+    // Add `src` attribute
     if (el.tagName === 'A') {
       IMAGE.setAttribute('src', el.href);
-      if (THUMBNAIL) {
-        IMAGE.alt = THUMBNAIL.alt || '';
-      } else {
-        IMAGE.alt = el.getAttribute('data-alt') || '';
-      }
     } else {
-      IMAGE.alt = el.getAttribute('data-alt') || '';
       IMAGE.setAttribute('src', el.getAttribute('data-target'));
+    }
+
+    // `alt` attribute
+    if (THUMBNAIL && THUMBNAIL.hasAttribute('alt') && THUMBNAIL.getAttribute('alt') !== '') {
+      IMAGE.alt = THUMBNAIL.alt;
+    } else if (el.hasAttribute('data-alt') && el.getAttribute('data-alt') !== '') {
+      IMAGE.alt = el.getAttribute('data-alt');
+    } else {
+      IMAGE.alt = '';
     }
   };
 

@@ -14,7 +14,7 @@ Overlays are not recommended to use, but if you need one, you can consider using
 - [Usage](#usage)
   - [Captions](#captions)
   - [Gallery](#gallery)
-  - [srcset](#srcset)
+  - [Responsive Images](#responsive-images)
   - [Localization](#lokalization)
 - [Options](#options)
 - [API](#api)
@@ -164,12 +164,20 @@ const prvs = new Parvus({
 })
 ```
 
-### srcset
+### Responsive Images
 
-You can specify different image sources and sizes using the `data-srcset` attribute.
+You can specify different image sources and sizes using the `data-srcset` and `data-sizes` attribute.
 
 ```html
-<a href="path/to/image.jpg" class="lightbox" data-srcset="path/to/large.jpg 1200w, path/to/medium.jpg 1000w, path/to/small.jpg 700w">
+<a href="path/to/image.jpg" class="lightbox"
+
+data-srcset="path/to/small.jpg 700w,
+             path/to/medium.jpg 1000w,
+             path/to/large.jpg 1200w"
+
+data-sizes="(max-width: 75em) 100vw,
+            75em"
+>
   <img src="path/to/thumbnail.jpg" alt="">
 </a>
 ```
@@ -179,7 +187,7 @@ You can specify different image sources and sizes using the `data-srcset` attrib
 If you need localization, you can import the language module and set it as an option.
 
 ```js
-import de from 'parvus/src/l10n/de.js'
+import de from 'parvus/src/l10n/de'
 
 const prvs = new Parvus({
   l10n: de
