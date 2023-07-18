@@ -6,6 +6,28 @@ All notable changes to this project will be documented in this file.
 
 - Pinch zoom gestures
 
+## [2.4.0] - 2023-07-?
+
+### Added
+
+- Option to hide the browser scrollbar (#47).
+
+### Changed
+
+- Added an internal function to create and dispatch a new event.
+- Disabled buttons are no longer visually hidden.
+- Focus is no longer moved automatically.
+- CSS styles are now moved from SVG to the actual elements.
+- Updated the development dependencies to the latest versions.
+
+### Removed
+
+- Custom typography styles.
+
+### Fixed
+
+- Load the srcset before the src, add sizes attribute (#49)
+
 ## [2.3.3] - 2023-05-30
 
 ### Fixed
