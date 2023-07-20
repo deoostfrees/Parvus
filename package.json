@@ -24,9 +24,9 @@
     "rollup": "^3.26.3",
     "rollup-plugin-license": "^3.0.1",
     "rollup-plugin-postcss": "^4.0.2",
-    "sass": "^1.63.6",
+    "sass": "^1.64.0",
     "standard": "^17.1.0",
-    "stylelint": "^15.10.1"
+    "stylelint": "^15.10.2"
   },
   "browserslist": [
     "last 2 versions",
