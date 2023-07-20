@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - Pinch zoom gestures
 
-## [2.4.0] - 2023-07-?
+## [2.4.0] - 2023-07-20
 
 ### Added
 
