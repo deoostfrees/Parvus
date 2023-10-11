@@ -77,7 +77,11 @@ export default function Parvus (userOptions) {
 
     return {
       ...DEFAULT_OPTIONS,
-      ...userOptions
+      ...userOptions,
+      l10n: {
+        ...DEFAULT_OPTIONS.l10n,
+        ...userOptions.l10n
+      }
     }
   }
 
