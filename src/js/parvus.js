@@ -1542,11 +1542,6 @@ export default function Parvus (userOptions) {
     // Merge user options into defaults
     config = mergeOptions(userOptions)
 
-    // Check if a lightbox element is present
-    if (!document.querySelectorAll(config.selector).length) {
-      return // No elements for the lightbox available
-    }
-
     reducedMotionCheck()
 
     // Check if the lightbox already exists
