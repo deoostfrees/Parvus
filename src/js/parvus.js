@@ -1,5 +1,5 @@
 // Default language
-import en from '../l10n/en'
+import en from '../l10n/en.js'
 
 export default function Parvus (userOptions) {
   /**
