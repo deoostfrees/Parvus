@@ -111,7 +111,7 @@ export default function Parvus (userOptions) {
    * @return {Number} - The scrollbar width
    */
   const getScrollbarWidth = () => {
-    return BROWSER_WINDOW.innerWidth - document.documentElement.clientWidth;
+    return BROWSER_WINDOW.innerWidth - document.documentElement.clientWidth
   }
 
   /**
