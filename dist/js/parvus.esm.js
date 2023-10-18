@@ -92,7 +92,11 @@ function Parvus(userOptions) {
     };
     return {
       ...DEFAULT_OPTIONS,
-      ...userOptions
+      ...userOptions,
+      l10n: {
+        ...DEFAULT_OPTIONS.l10n,
+        ...userOptions.l10n
+      }
     };
   };
 
@@ -1420,12 +1424,6 @@ function Parvus(userOptions) {
   const init = () => {
     // Merge user options into defaults
     config = mergeOptions(userOptions);
-
-    // Check if a lightbox element is present
-    if (!document.querySelectorAll(config.selector).length) {
-      return; // No elements for the lightbox available
-    }
-
     reducedMotionCheck();
 
     // Check if the lightbox already exists
