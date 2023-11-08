@@ -1390,8 +1390,7 @@
      * @param {String} type - The type of the event to dispatch
      * @param {Function} event - The event object
      */
-    const fire = function (type) {
-      let event = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    const fire = (type, event = {}) => {
       const CUSTOM_EVENT = new CustomEvent(type, {
         detail: event,
         cancelable: true
