@@ -1,24 +1,29 @@
 :root {
+  // Transition
   --parvus-transition-duration: 300ms;
   --parvus-transition-timing-function: cubic-bezier(0.62, 0.16, 0.13, 1.01);
 
-  --parvus-overlay-color: hsl(23, 40%, 96%);
-  --parvus-overlay-text: hsl(228, 24%, 23%);
+  // Overlay
+  --parvus-overlay-color: hsl(23deg 40% 96%);
+  --parvus-overlay-text: hsl(228deg 24% 23%);
 
-  --parvus-button-color: hsl(228, 24%, 23%);
-  --parvus-button-text: hsl(0, 0%, 100%);
+  // Button
+  --parvus-button-color: hsl(228deg 24% 23%);
+  --parvus-button-text: hsl(0deg 0% 100%);
+  --parvus-button-hover-color: hsl(229deg 24% 33%);
+  --parvus-button-hover-text: hsl(0deg 0% 100%);
 
-  --parvus-button-hover-color: hsl(229, 24%, 33%);
-  --parvus-button-hover-text: hsl(0, 0%, 100%);
-
+  // Caption
   --parvus-caption-background-color: transparent;
-  --parvus-caption-color: hsl(228, 24%, 23%);
+  --parvus-caption-color: hsl(228deg 24% 23%);
 
-  --parvus-error-loading-error-background-color: hsl(0, 0%, 100%);
-  --parvus-image-loading-error-color: hsl(228, 24%, 23%);
+  // Error
+  --parvus-error-loading-error-background-color: hsl(0deg 0% 100%);
+  --parvus-image-loading-error-color: hsl(228deg 24% 23%);
 
-  --parvus-loader-background-color: hsl(23, 40%, 96%);
-  --parvus-loader-color: hsl(228, 24%, 23%);
+  // Loader
+  --parvus-loader-background-color: hsl(23deg 40% 96%);
+  --parvus-loader-color: hsl(228deg 24% 23%);
 }
 
 .parvus-is-open {
@@ -161,7 +166,7 @@
       animation: spin 1s infinite;
       border-radius: 100%;
       border: 0.25rem solid var(--parvus-loader-background-color);
-      border-top-color: var(--parvus-loader-color);
+      border-block-start-color: var(--parvus-loader-color);
       content: '';
       inset: 0;
       position: absolute;
