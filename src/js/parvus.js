@@ -1,3 +1,6 @@
+import { getFocusableChildren } from './get-focusable-children'
+import { getScrollbarWidth } from './get-scrollbar-width'
+
 // Default language
 import en from '../l10n/en.js'
 
@@ -7,11 +10,6 @@ export default function Parvus (userOptions) {
    *
    */
   const BROWSER_WINDOW = window
-  const FOCUSABLE_ELEMENTS = [
-    'a:not([inert]):not([tabindex^="-"])',
-    'button:not([inert]):not([tabindex^="-"]):not(:disabled)',
-    '[tabindex]:not([inert]):not([tabindex^="-"])'
-  ]
   const GROUP_ATTRIBUTES = {
     triggerElements: [],
     slider: null,
@@ -104,15 +102,6 @@ export default function Parvus (userOptions) {
 
   // Check for any OS level changes to the preference
   MOTIONQUERY.addEventListener('change', reducedMotionCheck)
-
-  /**
-   * Get scrollbar width
-   *
-   * @return {Number} - The scrollbar width
-   */
-  const getScrollbarWidth = () => {
-    return BROWSER_WINDOW.innerWidth - document.documentElement.clientWidth
-  }
 
   /**
    * Get the group from element
@@ -1150,21 +1139,11 @@ export default function Parvus (userOptions) {
   }
 
   /**
-   * Get the focusable children of the given element
-   *
-   * @return {Array<Element>} - An array of focusable children
-   */
-  const getFocusableChildren = () => {
-    return Array.from(lightbox.querySelectorAll(FOCUSABLE_ELEMENTS.join(', ')))
-      .filter((child) => child.offsetParent !== null)
-  }
-
-  /**
    * Set focus to the first item in the list
    *
    */
   const setFocusToFirstItem = () => {
-    const FOCUSABLE_CHILDREN = getFocusableChildren()
+    const FOCUSABLE_CHILDREN = getFocusableChildren(lightbox)
 
     FOCUSABLE_CHILDREN[0].focus()
   }
@@ -1175,7 +1154,7 @@ export default function Parvus (userOptions) {
    * @param {Event} event - The keydown event object
    */
   const keydownHandler = (event) => {
-    const FOCUSABLE_CHILDREN = getFocusableChildren()
+    const FOCUSABLE_CHILDREN = getFocusableChildren(lightbox)
     const FOCUSED_ITEM_INDEX = FOCUSABLE_CHILDREN.indexOf(document.activeElement)
     const lastIndex = FOCUSABLE_CHILDREN.length - 1
 
