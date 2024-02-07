@@ -214,14 +214,14 @@
     &--previous {
       inset-inline-start: 0;
       position: absolute;
-      inset-block-start: calc(50vh - 1rem); // 50vh - paddingTop from .parvus__slide
+      inset-block-start: calc(50svh - 1rem); // 50svh - paddingTop from .parvus__slide
       transform: translateY(-50%);
     }
 
     &--next {
       position: absolute;
       inset-inline-end: 0;
-      inset-block-start: calc(50vh - 1rem); // 50vh - paddingTop from .parvus__slide
+      inset-block-start: calc(50svh - 1rem); // 50svh - paddingTop from .parvus__slide
       transform: translateY(-50%);
     }
 

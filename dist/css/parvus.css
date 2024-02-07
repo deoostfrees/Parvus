@@ -171,13 +171,13 @@
 .parvus__btn--previous {
   inset-inline-start: 0;
   position: absolute;
-  inset-block-start: calc(50vh - 1rem);
+  inset-block-start: calc(50svh - 1rem);
   transform: translateY(-50%);
 }
 .parvus__btn--next {
   position: absolute;
   inset-inline-end: 0;
-  inset-block-start: calc(50vh - 1rem);
+  inset-block-start: calc(50svh - 1rem);
   transform: translateY(-50%);
 }
 .parvus__btn svg {
