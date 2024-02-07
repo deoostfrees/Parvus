@@ -839,17 +839,6 @@ export default function Parvus (userOptions) {
   const previous = () => {
     if (currentIndex > 0) {
       select(currentIndex - 1)
-    } else {
-      const { slider } = GROUPS[activeGroup]
-      const offset = offsetTmp + config.threshold
-
-      requestAnimationFrame(() => {
-        slider.style.transform = `translate3d(${offset}px, 0, 0)`
-
-        setTimeout(() => {
-          updateOffset()
-        }, 150)
-      })
     }
   }
 
@@ -858,20 +847,10 @@ export default function Parvus (userOptions) {
    *
    */
   const next = () => {
-    const { slider, triggerElements } = GROUPS[activeGroup]
+    const { triggerElements } = GROUPS[activeGroup]
 
     if (currentIndex < triggerElements.length - 1) {
       select(currentIndex + 1)
-    } else {
-      const offset = offsetTmp - config.threshold
-
-      requestAnimationFrame(() => {
-        slider.style.transform = `translate3d(${offset}px, 0, 0)`
-
-        setTimeout(() => {
-          updateOffset()
-        }, 150)
-      })
     }
   }
 
