@@ -1181,8 +1181,8 @@
         clientX,
         clientY
       } = event.changedTouches[0];
-      drag.startX = parseInt(clientX);
-      drag.startY = parseInt(clientY);
+      drag.startX = parseInt(clientX, 10);
+      drag.startY = parseInt(clientY, 10);
       const {
         slider
       } = GROUPS[activeGroup];
@@ -1205,8 +1205,8 @@
         clientX,
         clientY
       } = event.changedTouches[0];
-      drag.endX = parseInt(clientX);
-      drag.endY = parseInt(clientY);
+      drag.endX = parseInt(clientX, 10);
+      drag.endY = parseInt(clientY, 10);
       doSwipe();
       event.preventDefault();
     };
