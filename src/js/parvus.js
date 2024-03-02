@@ -1,5 +1,8 @@
+import { getFocusableChildren } from './get-focusable-children'
+import { getScrollbarWidth } from './get-scrollbar-width'
+
 // Default language
-import en from '../l10n/en'
+import en from '../l10n/en.js'
 
 export default function Parvus (userOptions) {
   /**
@@ -7,11 +10,6 @@ export default function Parvus (userOptions) {
    *
    */
   const BROWSER_WINDOW = window
-  const FOCUSABLE_ELEMENTS = [
-    'a:not([inert]):not([tabindex^="-"])',
-    'button:not([inert]):not([tabindex^="-"]):not(:disabled)',
-    '[tabindex]:not([inert]):not([tabindex^="-"])'
-  ]
   const GROUP_ATTRIBUTES = {
     triggerElements: [],
     slider: null,
@@ -77,7 +75,11 @@ export default function Parvus (userOptions) {
 
     return {
       ...DEFAULT_OPTIONS,
-      ...userOptions
+      ...userOptions,
+      l10n: {
+        ...DEFAULT_OPTIONS.l10n,
+        ...userOptions.l10n
+      }
     }
   }
 
@@ -100,15 +102,6 @@ export default function Parvus (userOptions) {
 
   // Check for any OS level changes to the preference
   MOTIONQUERY.addEventListener('change', reducedMotionCheck)
-
-  /**
-   * Get scrollbar width
-   *
-   * @return {Number} - The scrollbar width
-   */
-  const getScrollbarWidth = () => {
-    return BROWSER_WINDOW.innerWidth - document.documentElement.clientWidth;
-  }
 
   /**
    * Get the group from element
@@ -846,17 +839,6 @@ export default function Parvus (userOptions) {
   const previous = () => {
     if (currentIndex > 0) {
       select(currentIndex - 1)
-    } else {
-      const { slider } = GROUPS[activeGroup]
-      const offset = offsetTmp + config.threshold
-
-      requestAnimationFrame(() => {
-        slider.style.transform = `translate3d(${offset}px, 0, 0)`
-
-        setTimeout(() => {
-          updateOffset()
-        }, 150)
-      })
     }
   }
 
@@ -865,20 +847,10 @@ export default function Parvus (userOptions) {
    *
    */
   const next = () => {
-    const { slider, triggerElements } = GROUPS[activeGroup]
+    const { triggerElements } = GROUPS[activeGroup]
 
     if (currentIndex < triggerElements.length - 1) {
       select(currentIndex + 1)
-    } else {
-      const offset = offsetTmp - config.threshold
-
-      requestAnimationFrame(() => {
-        slider.style.transform = `translate3d(${offset}px, 0, 0)`
-
-        setTimeout(() => {
-          updateOffset()
-        }, 150)
-      })
     }
   }
 
@@ -1146,21 +1118,11 @@ export default function Parvus (userOptions) {
   }
 
   /**
-   * Get the focusable children of the given element
-   *
-   * @return {Array<Element>} - An array of focusable children
-   */
-  const getFocusableChildren = () => {
-    return Array.from(lightbox.querySelectorAll(FOCUSABLE_ELEMENTS.join(', ')))
-      .filter((child) => child.offsetParent !== null)
-  }
-
-  /**
    * Set focus to the first item in the list
    *
    */
   const setFocusToFirstItem = () => {
-    const FOCUSABLE_CHILDREN = getFocusableChildren()
+    const FOCUSABLE_CHILDREN = getFocusableChildren(lightbox)
 
     FOCUSABLE_CHILDREN[0].focus()
   }
@@ -1171,7 +1133,7 @@ export default function Parvus (userOptions) {
    * @param {Event} event - The keydown event object
    */
   const keydownHandler = (event) => {
-    const FOCUSABLE_CHILDREN = getFocusableChildren()
+    const FOCUSABLE_CHILDREN = getFocusableChildren(lightbox)
     const FOCUSED_ITEM_INDEX = FOCUSABLE_CHILDREN.indexOf(document.activeElement)
     const lastIndex = FOCUSABLE_CHILDREN.length - 1
 
@@ -1299,8 +1261,8 @@ export default function Parvus (userOptions) {
 
     const { clientX, clientY } = event.changedTouches[0]
 
-    drag.startX = parseInt(clientX)
-    drag.startY = parseInt(clientY)
+    drag.startX = parseInt(clientX, 10)
+    drag.startY = parseInt(clientY, 10)
 
     const { slider } = GROUPS[activeGroup]
 
@@ -1323,8 +1285,8 @@ export default function Parvus (userOptions) {
   const touchmoveHandler = (event) => {
     const { clientX, clientY } = event.changedTouches[0]
 
-    drag.endX = parseInt(clientX)
-    drag.endY = parseInt(clientY)
+    drag.endX = parseInt(clientX, 10)
+    drag.endY = parseInt(clientY, 10)
 
     doSwipe()
 
@@ -1537,11 +1499,6 @@ export default function Parvus (userOptions) {
   const init = () => {
     // Merge user options into defaults
     config = mergeOptions(userOptions)
-
-    // Check if a lightbox element is present
-    if (!document.querySelectorAll(config.selector).length) {
-      return // No elements for the lightbox available
-    }
 
     reducedMotionCheck()
 

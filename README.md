@@ -15,7 +15,7 @@ Overlays are not recommended to use, but if you need one, you can consider using
   - [Captions](#captions)
   - [Gallery](#gallery)
   - [Responsive Images](#responsive-images)
-  - [Localization](#lokalization)
+  - [Localization](#localization)
 - [Options](#options)
 - [API](#api)
 - [Events](#events)

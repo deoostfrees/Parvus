@@ -2,7 +2,7 @@
  * Parvus
  *
  * @author Benjamin de Oostfrees
- * @version 2.4.0
+ * @version 2.5.0
  * @url https://github.com/deoostfrees/parvus
  *
  * MIT license
@@ -13,6 +13,28 @@
   typeof define === 'function' && define.amd ? define(factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Parvus = factory());
 })(this, (function () { 'use strict';
+
+  const FOCUSABLE_ELEMENTS = ['a:not([inert]):not([tabindex^="-"])', 'button:not([inert]):not([tabindex^="-"]):not(:disabled)', '[tabindex]:not([inert]):not([tabindex^="-"])'];
+
+  /**
+   * Get the focusable children of the given element
+   *
+   * @return {Array<Element>} - An array of focusable children
+   */
+  const getFocusableChildren = targetEl => {
+    return Array.from(targetEl.querySelectorAll(FOCUSABLE_ELEMENTS.join(', '))).filter(child => child.offsetParent !== null);
+  };
+
+  const BROWSER_WINDOW = window;
+
+  /**
+   * Get scrollbar width
+   *
+   * @return {Number} - The scrollbar width
+   */
+  const getScrollbarWidth = () => {
+    return BROWSER_WINDOW.innerWidth - document.documentElement.clientWidth;
+  };
 
   var en = {
     lightboxLabel: 'This is a dialog window that overlays the main content of the page. The modal displays the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
@@ -26,14 +48,12 @@
     slideLabel: 'Image'
   };
 
-  // Default language
   function Parvus(userOptions) {
     /**
      * Global variables
      *
      */
     const BROWSER_WINDOW = window;
-    const FOCUSABLE_ELEMENTS = ['a:not([inert]):not([tabindex^="-"])', 'button:not([inert]):not([tabindex^="-"]):not(:disabled)', '[tabindex]:not([inert]):not([tabindex^="-"])'];
     const GROUP_ATTRIBUTES = {
       triggerElements: [],
       slider: null,
@@ -98,7 +118,11 @@
       };
       return {
         ...DEFAULT_OPTIONS,
-        ...userOptions
+        ...userOptions,
+        l10n: {
+          ...DEFAULT_OPTIONS.l10n,
+          ...userOptions.l10n
+        }
       };
     };
 
@@ -120,15 +144,6 @@
 
     // Check for any OS level changes to the preference
     MOTIONQUERY.addEventListener('change', reducedMotionCheck);
-
-    /**
-     * Get scrollbar width
-     *
-     * @return {Number} - The scrollbar width
-     */
-    const getScrollbarWidth = () => {
-      return BROWSER_WINDOW.innerWidth - document.documentElement.clientWidth;
-    };
 
     /**
      * Get the group from element
@@ -765,17 +780,6 @@
     const previous = () => {
       if (currentIndex > 0) {
         select(currentIndex - 1);
-      } else {
-        const {
-          slider
-        } = GROUPS[activeGroup];
-        const offset = offsetTmp + config.threshold;
-        requestAnimationFrame(() => {
-          slider.style.transform = `translate3d(${offset}px, 0, 0)`;
-          setTimeout(() => {
-            updateOffset();
-          }, 150);
-        });
       }
     };
 
@@ -785,19 +789,10 @@
      */
     const next = () => {
       const {
-        slider,
         triggerElements
       } = GROUPS[activeGroup];
       if (currentIndex < triggerElements.length - 1) {
         select(currentIndex + 1);
-      } else {
-        const offset = offsetTmp - config.threshold;
-        requestAnimationFrame(() => {
-          slider.style.transform = `translate3d(${offset}px, 0, 0)`;
-          setTimeout(() => {
-            updateOffset();
-          }, 150);
-        });
       }
     };
 
@@ -1044,20 +1039,11 @@
     };
 
     /**
-     * Get the focusable children of the given element
-     *
-     * @return {Array<Element>} - An array of focusable children
-     */
-    const getFocusableChildren = () => {
-      return Array.from(lightbox.querySelectorAll(FOCUSABLE_ELEMENTS.join(', '))).filter(child => child.offsetParent !== null);
-    };
-
-    /**
      * Set focus to the first item in the list
      *
      */
     const setFocusToFirstItem = () => {
-      const FOCUSABLE_CHILDREN = getFocusableChildren();
+      const FOCUSABLE_CHILDREN = getFocusableChildren(lightbox);
       FOCUSABLE_CHILDREN[0].focus();
     };
 
@@ -1067,7 +1053,7 @@
      * @param {Event} event - The keydown event object
      */
     const keydownHandler = event => {
-      const FOCUSABLE_CHILDREN = getFocusableChildren();
+      const FOCUSABLE_CHILDREN = getFocusableChildren(lightbox);
       const FOCUSED_ITEM_INDEX = FOCUSABLE_CHILDREN.indexOf(document.activeElement);
       const lastIndex = FOCUSABLE_CHILDREN.length - 1;
       switch (event.code) {
@@ -1195,8 +1181,8 @@
         clientX,
         clientY
       } = event.changedTouches[0];
-      drag.startX = parseInt(clientX);
-      drag.startY = parseInt(clientY);
+      drag.startX = parseInt(clientX, 10);
+      drag.startY = parseInt(clientY, 10);
       const {
         slider
       } = GROUPS[activeGroup];
@@ -1219,8 +1205,8 @@
         clientX,
         clientY
       } = event.changedTouches[0];
-      drag.endX = parseInt(clientX);
-      drag.endY = parseInt(clientY);
+      drag.endX = parseInt(clientX, 10);
+      drag.endY = parseInt(clientY, 10);
       doSwipe();
       event.preventDefault();
     };
@@ -1386,8 +1372,7 @@
      * @param {String} type - The type of the event to dispatch
      * @param {Function} event - The event object
      */
-    const fire = function (type) {
-      let event = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    const fire = (type, event = {}) => {
       const CUSTOM_EVENT = new CustomEvent(type, {
         detail: event,
         cancelable: true
@@ -1426,12 +1411,6 @@
     const init = () => {
       // Merge user options into defaults
       config = mergeOptions(userOptions);
-
-      // Check if a lightbox element is present
-      if (!document.querySelectorAll(config.selector).length) {
-        return; // No elements for the lightbox available
-      }
-
       reducedMotionCheck();
 
       // Check if the lightbox already exists
