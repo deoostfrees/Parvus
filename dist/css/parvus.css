@@ -1,16 +1,18 @@
 :root {
   --parvus-transition-duration: 300ms;
   --parvus-transition-timing-function: cubic-bezier(0.62, 0.16, 0.13, 1.01);
-  --parvus-overlay-color: hsl(23deg 40% 96%);
-  --parvus-overlay-text: hsl(228deg 24% 23%);
-  --parvus-button-color: hsl(228deg 24% 23%);
-  --parvus-button-text: hsl(0deg 0% 100%);
-  --parvus-button-hover-color: hsl(229deg 24% 33%);
-  --parvus-button-hover-text: hsl(0deg 0% 100%);
+  --parvus-background-color: var(--parvus-overlay-color, hsl(23deg 40% 96%));
+  --parvus-color: var(--parvus-overlay-text, hsl(228deg 24% 23%));
+  --parvus-btn-background-color: var(--parvus-button-color, hsl(228deg 24% 23%));
+  --parvus-btn-color: var(--parvus-button-text, hsl(0deg 0% 100%));
+  --parvus-btn-hover-background-color: var(--parvus-button-hover-color, hsl(229deg 24% 33%));
+  --parvus-btn-hover-color: var(--parvus-button-hover-text, hsl(0deg 0% 100%));
+  --parvus-btn-disabled-background-color: hsla(229, 24%, 33%, 0.6);
+  --parvus-btn-disabled-color: hsl(0deg 0% 100%);
   --parvus-caption-background-color: transparent;
   --parvus-caption-color: hsl(228deg 24% 23%);
-  --parvus-error-loading-error-background-color: hsl(0deg 0% 100%);
-  --parvus-image-loading-error-color: hsl(228deg 24% 23%);
+  --parvus-loading-error-background-color: var(--parvus-error-loading-error-background-color, hsl(0deg 0% 100%));
+  --parvus-loading-error-color: hsl(228deg 24% 23%);
   --parvus-loader-background-color: hsl(23deg 40% 96%);
   --parvus-loader-color: hsl(228deg 24% 23%);
 }
@@ -29,8 +31,8 @@
 }
 .parvus-zoom__indicator {
   align-items: center;
-  background-color: var(--parvus-button-color);
-  color: var(--parvus-button-text);
+  background-color: var(--parvus-btn-background-color);
+  color: var(--parvus-btn-color);
   display: flex;
   justify-content: center;
   padding: 0.5rem;
@@ -62,7 +64,8 @@
   display: none;
 }
 .parvus__overlay {
-  background-color: var(--parvus-overlay-color);
+  background-color: var(--parvus-background-color);
+  color: var(--parvus-color);
   inset: 0;
   position: absolute;
 }
@@ -105,8 +108,8 @@
   inline-size: auto;
 }
 .parvus__content--error {
-  background-color: var(--parvus-error-loading-error-background-color);
-  color: var(--parvus-error-loading-error-color);
+  background-color: var(--parvus-loading-error-background-color);
+  color: var(--parvus-loading-error-color);
   padding-block: 0.5rem;
   padding-inline: 1rem;
 }
@@ -150,11 +153,11 @@
 }
 .parvus__btn {
   appearance: none;
-  background-color: var(--parvus-button-color);
+  background-color: var(--parvus-btn-background-color);
   background-image: none;
   border-radius: 0;
   border: 0.0625rem solid transparent;
-  color: var(--parvus-button-text);
+  color: var(--parvus-btn-color);
   cursor: pointer;
   display: flex;
   font: inherit;
@@ -165,8 +168,8 @@
   z-index: 7;
 }
 .parvus__btn:hover {
-  background-color: var(--parvus-button-hover-color);
-  color: var(--parvus-button-hover-text);
+  background-color: var(--parvus-btn-hover-background-color);
+  color: var(--parvus-btn-hover-color);
 }
 .parvus__btn--previous {
   inset-inline-start: 0;
@@ -185,6 +188,10 @@
 }
 .parvus__btn[aria-hidden=true] {
   display: none;
+}
+.parvus__btn[aria-disabled=true] {
+  background-color: var(--parvus-btn-disabled-background-color);
+  color: var(--parvus-btn-disabled-color);
 }
 .parvus__counter {
   position: relative;
