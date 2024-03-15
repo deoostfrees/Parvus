@@ -17,7 +17,7 @@
   --parvus-loader-color: hsl(228deg 24% 23%);
 }
 
-.parvus-is-open {
+body:has(.parvus[aria-hidden=false]) {
   touch-action: none;
 }
 
