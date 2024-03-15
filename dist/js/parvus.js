@@ -475,7 +475,6 @@
       fire('open', {
         source: el
       });
-      document.body.classList.add('parvus-is-open');
     };
 
     /**
@@ -547,7 +546,6 @@
           source: GROUPS[activeGroup].triggerElements[currentIndex]
         }
       });
-      document.body.classList.remove('parvus-is-open');
     };
 
     /**
