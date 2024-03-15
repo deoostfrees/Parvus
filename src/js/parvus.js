@@ -480,8 +480,6 @@ export default function Parvus (userOptions) {
     fire('open', {
       source: el
     })
-
-    document.body.classList.add('parvus-is-open')
   }
 
   /**
@@ -569,8 +567,6 @@ export default function Parvus (userOptions) {
         source: GROUPS[activeGroup].triggerElements[currentIndex]
       }
     })
-
-    document.body.classList.remove('parvus-is-open')
   }
 
   /**
