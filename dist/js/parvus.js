@@ -97,6 +97,7 @@
     const mergeOptions = userOptions => {
       // Default options
       const DEFAULT_OPTIONS = {
+        loadEmpty: false,
         selector: '.lightbox',
         gallerySelector: null,
         captions: true,
@@ -1409,6 +1410,11 @@
     const init = () => {
       // Merge user options into defaults
       config = mergeOptions(userOptions);
+
+      // Check if the lightbox should be loaded empty or if there are elements for the lightbox.
+      if (!config.loadEmpty && !document.querySelectorAll(config.selector).length) {
+        return;
+      }
       reducedMotionCheck();
 
       // Check if the lightbox already exists
