@@ -4,15 +4,15 @@
   --parvus-transition-timing-function: cubic-bezier(0.62, 0.16, 0.13, 1.01);
 
   // Overlay
-  --parvus-background-color: var(--parvus-overlay-color, hsl(23deg 40% 96%));
-  --parvus-color: var(--parvus-overlay-text, hsl(228deg 24% 23%));
+  --parvus-background-color: hsl(23deg 44% 96%);
+  --parvus-color: hsl(228deg 24% 23%);
 
   // Button
-  --parvus-btn-background-color: var(--parvus-button-color, hsl(228deg 24% 23%));
-  --parvus-btn-color: var(--parvus-button-text, hsl(0deg 0% 100%));
-  --parvus-btn-hover-background-color: var(--parvus-button-hover-color, hsl(229deg 24% 33%));
-  --parvus-btn-hover-color: var(--parvus-button-hover-text, hsl(0deg 0% 100%));
-  --parvus-btn-disabled-background-color: hsla(229, 24%, 33%, 0.6);
+  --parvus-btn-background-color: hsl(228deg 24% 23%);
+  --parvus-btn-color:  hsl(0deg 0% 100%);
+  --parvus-btn-hover-background-color: hsl(229deg 24% 33%);
+  --parvus-btn-hover-color: hsl(0deg 0% 100%);
+  --parvus-btn-disabled-background-color: hsla(229deg 24% 33% / 60%);
   --parvus-btn-disabled-color: hsl(0deg 0% 100%);
 
   // Caption
@@ -20,7 +20,7 @@
   --parvus-caption-color: hsl(228deg 24% 23%);
 
   // Loading error
-  --parvus-loading-error-background-color: var(--parvus-error-loading-error-background-color, hsl(0deg 0% 100%));
+  --parvus-loading-error-background-color: hsl(0deg 0% 100%);
   --parvus-loading-error-color: hsl(228deg 24% 23%);
 
   // Loader
