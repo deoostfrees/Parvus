@@ -4,7 +4,7 @@
 
 - Pinch zoom gestures
 
-## [2.5.0] - 2024-04-
+## [2.5.0] - 2024-04-07
 
 ### Added
 
@@ -14,7 +14,7 @@
 
 ### Changed
 
-- Rename some CSS custom properties (previous ones are deprecated) 8b43c66 @deoostfrees
+- **Breaking:** Rename some CSS custom properties 8b43c66  8ba1f00 @deoostfrees
 
 ### Removed
 
