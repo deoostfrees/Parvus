@@ -53,6 +53,7 @@ export default function Parvus (userOptions) {
   const mergeOptions = (userOptions) => {
     // Default options
     const DEFAULT_OPTIONS = {
+      loadEmpty: false,
       selector: '.lightbox',
       gallerySelector: null,
       captions: true,
@@ -1495,6 +1496,11 @@ export default function Parvus (userOptions) {
   const init = () => {
     // Merge user options into defaults
     config = mergeOptions(userOptions)
+
+    // Check if the lightbox should be loaded empty or if there are elements for the lightbox.
+    if (!config.loadEmpty && !document.querySelectorAll(config.selector).length) {
+      return
+    }
 
     reducedMotionCheck()
 
