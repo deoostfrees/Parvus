@@ -4,6 +4,12 @@
 
 - Pinch zoom gestures
 
+## [2.5.1] - 2024-04-10
+
+### Fixed
+
+- Issue if no language options are set
+
 ## [2.5.0] - 2024-04-07
 
 ### Added

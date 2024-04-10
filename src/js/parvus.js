@@ -74,14 +74,19 @@ export default function Parvus (userOptions) {
       l10n: en
     }
 
-    return {
+    const MERGED_OPTIONS = {
       ...DEFAULT_OPTIONS,
-      ...userOptions,
-      l10n: {
+      ...userOptions
+    }
+
+    if (userOptions && userOptions.l10n) {
+      MERGED_OPTIONS.l10n = {
         ...DEFAULT_OPTIONS.l10n,
         ...userOptions.l10n
       }
     }
+
+    return MERGED_OPTIONS
   }
 
   /**
@@ -148,6 +153,10 @@ export default function Parvus (userOptions) {
    * @param {HTMLElement} el - The element to be added
    */
   const add = (el) => {
+    if (!lightbox) {
+      return
+    }
+
     if (!((el.tagName === 'A' && el.hasAttribute('href')) || (el.tagName === 'BUTTON' && el.hasAttribute('data-target')))) {
       throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must have a path to the image file.')
     }
