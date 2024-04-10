@@ -2,7 +2,7 @@
  * Parvus
  *
  * @author Benjamin de Oostfrees
- * @version 2.5.0
+ * @version 2.5.1
  * @url https://github.com/deoostfrees/parvus
  *
  * MIT license
@@ -111,14 +111,17 @@ function Parvus(userOptions) {
       closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke="currentColor"><path d="M18 6L6 18M6 6l12 12"/></svg>',
       l10n: en
     };
-    return {
+    const MERGED_OPTIONS = {
       ...DEFAULT_OPTIONS,
-      ...userOptions,
-      l10n: {
+      ...userOptions
+    };
+    if (userOptions && userOptions.l10n) {
+      MERGED_OPTIONS.l10n = {
         ...DEFAULT_OPTIONS.l10n,
         ...userOptions.l10n
-      }
-    };
+      };
+    }
+    return MERGED_OPTIONS;
   };
 
   /**
@@ -179,6 +182,9 @@ function Parvus(userOptions) {
    * @param {HTMLElement} el - The element to be added
    */
   const add = el => {
+    if (!lightbox) {
+      return;
+    }
     if (!(el.tagName === 'A' && el.hasAttribute('href') || el.tagName === 'BUTTON' && el.hasAttribute('data-target'))) {
       throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must have a path to the image file.');
     }
