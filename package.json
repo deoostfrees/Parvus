@@ -1,7 +1,7 @@
 {
   "name": "parvus",
   "type": "module",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "An accessible, open-source image lightbox with no dependencies.",
   "files": [
     "./src/l10n"
