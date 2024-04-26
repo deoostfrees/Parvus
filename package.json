@@ -3,14 +3,11 @@
   "type": "module",
   "version": "2.5.1",
   "description": "An accessible, open-source image lightbox with no dependencies.",
+  "files": [
+    "./src/l10n"
+  ],
   "main": "./dist/js/parvus.js",
   "module": "./dist/js/parvus.esm.js",
-  "exports": {
-    ".": {
-      "import": "./dist/js/parvus.esm.js",
-      "require": "./dist/js/parvus.js"
-    }
-  },
   "style": "dist/css/parvus.css",
   "devDependencies": {
     "@babel/core": "^7.24.4",
