@@ -4,11 +4,17 @@
 
 - Pinch zoom gestures
 
+## [2.5.2] - 2024-04-
+
+### Fixed
+
+- Language file import afe86dc @deoostfrees #55
+
 ## [2.5.1] - 2024-04-10
 
 ### Fixed
 
-- Issue if no language options are set
+- Issue if no language options are set 2dbed4a @deoostfrees
 
 ## [2.5.0] - 2024-04-07
 
