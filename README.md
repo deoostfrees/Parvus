@@ -1,6 +1,6 @@
 # Parvus
 
-Overlays are not recommended to use, but if you need one, you can consider using Parvus. Parvus is an open-source image lightbox that aims to be accessible and has no dependencies.
+Overlays suck, but if you need one, you might consider using Parvus. Parvus is an open source, dependency free image lightbox with the goal of being accessible.
 
 ![Screenshot of Parvus. It shows the first picture of a gallery.](https://rqrauhvmra.com/parvus/parvus.png)
 
