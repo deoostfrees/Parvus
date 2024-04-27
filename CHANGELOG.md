@@ -4,6 +4,12 @@
 
 - Pinch zoom gestures
 
+## [2.5.3] - 2024-04-27
+
+### Fixed
+
+- Remove optional files field in package.json to include all files via NPM
+
 ## [2.5.2] - 2024-04-27
 
 ### Fixed
