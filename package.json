@@ -4,11 +4,12 @@
   "version": "2.5.2",
   "description": "An open source, dependency free image lightbox with the goal of being accessible.",
   "files": [
-    "./src/l10n"
+    "./src/l10n",
+    "./src/scss"
   ],
   "main": "./dist/js/parvus.js",
   "module": "./dist/js/parvus.esm.js",
-  "style": "dist/css/parvus.css",
+  "style": "./dist/css/parvus.css",
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/preset-env": "^7.24.4",
@@ -49,6 +50,14 @@
     "buildWatchJs": "rollup -c -w --environment BUILDJS --bundleConfigAsCjs",
     "buildWatchCss": "rollup -c -w --environment BUILDCSS --bundleConfigAsCjs",
     "test": "standard \"src/js/parvus.js\"; stylelint \"src/scss/parvus.scss\""
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/js/parvus.esm.js",
+      "require": "./dist/js/parvus.js"
+    },
+    "./src/scss/*": "./src/scss/*.scss",
+    "./src/l10n/*": "./src/l10n/*.js"
   },
   "repository": {
     "type": "git",
