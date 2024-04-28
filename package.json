@@ -39,13 +39,15 @@
     ]
   },
   "scripts": {
-    "build": "npm run buildJs && npm run buildCss",
-    "buildJs": "rollup -c --environment BUILDJS --bundleConfigAsCjs",
+    "build": "npm run testCss && npm run buildCss && npm run testJs && npm run buildJs",
     "buildCss": "rollup -c --environment BUILDCSS --bundleConfigAsCjs",
+    "buildJs": "rollup -c --environment BUILDJS --bundleConfigAsCjs",
     "buildWatch": "npm run buildWatchJs && npm run buildWatchCss",
-    "buildWatchJs": "rollup -c -w --environment BUILDJS --bundleConfigAsCjs",
     "buildWatchCss": "rollup -c -w --environment BUILDCSS --bundleConfigAsCjs",
-    "test": "standard \"src/js/parvus.js\"; stylelint \"src/scss/parvus.scss\""
+    "buildWatchJs": "rollup -c -w --environment BUILDJS --bundleConfigAsCjs",
+    "testCss": "stylelint \"src/scss/parvus.scss\"",
+    "testJs": "standard \"src/js/parvus.js\"",
+    "test": "npm run testCss && npm run testJs"
   },
   "exports": {
     ".": {

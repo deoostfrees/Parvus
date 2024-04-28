@@ -1,0 +1,91 @@
+/**
+ * Set custom Parvus styles
+ *
+ */
+.parvus {
+  --parvus-background-color: hsl(23deg 40% 96%);
+}
+
+.parvus__overlay {
+  opacity: 0.94;
+}
+
+/**
+ * Only for demo
+ *
+ */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font: normal normal 400 100%/1.65 -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: #fff;
+  color: #404040;
+  padding-block: calc((24 / 16) * 1rem);
+}
+
+.container {
+
+
+
+  & + & {
+    margin-block-start: calc((24 / 16) * 1rem);
+  }
+}
+
+.padding-top-m {
+  padding-block-start: calc((16 / 16) * 1rem);
+}
+
+h1 {
+  margin-block-end: calc((16 / 16) * 1rem);
+}
+
+h2 {
+  margin-block-end: calc((16 / 16) * 1rem);
+}
+
+p {
+  max-inline-size: 67ch;
+}
+
+img {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 100%;
+}
+
+code {
+  background-color: #f3f4f4;
+  font-size: calc((16 / 16) * 1rem);
+  line-height: 1.75;
+  padding-block: calc((3 / 16) * 1rem);
+  padding-inline: calc((6 / 16) * 1rem);
+}
+
+.event {
+  background-color: #00f;
+  color: #fff;
+  inset-block-end: calc((16 / 16) * 1rem);
+  inset-inline-start: calc((16 / 16) * 1rem);
+  padding-block: calc((8 / 16) * 1rem);
+  padding-inline: calc((16 / 16) * 1rem);
+  position: fixed;
+  z-index: 9999;
+}
+
+:focus-visible {
+  outline: calc((2 / 16) * 1rem) dashed blue;
+  outline-offset: calc((2 / 16) * 1rem);
+}
