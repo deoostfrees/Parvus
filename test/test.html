@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parvus test</title>
+
+  <link href="https://rqrauhvmra.com/gibki/css/gibki.css" rel="stylesheet">
+  <link href="../dist/css/parvus.min.css" rel="stylesheet">
+  <link href="test.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Parvus</h1>
+    <p>Overlays suck, but if you need one, you might consider using Parvus. Parvus is an open source, dependency free image lightbox with the goal of being accessible.</p>
+  </div>
+
+  <div class="container">
+    <h2>Gallery</h2>
+    <p>Gallery with the <code>data-group</code> attribute.</p>
+    <div class="flex padding-top-m">
+      <div class="flex__md-4">
+        <a href="./images/2-1200.webp"
+           class="lightbox"
+           data-group="Netherlands">
+          <img src="./images/2-370.webp"
+               alt="Picturesque house facades in Leiden, a city and municipality in the province of South Holland, Netherlands."
+               width="370"
+               height="657">
+        </a>
+      </div>
+
+      <div class="flex__md-4">
+        <a href="./images/3-1200.webp"
+           class="lightbox"
+           data-group="Netherlands"
+           data-caption="A day trip to Leiden on our vacation in the Netherlands.">
+          <img src="./images/3-370.webp"
+               alt="The river 'Oude Rijn' in Leyden, a city and municipality in the province of South Holland, Netherlands."
+               loading="lazy"
+               width="370"
+               height="208">
+          </a>
+      </div>
+
+      <div class="flex__md-4">
+        <a href="./images/1-1200.webp"
+           class="lightbox-new"
+           data-group="Netherlands"
+           data-srcset="./images/1-1200.webp 1200w, ./images/1-1000.webp 1000w, ./images/1-700.webp 700w, ./images/1-500.webp 500w">
+          <img src="./images/1-370.webp"
+               alt="Picturesque house facades in Leyden, a city and municipality in the province of South Holland, Netherlands."
+               loading="lazy"
+               width="370"
+               height="208">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Gallery</h2>
+    <p>Gallery with the <code>gallerySelector</code> option.</p>
+    <div class="flex gallery padding-top-m">
+      <div class="flex__md-4">
+        <a href="./images/8-1200.webp"
+           class="lightbox">
+          <img src="./images/8-370.webp"
+               alt=""
+               loading="lazy"
+               width="370"
+               height="277">
+        </a>
+      </div>
+
+      <div class="flex__md-4">
+        <a href="./images/9-1200.webp"
+           class="lightbox">
+          <img src="./images/9-370.webp"
+               alt=""
+               loading="lazy"
+               width="370"
+               height="277">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Non-grouped images</h2>
+    <div class="flex">
+      <div class="flex__md-4">
+        <a href="./images/4-1200.webp"
+           class="lightbox">
+          <img src="./images/4-370.webp"
+               alt="2 glasses filled with Mojito Cocktail on a dark table."
+               loading="lazy"
+               width="370"
+               height="657">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="event" hidden></div>
+
+  <script type="module" src="test.js"></script>
+</body>
+
+</html>
