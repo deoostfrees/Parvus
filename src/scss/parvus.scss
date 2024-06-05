@@ -36,7 +36,6 @@ body:has(.parvus[aria-hidden='false']) {
  * Parvus trigger
  *
  */
-
 .parvus-zoom {
   display: block;
   position: relative;
@@ -63,7 +62,6 @@ body:has(.parvus[aria-hidden='false']) {
  * Parvus
  *
  */
-
 .parvus {
   box-sizing: border-box;
   contain: strict;
@@ -116,24 +114,20 @@ body:has(.parvus[aria-hidden='false']) {
   }
 
   &__slide {
-    display: grid;
     block-size: 100%;
-    justify-content: center;
-    padding-block-end: 1rem;
-    padding-block-start: 3.75rem;
-    padding-inline-end: 1rem;
-    padding-inline-start: 1rem;
-    place-items: center;
+    display: grid;
     inline-size: 100%;
+    padding-block-end: 3.75rem 1rem;
+    padding-inline: 1rem;
+    place-items: center;
 
 
     & img {
-      display: block;
       block-size: auto;
-      margin-inline-start: auto;
-      margin-inline-end: auto;
-      transform-origin: left top;
+      display: block;
       inline-size: auto;
+      margin-inline: auto;
+      transform-origin: left top;
     }
   }
 
@@ -180,11 +174,10 @@ body:has(.parvus[aria-hidden='false']) {
   &__toolbar {
     align-items: center;
     display: flex;
-    justify-content: space-between;
-    inset-inline-start: 1rem;
-    position: absolute;
-    inset-inline-end: 1rem;
     inset-block-start: 1rem;
+    inset-inline: 1rem;
+    justify-content: space-between;
+    position: absolute;
   }
 
   &__controls {
@@ -208,7 +201,8 @@ body:has(.parvus[aria-hidden='false']) {
     will-change: transform, opacity;
     z-index: 7;
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
       background-color: var(--parvus-btn-hover-background-color);
       color: var(--parvus-btn-hover-color);
     }
@@ -265,6 +259,7 @@ body:has(.parvus[aria-hidden='false']) {
 
     &--is-opening,
     &--is-closing {
+
 
 
       & .parvus__overlay,
