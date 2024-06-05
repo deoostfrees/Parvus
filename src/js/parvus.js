@@ -583,10 +583,11 @@ export default function Parvus (userOptions) {
    * Add caption to the container element
    *
    * @param {HTMLElement} containerEl - The container element to which the caption will be added
+   * @param {HTMLElement} imageEl - The image the caption is linked to
    * @param {HTMLElement} el - The trigger element associated with the caption
    * @param {Number} index - The index of the caption
    */
-  const addCaption = (containerEl, el, index) => {
+  const addCaption = (containerEl, imageEl, el, index) => {
     const CAPTION_CONTAINER = document.createElement('div')
     let captionData = null
 
@@ -611,11 +612,12 @@ export default function Parvus (userOptions) {
     if (captionData !== null) {
       const CAPTION_ID = `parvus__caption-${index}`
 
-      CAPTION_CONTAINER.setAttribute('aria-labelledby', CAPTION_ID)
       CAPTION_CONTAINER.id = CAPTION_ID
       CAPTION_CONTAINER.innerHTML = `<p>${captionData}</p>`
 
       containerEl.appendChild(CAPTION_CONTAINER)
+
+      imageEl.setAttribute('aria-describedby', CAPTION_ID)
     }
   }
 
@@ -660,7 +662,7 @@ export default function Parvus (userOptions) {
 
         // Add caption if available
         if (config.captions) {
-          addCaption(CONTENT_CONTAINER_EL, el, index)
+          addCaption(CONTENT_CONTAINER_EL, IMAGE, el, index)
         }
 
         contentElements[index] = loadedImage
