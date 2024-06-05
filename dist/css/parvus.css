@@ -25,11 +25,11 @@ body:has(.parvus[aria-hidden=false]) {
  * Parvus trigger
  *
  */
-.parvus-zoom {
+.parvus-trigger:has(img) {
   display: block;
   position: relative;
 }
-.parvus-zoom__indicator {
+.parvus-trigger:has(img) .parvus-zoom__indicator {
   align-items: center;
   background-color: var(--parvus-btn-background-color);
   color: var(--parvus-btn-color);
@@ -40,7 +40,7 @@ body:has(.parvus[aria-hidden=false]) {
   inset-inline-end: 0.5rem;
   inset-block-start: 0.5rem;
 }
-.parvus-zoom img {
+.parvus-trigger:has(img) img {
   display: block;
 }
 

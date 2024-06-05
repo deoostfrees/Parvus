@@ -137,8 +137,8 @@ export default function Parvus (userOptions) {
       return
     }
 
-    if (!((el.tagName === 'A' && el.hasAttribute('href')) || (el.tagName === 'BUTTON' && el.hasAttribute('data-target')))) {
-      throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must have a path to the image file.')
+    if (!((el.tagName === 'A' && el.hasAttribute('href')) ||(el.tagName === 'BUTTON' && el.hasAttribute('data-target')))) {
+      throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must contain a path to the image file.')
     }
 
     newGroup = getGroup(el)
@@ -193,10 +193,8 @@ export default function Parvus (userOptions) {
     GROUPS[EL_GROUP].triggerElements.splice(EL_INDEX, 1)
     GROUPS[EL_GROUP].sliderElements.splice(EL_INDEX, 1)
 
-    // Remove lightbox indicator icon if necessary
-    if (el.classList.contains('parvus-zoom')) {
-      removeZoomIndicator(el)
-    }
+    // Remove lightbox indicator icon
+    removeZoomIndicator(el)
 
     if (isOpen() && EL_GROUP === activeGroup) {
       updateAttributes()
