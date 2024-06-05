@@ -4,11 +4,22 @@
 
 - Pinch zoom gestures
 
+## [2.6.0] - 2024-06-05
+
+### Changed
+
+- Run `change` event listener for `reducedMotionCheck` only when the lightbox is open 083a0e7 @deoostfrees
+
+### Fixed
+
+- Avoid unintentionally moving the image when dragging 96ff56e @deoostfrees #59
+- Relationship between caption and image 76df207 @deoostfrees
+
 ## [2.5.3] - 2024-04-27
 
 ### Fixed
 
-- Remove optional files field in package.json to include all files via NPM
+- Remove optional files field in package.json to include all files via NPM 819e132 @deoostfrees
 
 ## [2.5.2] - 2024-04-27
 
