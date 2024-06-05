@@ -10,6 +10,7 @@ import de from '../src/l10n/de.js'
  *
  */
 const prvs = new Parvus({
+  gallerySelector: '.gallery',
   l10n: de
 })
 
