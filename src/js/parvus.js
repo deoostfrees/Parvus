@@ -746,15 +746,15 @@ export default function Parvus (userOptions) {
           // Animate the difference reversal on the next tick
           requestAnimationFrame(() => {
             IMAGE.style.transform = ''
-            IMAGE.style.opacity = 1
+            IMAGE.style.opacity = ''
             IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration / 2}ms ${config.transitionTimingFunction}`
           })
         })
       } else {
-        IMAGE.style.opacity = 1
+        IMAGE.style.opacity = ''
       }
     } else {
-      IMAGE.style.opacity = 1
+      IMAGE.style.opacity = ''
     }
   }
 
