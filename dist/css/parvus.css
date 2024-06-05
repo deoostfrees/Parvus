@@ -89,23 +89,19 @@ body:has(.parvus[aria-hidden=false]) {
   cursor: grabbing;
 }
 .parvus__slide {
-  display: grid;
   block-size: 100%;
-  justify-content: center;
-  padding-block-end: 1rem;
-  padding-block-start: 3.75rem;
-  padding-inline-end: 1rem;
-  padding-inline-start: 1rem;
-  place-items: center;
+  display: grid;
   inline-size: 100%;
+  padding-block-end: 3.75rem 1rem;
+  padding-inline: 1rem;
+  place-items: center;
 }
 .parvus__slide img {
-  display: block;
   block-size: auto;
-  margin-inline-start: auto;
-  margin-inline-end: auto;
-  transform-origin: left top;
+  display: block;
   inline-size: auto;
+  margin-inline: auto;
+  transform-origin: left top;
 }
 .parvus__content--error {
   background-color: var(--parvus-loading-error-background-color);
@@ -141,11 +137,10 @@ body:has(.parvus[aria-hidden=false]) {
 .parvus__toolbar {
   align-items: center;
   display: flex;
-  justify-content: space-between;
-  inset-inline-start: 1rem;
-  position: absolute;
-  inset-inline-end: 1rem;
   inset-block-start: 1rem;
+  inset-inline: 1rem;
+  justify-content: space-between;
+  position: absolute;
 }
 .parvus__controls {
   display: flex;
@@ -167,7 +162,7 @@ body:has(.parvus[aria-hidden=false]) {
   will-change: transform, opacity;
   z-index: 7;
 }
-.parvus__btn:hover {
+.parvus__btn:hover, .parvus__btn:focus-visible {
   background-color: var(--parvus-btn-hover-background-color);
   color: var(--parvus-btn-hover-color);
 }
