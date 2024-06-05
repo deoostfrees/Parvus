@@ -137,7 +137,7 @@ export default function Parvus (userOptions) {
       return
     }
 
-    if (!((el.tagName === 'A' && el.hasAttribute('href')) ||(el.tagName === 'BUTTON' && el.hasAttribute('data-target')))) {
+    if (!((el.tagName === 'A' && el.hasAttribute('href')) || (el.tagName === 'BUTTON' && el.hasAttribute('data-target')))) {
       throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must contain a path to the image file.')
     }
 
