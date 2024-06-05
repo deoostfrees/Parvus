@@ -135,7 +135,7 @@
      * https://developer.mozilla.org/en-US/docs/Web/API/MediaQueryList
      *
      */
-    const MOTIONQUERY = window.matchMedia('(prefers-reduced-motion)');
+    const MOTIONQUERY = BROWSER_WINDOW.matchMedia('(prefers-reduced-motion)');
     const reducedMotionCheck = () => {
       if (MOTIONQUERY.matches) {
         isReducedMotion = true;
@@ -145,9 +145,6 @@
         transitionDuration = config.transitionDuration;
       }
     };
-
-    // Check for any OS level changes to the preference
-    MOTIONQUERY.addEventListener('change', reducedMotionCheck);
 
     /**
      * Get the group from element
@@ -1278,6 +1275,9 @@
       // Popstate event
       BROWSER_WINDOW.addEventListener('popstate', close);
 
+      // Check for any OS level changes to the prefers reduced motion preference
+      MOTIONQUERY.addEventListener('change', reducedMotionCheck);
+
       // Click event
       lightbox.addEventListener('click', clickHandler);
 
@@ -1306,6 +1306,9 @@
 
       // Popstate event
       BROWSER_WINDOW.removeEventListener('popstate', close);
+
+      // Check for any OS level changes to the prefers reduced motion preference
+      MOTIONQUERY.removeEventListener('change', reducedMotionCheck);
 
       // Click event
       lightbox.removeEventListener('click', clickHandler);
