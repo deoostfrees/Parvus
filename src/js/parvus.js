@@ -1188,6 +1188,9 @@ export default function Parvus (userOptions) {
    * @param {Event} event - The mousedown event object
    */
   const mousedownHandler = (event) => {
+    event.preventDefault()
+    event.stopPropagation()
+
     isDraggingX = false
     isDraggingY = false
 
@@ -1203,8 +1206,6 @@ export default function Parvus (userOptions) {
     slider.classList.add('parvus__slider--is-dragging')
     slider.style.willChange = 'transform'
 
-    event.stopPropagation()
-
     lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).opacity
   }
 
@@ -1217,6 +1218,8 @@ export default function Parvus (userOptions) {
    * @param {Event} event - The mousemove event object
    */
   const mousemoveHandler = (event) => {
+    event.preventDefault()
+
     if (pointerDown) {
       const { pageX, pageY } = event
 
@@ -1225,8 +1228,6 @@ export default function Parvus (userOptions) {
 
       doSwipe()
     }
-
-    event.preventDefault()
   }
 
   /**
@@ -1235,7 +1236,9 @@ export default function Parvus (userOptions) {
    * This function is called when a mouse button is released.
    * It handles the necessary actions and logic related to the mouseup event.
    */
-  const mouseupHandler = () => {
+  const mouseupHandler = (event) => {
+    event.stopPropagation()
+
     pointerDown = false
 
     const { slider } = GROUPS[activeGroup]
@@ -1259,6 +1262,8 @@ export default function Parvus (userOptions) {
    * @param {Event} event - The touchstart event object
    */
   const touchstartHandler = (event) => {
+    event.stopPropagation()
+
     isDraggingX = false
     isDraggingY = false
 
@@ -1273,8 +1278,6 @@ export default function Parvus (userOptions) {
     slider.style.willChange = 'transform'
 
     lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).getPropertyValue('opacity')
-
-    event.stopPropagation()
   }
 
   /**
@@ -1286,14 +1289,15 @@ export default function Parvus (userOptions) {
    * @param {Event} event - The touchmove event object
    */
   const touchmoveHandler = (event) => {
+    event.preventDefault()
+    event.stopPropagation()
+
     const { clientX, clientY } = event.changedTouches[0]
 
     drag.endX = parseInt(clientX, 10)
     drag.endY = parseInt(clientY, 10)
 
     doSwipe()
-
-    event.preventDefault()
   }
 
   /**
@@ -1302,7 +1306,9 @@ export default function Parvus (userOptions) {
    * This function is called when the touch interaction ends. It handles the necessary
    * actions and logic related to the touchend event.
    */
-  const touchendHandler = () => {
+  const touchendHandler = (event) => {
+    event.stopPropagation()
+
     const { slider } = GROUPS[activeGroup]
 
     slider.classList.remove('parvus__slider--is-dragging')

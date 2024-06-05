@@ -1110,6 +1110,8 @@
      * @param {Event} event - The mousedown event object
      */
     const mousedownHandler = event => {
+      event.preventDefault();
+      event.stopPropagation();
       isDraggingX = false;
       isDraggingY = false;
       pointerDown = true;
@@ -1124,7 +1126,6 @@
       } = GROUPS[activeGroup];
       slider.classList.add('parvus__slider--is-dragging');
       slider.style.willChange = 'transform';
-      event.stopPropagation();
       lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).opacity;
     };
 
@@ -1137,6 +1138,7 @@
      * @param {Event} event - The mousemove event object
      */
     const mousemoveHandler = event => {
+      event.preventDefault();
       if (pointerDown) {
         const {
           pageX,
@@ -1146,7 +1148,6 @@
         drag.endY = pageY;
         doSwipe();
       }
-      event.preventDefault();
     };
 
     /**
@@ -1155,7 +1156,8 @@
      * This function is called when a mouse button is released.
      * It handles the necessary actions and logic related to the mouseup event.
      */
-    const mouseupHandler = () => {
+    const mouseupHandler = event => {
+      event.stopPropagation();
       pointerDown = false;
       const {
         slider
@@ -1177,6 +1179,7 @@
      * @param {Event} event - The touchstart event object
      */
     const touchstartHandler = event => {
+      event.stopPropagation();
       isDraggingX = false;
       isDraggingY = false;
       const {
@@ -1191,7 +1194,6 @@
       slider.classList.add('parvus__slider--is-dragging');
       slider.style.willChange = 'transform';
       lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).getPropertyValue('opacity');
-      event.stopPropagation();
     };
 
     /**
@@ -1203,6 +1205,8 @@
      * @param {Event} event - The touchmove event object
      */
     const touchmoveHandler = event => {
+      event.preventDefault();
+      event.stopPropagation();
       const {
         clientX,
         clientY
@@ -1210,7 +1214,6 @@
       drag.endX = parseInt(clientX, 10);
       drag.endY = parseInt(clientY, 10);
       doSwipe();
-      event.preventDefault();
     };
 
     /**
@@ -1219,7 +1222,8 @@
      * This function is called when the touch interaction ends. It handles the necessary
      * actions and logic related to the touchend event.
      */
-    const touchendHandler = () => {
+    const touchendHandler = event => {
+      event.stopPropagation();
       const {
         slider
       } = GROUPS[activeGroup];
