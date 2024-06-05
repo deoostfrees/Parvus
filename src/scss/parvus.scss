@@ -112,6 +112,11 @@ body:has(.parvus[aria-hidden='false']) {
 
     &--is-dragging {
       cursor: grabbing;
+
+
+      & .parvus__content {
+        pointer-events: none;
+      }
     }
   }
 
