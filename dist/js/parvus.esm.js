@@ -30,6 +30,33 @@ const getScrollbarWidth = () => {
   return BROWSER_WINDOW.innerWidth - document.documentElement.clientWidth;
 };
 
+/**
+ * Add zoom indicator to element
+ *
+ * @param {HTMLElement} el - The element to add the zoom indicator to
+ * @param {Object} config - Options object
+ */
+const addZoomIndicator = (el, config) => {
+  if (el.querySelector('img')) {
+    const LIGHTBOX_INDICATOR_ICON = document.createElement('div');
+    el.classList.add('parvus-zoom');
+    LIGHTBOX_INDICATOR_ICON.className = 'parvus-zoom__indicator';
+    LIGHTBOX_INDICATOR_ICON.innerHTML = config.lightboxIndicatorIcon;
+    el.appendChild(LIGHTBOX_INDICATOR_ICON);
+  }
+};
+
+/**
+ * Remove zoom indicator for element
+ *
+ * @param {HTMLElement} el - The element to remove the zoom indicator to
+ */
+const removeZoomIndicator = el => {
+  const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator');
+  el.classList.remove('parvus-zoom');
+  el.removeChild(LIGHTBOX_INDICATOR_ICON);
+};
+
 var en = {
   lightboxLabel: 'This is a dialog window that overlays the main content of the page. The modal displays the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
   lightboxLoadingIndicatorLabel: 'Image loading',
@@ -159,21 +186,6 @@ function Parvus(userOptions) {
   };
 
   /**
-   * Add zoom indicator to element
-   *
-   * @param {HTMLElement} el - The element to add the zoom indicator to
-   */
-  const addZoomIndicator = el => {
-    if (el.querySelector('img')) {
-      const LIGHTBOX_INDICATOR_ICON = document.createElement('div');
-      el.classList.add('parvus-zoom');
-      LIGHTBOX_INDICATOR_ICON.className = 'parvus-zoom__indicator';
-      LIGHTBOX_INDICATOR_ICON.innerHTML = config.lightboxIndicatorIcon;
-      el.appendChild(LIGHTBOX_INDICATOR_ICON);
-    }
-  };
-
-  /**
    * Add an element
    *
    * @param {HTMLElement} el - The element to be added
@@ -193,7 +205,7 @@ function Parvus(userOptions) {
       throw new Error('Ups, element already added.');
     }
     GROUPS[newGroup].triggerElements.push(el);
-    addZoomIndicator(el);
+    addZoomIndicator(el, config);
     el.classList.add('parvus-trigger');
     el.addEventListener('click', triggerParvus);
     if (isOpen() && newGroup === activeGroup) {
@@ -229,9 +241,7 @@ function Parvus(userOptions) {
 
     // Remove lightbox indicator icon if necessary
     if (el.classList.contains('parvus-zoom')) {
-      const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator');
-      el.classList.remove('parvus-zoom');
-      el.removeChild(LIGHTBOX_INDICATOR_ICON);
+      removeZoomIndicator(el);
     }
     if (isOpen() && EL_GROUP === activeGroup) {
       updateAttributes();
@@ -984,15 +994,15 @@ function Parvus(userOptions) {
     if (contentEl.tagName !== 'IMG') {
       return;
     }
-    const COMPUTED_STYLE = getComputedStyle(slideEl);
+    const SLIDE_EL_STYLES = getComputedStyle(slideEl);
     const CAPTION_EL = slideEl.querySelector('.parvus__caption');
     const CAPTION_REC = CAPTION_EL ? CAPTION_EL.getBoundingClientRect().height : 0;
     const SRC_HEIGHT = contentEl.getAttribute('height');
     const SRC_WIDTH = contentEl.getAttribute('width');
     let maxHeight = slideEl.offsetHeight;
     let maxWidth = slideEl.offsetWidth;
-    maxHeight -= parseFloat(COMPUTED_STYLE.paddingTop) + parseFloat(COMPUTED_STYLE.paddingBottom) + parseFloat(CAPTION_REC);
-    maxWidth -= parseFloat(COMPUTED_STYLE.paddingLeft) + parseFloat(COMPUTED_STYLE.paddingRight);
+    maxHeight -= parseFloat(SLIDE_EL_STYLES.paddingTop) + parseFloat(SLIDE_EL_STYLES.paddingBottom) + parseFloat(CAPTION_REC);
+    maxWidth -= parseFloat(SLIDE_EL_STYLES.paddingLeft) + parseFloat(SLIDE_EL_STYLES.paddingRight);
     const RATIO = Math.min(maxWidth / SRC_WIDTH || 0, maxHeight / SRC_HEIGHT);
     const NEW_WIDTH = SRC_WIDTH * RATIO || 0;
     const NEW_HEIGHT = SRC_HEIGHT * RATIO || 0;
@@ -1187,7 +1197,7 @@ function Parvus(userOptions) {
     } = GROUPS[activeGroup];
     slider.classList.add('parvus__slider--is-dragging');
     slider.style.willChange = 'transform';
-    lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).getPropertyValue('opacity');
+    lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).opacity;
   };
 
   /**

@@ -1,5 +1,6 @@
 import { getFocusableChildren } from './get-focusable-children'
 import { getScrollbarWidth } from './get-scrollbar-width'
+import { addZoomIndicator, removeZoomIndicator } from './zoom-indicator'
 
 // Default language
 import en from '../l10n/en.js'
@@ -127,24 +128,6 @@ export default function Parvus (userOptions) {
   }
 
   /**
-   * Add zoom indicator to element
-   *
-   * @param {HTMLElement} el - The element to add the zoom indicator to
-   */
-  const addZoomIndicator = (el) => {
-    if (el.querySelector('img')) {
-      const LIGHTBOX_INDICATOR_ICON = document.createElement('div')
-
-      el.classList.add('parvus-zoom')
-
-      LIGHTBOX_INDICATOR_ICON.className = 'parvus-zoom__indicator'
-      LIGHTBOX_INDICATOR_ICON.innerHTML = config.lightboxIndicatorIcon
-
-      el.appendChild(LIGHTBOX_INDICATOR_ICON)
-    }
-  }
-
-  /**
    * Add an element
    *
    * @param {HTMLElement} el - The element to be added
@@ -170,7 +153,7 @@ export default function Parvus (userOptions) {
 
     GROUPS[newGroup].triggerElements.push(el)
 
-    addZoomIndicator(el)
+    addZoomIndicator(el, config)
 
     el.classList.add('parvus-trigger')
     el.addEventListener('click', triggerParvus)
@@ -212,10 +195,7 @@ export default function Parvus (userOptions) {
 
     // Remove lightbox indicator icon if necessary
     if (el.classList.contains('parvus-zoom')) {
-      const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator')
-
-      el.classList.remove('parvus-zoom')
-      el.removeChild(LIGHTBOX_INDICATOR_ICON)
+      removeZoomIndicator(el)
     }
 
     if (isOpen() && EL_GROUP === activeGroup) {
@@ -1061,7 +1041,7 @@ export default function Parvus (userOptions) {
       return
     }
 
-    const COMPUTED_STYLE = getComputedStyle(slideEl)
+    const SLIDE_EL_STYLES = getComputedStyle(slideEl)
     const CAPTION_EL = slideEl.querySelector('.parvus__caption')
     const CAPTION_REC = CAPTION_EL ? CAPTION_EL.getBoundingClientRect().height : 0
     const SRC_HEIGHT = contentEl.getAttribute('height')
@@ -1070,8 +1050,8 @@ export default function Parvus (userOptions) {
     let maxHeight = slideEl.offsetHeight
     let maxWidth = slideEl.offsetWidth
 
-    maxHeight -= parseFloat(COMPUTED_STYLE.paddingTop) + parseFloat(COMPUTED_STYLE.paddingBottom) + parseFloat(CAPTION_REC)
-    maxWidth -= parseFloat(COMPUTED_STYLE.paddingLeft) + parseFloat(COMPUTED_STYLE.paddingRight)
+    maxHeight -= parseFloat(SLIDE_EL_STYLES.paddingTop) + parseFloat(SLIDE_EL_STYLES.paddingBottom) + parseFloat(CAPTION_REC)
+    maxWidth -= parseFloat(SLIDE_EL_STYLES.paddingLeft) + parseFloat(SLIDE_EL_STYLES.paddingRight)
 
     const RATIO = Math.min(maxWidth / SRC_WIDTH || 0, maxHeight / SRC_HEIGHT)
 
@@ -1277,7 +1257,7 @@ export default function Parvus (userOptions) {
     slider.classList.add('parvus__slider--is-dragging')
     slider.style.willChange = 'transform'
 
-    lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).getPropertyValue('opacity')
+    lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).opacity
   }
 
   /**
