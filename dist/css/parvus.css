@@ -88,9 +88,6 @@ body:has(.parvus[aria-hidden=false]) {
 .parvus__slider--is-dragging {
   cursor: grabbing;
 }
-.parvus__slider--is-dragging .parvus__content {
-  pointer-events: none;
-}
 .parvus__slide {
   display: grid;
   block-size: 100%;
