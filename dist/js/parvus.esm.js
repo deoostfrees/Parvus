@@ -39,8 +39,7 @@ const getScrollbarWidth = () => {
 const addZoomIndicator = (el, config) => {
   if (el.querySelector('img')) {
     const LIGHTBOX_INDICATOR_ICON = document.createElement('div');
-    el.classList.add('parvus-zoom');
-    LIGHTBOX_INDICATOR_ICON.className = 'parvus-zoom__indicator';
+    LIGHTBOX_INDICATOR_ICON.className = 'parvus-trigger__indicator';
     LIGHTBOX_INDICATOR_ICON.innerHTML = config.lightboxIndicatorIcon;
     el.appendChild(LIGHTBOX_INDICATOR_ICON);
   }
@@ -52,9 +51,10 @@ const addZoomIndicator = (el, config) => {
  * @param {HTMLElement} el - The element to remove the zoom indicator to
  */
 const removeZoomIndicator = el => {
-  const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator');
-  el.classList.remove('parvus-zoom');
-  el.removeChild(LIGHTBOX_INDICATOR_ICON);
+  if (el.querySelector('img')) {
+    const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-trigger__indicator');
+    el.removeChild(LIGHTBOX_INDICATOR_ICON);
+  }
 };
 
 var en = {
@@ -195,7 +195,7 @@ function Parvus(userOptions) {
       return;
     }
     if (!(el.tagName === 'A' && el.hasAttribute('href') || el.tagName === 'BUTTON' && el.hasAttribute('data-target'))) {
-      throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must have a path to the image file.');
+      throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must contain a path to the image file.');
     }
     newGroup = getGroup(el);
     if (!GROUPS[newGroup]) {
@@ -239,10 +239,8 @@ function Parvus(userOptions) {
     GROUPS[EL_GROUP].triggerElements.splice(EL_INDEX, 1);
     GROUPS[EL_GROUP].sliderElements.splice(EL_INDEX, 1);
 
-    // Remove lightbox indicator icon if necessary
-    if (el.classList.contains('parvus-zoom')) {
-      removeZoomIndicator(el);
-    }
+    // Remove lightbox indicator icon
+    removeZoomIndicator(el);
     if (isOpen() && EL_GROUP === activeGroup) {
       updateAttributes();
       updateSliderNavigationStatus();
