@@ -36,12 +36,12 @@ body:has(.parvus[aria-hidden='false']) {
  * Parvus trigger
  *
  */
-.parvus-zoom {
+.parvus-trigger:has(img) {
   display: block;
   position: relative;
 
 
-  &__indicator {
+  & .parvus-zoom__indicator {
     align-items: center;
     background-color: var(--parvus-btn-background-color);
     color: var(--parvus-btn-color);
