@@ -123,7 +123,6 @@
     const mergeOptions = userOptions => {
       // Default options
       const DEFAULT_OPTIONS = {
-        loadEmpty: false,
         selector: '.lightbox',
         gallerySelector: null,
         captions: true,
@@ -195,8 +194,9 @@
      * @param {HTMLElement} el - The element to be added
      */
     const add = el => {
+      // Check if the lightbox already exists
       if (!lightbox) {
-        return;
+        createLightbox();
       }
       if (!(el.tagName === 'A' && el.hasAttribute('href') || el.tagName === 'BUTTON' && el.hasAttribute('data-target'))) {
         throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must contain a path to the image file.');
@@ -1401,17 +1401,7 @@
     const init = () => {
       // Merge user options into defaults
       config = mergeOptions(userOptions);
-
-      // Check if the lightbox should be loaded empty or if there are elements for the lightbox.
-      if (!config.loadEmpty && !document.querySelectorAll(config.selector).length) {
-        return;
-      }
       reducedMotionCheck();
-
-      // Check if the lightbox already exists
-      if (!lightbox) {
-        createLightbox();
-      }
       if (config.gallerySelector !== null) {
         // Get a list of all `gallerySelector` elements within the document
         const GALLERY_ELS = document.querySelectorAll(config.gallerySelector);

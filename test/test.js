@@ -36,7 +36,7 @@ setTimeout(() => {
  * Events
  *
  */
-prvs.on('open', function (event) {
+prvs.on('open', (event) => {
   console.log(`
     Opened by: ${event.detail.source}
     at index: ${prvs.currentIndex()},
@@ -44,17 +44,17 @@ prvs.on('open', function (event) {
   `)
 })
 
-prvs.on('select', function () {
+prvs.on('select', () => {
   console.log(`
     Selected index: ${prvs.currentIndex()},
     selected slide: ${prvs.currentIndex() + 1}
   `)
 })
 
-prvs.on('close', function () {
+prvs.on('close', () => {
   console.log('Closed')
 })
 
-prvs.on('destroy', function () {
+prvs.on('destroy', () => {
   console.log('Destroyed')
 })
