@@ -209,10 +209,6 @@ The following options are available:
 
 ```js
 {
-  // Load the lightbox empty if no elements are available
-  // (e.g. when elements are loaded via Ajax)
-  loadEmpty: false,
-
   // Selector for elements that trigger Parvus
   selector: '.lightbox',
 

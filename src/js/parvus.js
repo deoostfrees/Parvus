@@ -53,7 +53,6 @@ export default function Parvus (userOptions) {
   const mergeOptions = (userOptions) => {
     // Default options
     const DEFAULT_OPTIONS = {
-      loadEmpty: false,
       selector: '.lightbox',
       gallerySelector: null,
       captions: true,
@@ -131,8 +130,9 @@ export default function Parvus (userOptions) {
    * @param {HTMLElement} el - The element to be added
    */
   const add = (el) => {
+    // Check if the lightbox already exists
     if (!lightbox) {
-      return
+      createLightbox()
     }
 
     if (!((el.tagName === 'A' && el.hasAttribute('href')) || (el.tagName === 'BUTTON' && el.hasAttribute('data-target')))) {
@@ -1459,17 +1459,7 @@ export default function Parvus (userOptions) {
     // Merge user options into defaults
     config = mergeOptions(userOptions)
 
-    // Check if the lightbox should be loaded empty or if there are elements for the lightbox.
-    if (!config.loadEmpty && !document.querySelectorAll(config.selector).length) {
-      return
-    }
-
     reducedMotionCheck()
-
-    // Check if the lightbox already exists
-    if (!lightbox) {
-      createLightbox()
-    }
 
     if (config.gallerySelector !== null) {
       // Get a list of all `gallerySelector` elements within the document
