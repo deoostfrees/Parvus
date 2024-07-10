@@ -108,7 +108,6 @@
     let isDraggingX = false;
     let isDraggingY = false;
     let pointerDown = false;
-    let lastFocus = null;
     let offset = null;
     let offsetTmp = null;
     let resizeTicking = false;
@@ -134,7 +133,6 @@
         swipeClose: true,
         simulateTouch: true,
         threshold: 50,
-        backFocus: true,
         hideScrollbar: true,
         transitionDuration: 300,
         transitionTimingFunction: 'cubic-bezier(0.62, 0.16, 0.13, 1.01)',
@@ -264,11 +262,7 @@
      */
     const createLightbox = () => {
       // Create the lightbox container
-      lightbox = document.createElement('div');
-      lightbox.setAttribute('role', 'dialog');
-      lightbox.setAttribute('aria-modal', 'true');
-      lightbox.setAttribute('aria-hidden', 'true');
-      lightbox.setAttribute('tabindex', '-1');
+      lightbox = document.createElement('dialog');
       lightbox.setAttribute('aria-label', config.l10n.lightboxLabel);
       lightbox.classList.add('parvus');
 
@@ -450,22 +444,16 @@
         throw new Error('Ups, I can\'t find the element.');
       }
       currentIndex = GROUPS[activeGroup].triggerElements.indexOf(el);
-      lastFocus = document.activeElement;
       history.pushState({
         parvus: 'close'
       }, 'Image', window.location.href);
       bindEvents();
-      const NON_LIGHTBOX_ELEMENTS = document.querySelectorAll('body > *:not([aria-hidden="true"])');
-      NON_LIGHTBOX_ELEMENTS.forEach(nonLightboxEl => {
-        nonLightboxEl.setAttribute('aria-hidden', 'true');
-        nonLightboxEl.classList.add('parvus-hidden');
-      });
       if (config.hideScrollbar) {
         document.body.style.marginInlineEnd = `${getScrollbarWidth()}px`;
         document.body.style.overflow = 'hidden';
       }
       lightbox.classList.add('parvus--is-opening');
-      lightbox.setAttribute('aria-hidden', 'false');
+      lightbox.showModal();
       createSlider();
       createSlide(currentIndex);
       GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false');
@@ -473,7 +461,6 @@
       updateAttributes();
       updateSliderNavigationStatus();
       updateCounter();
-      setFocusToFirstItem();
       loadSlide(currentIndex);
       createImage(el, currentIndex, () => {
         loadImage(currentIndex, true);
@@ -504,11 +491,6 @@
       if (history.state?.parvus === 'close') {
         history.back();
       }
-      const NON_LIGHTBOX_ELEMENTS = document.querySelectorAll('.parvus-hidden');
-      NON_LIGHTBOX_ELEMENTS.forEach(nonLightboxEl => {
-        nonLightboxEl.removeAttribute('aria-hidden');
-        nonLightboxEl.classList.remove('parvus-hidden');
-      });
       lightbox.classList.add('parvus--is-closing');
       requestAnimationFrame(() => {
         const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
@@ -525,11 +507,7 @@
       });
       const transitionendHandler = () => {
         leaveSlide(currentIndex);
-        lastFocus = config.backFocus ? lastFocus : GROUPS[activeGroup].triggerElements[currentIndex];
-        lastFocus.focus({
-          preventScroll: true
-        });
-        lightbox.setAttribute('aria-hidden', 'true');
+        lightbox.close();
         lightbox.classList.remove('parvus--is-closing');
         lightbox.classList.remove('parvus--is-vertical-closing');
         IMAGE.style.transform = '';
@@ -1050,15 +1028,6 @@
     };
 
     /**
-     * Set focus to the first item in the list
-     *
-     */
-    const setFocusToFirstItem = () => {
-      const FOCUSABLE_CHILDREN = getFocusableChildren(lightbox);
-      FOCUSABLE_CHILDREN[0].focus();
-    };
-
-    /**
      * Event handler for the keydown event
      *
      * @param {Event} event - The keydown event object
@@ -1366,7 +1335,7 @@
      * @returns {boolean} - True if Parvus is open, otherwise false
      */
     const isOpen = () => {
-      return lightbox.getAttribute('aria-hidden') === 'false';
+      return lightbox.hasAttribute('open');
     };
 
     /**
