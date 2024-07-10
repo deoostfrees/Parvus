@@ -240,9 +240,6 @@ The following options are available:
   // Touch dragging threshold (in pixels)
   threshold: 100,
 
-  // Setting focus back to the trigger element after closing Parvus
-  backFocus: true,
-
   // Browser scrollbar visibility
   hideScrollbar: true,
 

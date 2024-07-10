@@ -28,7 +28,7 @@
   --parvus-loader-color: hsl(228deg 24% 23%);
 }
 
-body:has(.parvus[aria-hidden='false']) {
+body:has(.parvus[open]) {
   touch-action: none;
 }
 
@@ -63,22 +63,27 @@ body:has(.parvus[aria-hidden='false']) {
  *
  */
 .parvus {
+  background-color: transparent;
+  block-size: 100%;
   box-sizing: border-box;
+  color: var(--parvus-color);
   contain: strict;
+  inline-size: 100%;
   inset: 0;
+  max-block-size: unset;
+  max-inline-size: unset;
   overflow: hidden;
   overscroll-behavior: contain;
   position: fixed;
-  z-index: 1337;
+
+  &::backdrop {
+    display:none;
+  }
 
   & *,
   & *::before,
   & *::after {
     box-sizing: border-box;
-  }
-
-  &[aria-hidden='true'] {
-    display: none;
   }
 
   &__overlay {
