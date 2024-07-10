@@ -523,13 +523,6 @@ function Parvus(userOptions) {
     IMAGE.addEventListener('transitionend', transitionendHandler, {
       once: true
     });
-
-    // Create and dispatch a new event
-    fire('close', {
-      detail: {
-        source: GROUPS[activeGroup].triggerElements[currentIndex]
-      }
-    });
   };
 
   /**
