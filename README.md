@@ -300,7 +300,7 @@ The following events are available:
 | `close` | Triggered after Parvus has been closed |
 | `destroy` | Triggered after Parvus has been destroyed |
 
-Except for the `destroy` event, you can access the current source element using the `event.detail.source` property.
+Except for the `close` and `destroy` events, you can access the current source element using the `event.detail.source` property.
 
 ```js
 prvs.on('open', function (event) {
