@@ -1,6 +1,6 @@
 # Parvus
 
-Overlays suck, but if you need one, you might consider using Parvus. Parvus is an open source, dependency free image lightbox with the goal of being accessible.
+Overlays suck, but if you need one, consider using Parvus. Parvus is an open source, dependency free image lightbox with the goal of being accessible.
 
 ![Screenshot of Parvus. It shows the first picture of a gallery.](https://rqrauhvmra.com/parvus/parvus.png)
 
@@ -32,7 +32,7 @@ Overlays suck, but if you need one, you might consider using Parvus. Parvus is a
   - `dist/js/parvus.min.js` (minified) or
   - `dist/js/parvus.js` (un-minified)
 
-Link the `.css` and `.js` files to your HTML file. Your HTML code should look like this:
+Link the `.css` and `.js` files in your HTML:
 
 ```html
 <!DOCTYPE html>
@@ -56,29 +56,29 @@ Link the `.css` and `.js` files to your HTML file. Your HTML code should look li
 
 ### Package Managers
 
-You can also install Parvus using npm or yarn, like any other dependency:
+You can also install Parvus using npm or yarn:
 
-```
+```sh
 npm install parvus
 ```
 
 or
 
-```
+```sh
 yarn add parvus
 ```
 
-After installation, you can import Parvus into your JavaScript codebase:
+After installation, import Parvus into your JavaScript codebase:
 
 ```js
 import Parvus from 'parvus'
 ```
 
-Make sure to include the corresponding SCSS or CSS file.
+Be sure to include the corresponding SCSS or CSS file.
 
 ## Usage
 
-The standard way to use Parvus is by linking a thumbnail image with the class `lightbox` to a larger image.
+Link a thumbnail image with the class `lightbox` to a larger image:
 
 ```html
 <a href="path/to/image.jpg" class="lightbox">
@@ -86,7 +86,7 @@ The standard way to use Parvus is by linking a thumbnail image with the class `l
 </a>
 ```
 
-Initialize the script by running:
+Initialize the script:
 
 ```js
 const prvs = new Parvus()
@@ -94,7 +94,7 @@ const prvs = new Parvus()
 
 ### Captions
 
-If you want to show a caption under the image, you can add a `data-caption` attribute.
+To show a caption under the image, add a `data-caption` attribute:
 
 ```html
 <a href="path/to/image.jpg" class="lightbox" data-caption="I'm a caption">
@@ -102,7 +102,7 @@ If you want to show a caption under the image, you can add a `data-caption` attr
 </a>
 ```
 
-Alternatively, you can set the option `captionsSelector` to select the captions from the innerHTML of an element.
+Alternatively, set the option `captionsSelector` to select captions from an element's innerHTML:
 
 ```html
 <a href="path/to/image.jpg" class="lightbox">
@@ -124,7 +124,7 @@ const prvs = new Parvus({
 
 ### Gallery
 
-If you have a group of related images that you would like to combine into a set, you can add a `data-group` attribute:
+To group related images into a set, add a `data-group` attribute:
 
 ```html
 <a href="path/to/image.jpg" class="lightbox" data-group="Berlin">
@@ -142,7 +142,7 @@ If you have a group of related images that you would like to combine into a set,
 </a>
 ```
 
-Alternatively, you can set the option `gallerySelector` to combine all images with a specific class within a selector into a group.
+Alternatively, set the option `gallerySelector` to group all images with a specific class within a selector:
 
 ```html
 <div class="gallery">
@@ -166,7 +166,7 @@ const prvs = new Parvus({
 
 ### Responsive Images
 
-You can specify different image sources and sizes using the `data-srcset` and `data-sizes` attribute.
+Specify different image sources and sizes using the `data-srcset` and `data-sizes` attributes:
 
 ```html
 <a href="path/to/image.jpg" class="lightbox"
@@ -184,7 +184,7 @@ data-sizes="(max-width: 75em) 100vw,
 
 ### Localization
 
-If you need localization, you can import the language module and set it as an option.
+Import the language module and set it as an option for localization:
 
 ```js
 import de from 'parvus/src/l10n/de'
@@ -196,29 +196,29 @@ const prvs = new Parvus({
 
 ## Options
 
-You can pass an object with custom options as an argument when initializing Parvus.
+Customize Parvus by passing an options object when initializing:
 
 ```js
 const prvs = new Parvus({
-  // Clicking outside closes Parvus
+  // Clicking outside does not close Parvus
   docClose: false
 })
 ```
 
-The following options are available:
+Available options include:
 
 ```js
 {
   // Selector for elements that trigger Parvus
   selector: '.lightbox',
 
-  // Selector for a group of elements that should be combined as a gallery. Overrides the `data-group` attribute.
+  // Selector for a group of elements combined as a gallery, overrides the `data-group` attribute.
   gallerySelector: null,
 
   // Display captions if available
   captions: true,
 
-  // Selector for the element where the caption is displayed. Use "self" for the `a` tag itself.
+  // Selector for the element where the caption is displayed; use "self" for the `a` tag itself.
   captionsSelector: 'self',
 
   // Attribute to get the caption from
@@ -227,19 +227,19 @@ The following options are available:
   // Clicking outside closes Parvus
   docClose: true,
 
-  // Closing Parvus by swiping up/down
+  // Close Parvus by swiping up/down
   swipeClose: true,
 
-  // Accepting mouse events like touch events (click and drag to change slides)
+  // Accept mouse events like touch events (click and drag to change slides)
   simulateTouch: true,
 
-  // Touch dragging threshold (in pixels)
+  // Touch dragging threshold in pixels
   threshold: 100,
 
-  // Browser scrollbar visibility
+  // Hide browser scrollbar
   hideScrollbar: true,
 
-  // Duration of transition effects in milliseconds (ms)
+  // Duration of transition effects in milliseconds
   transitionDuration: 300,
 
   // Timing function of the transition effects
@@ -262,43 +262,43 @@ Parvus provides the following API functions:
 
 | Function | Description |
 | --- | --- |
-| `open(element)` | Open the specified `element` (DOM element) in Parvus |
+| `open(element)` | Open the specified `element` (DOM element) |
 | `close()` | Close Parvus |
 | `previous()` | Show the previous image |
 | `next()` | Show the next image |
 | `select(index)` | Select a slide with the specified `index` (integer) |
-| `add(element)` | Add the specified `element` (DOM element) to Parvus |
-| `remove(element)` | Remove the specified `element` (DOM element) from Parvus |
+| `add(element)` | Add the specified `element` (DOM element) |
+| `remove(element)` | Remove the specified `element` (DOM element) |
 | `destroy()` | Destroy Parvus |
 | `isOpen()` | Check if Parvus is currently open |
 | `currentIndex()` | Get the index of the currently displayed slide |
 
 ## Events
 
-You can bind and unbind events using the `.on()` and `.off()` methods.
+Bind and unbind events using the `.on()` and `.off()` methods:
 
 ```js
 const prvs = new Parvus()
 
-const listener = function listener () {
+const listener = () => {
   console.log('eventName happened')
 }
 
-// bind event listener
+// Bind event listener
 prvs.on(eventName, listener)
 
-// unbind event listener
+// Unbind event listener
 prvs.off(eventName, listener)
 ```
 
-The following events are available:
+Available events:
 
 | eventName | Description |
 | --- | --- |
-| `open` | Triggered after Parvus has been opened |
+| `open` | Triggered after Parvus has opened |
 | `select` | Triggered when a slide is selected |
-| `close` | Triggered after Parvus has been closed |
-| `destroy` | Triggered after Parvus has been destroyed |
+| `close` | Triggered after Parvus has closed |
+| `destroy` | Triggered after Parvus has destroyed |
 
 ## Browser Support
 
