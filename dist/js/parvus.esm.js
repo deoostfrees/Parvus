@@ -465,9 +465,7 @@ function Parvus(userOptions) {
     preload(currentIndex - 1);
 
     // Create and dispatch a new event
-    fire('open', {
-      source: el
-    });
+    dispatchCustomEvent('open');
   };
 
   /**
@@ -742,11 +740,7 @@ function Parvus(userOptions) {
     updateCounter();
 
     // Create and dispatch a new event
-    fire('select', {
-      detail: {
-        source: GROUPS[activeGroup].triggerElements[currentIndex]
-      }
-    });
+    dispatchCustomEvent('select');
   };
 
   /**
@@ -1313,7 +1307,7 @@ function Parvus(userOptions) {
     LIGHTBOX_TRIGGER_ELS.forEach(remove);
 
     // Create and dispatch a new event
-    fire('destroy');
+    dispatchCustomEvent('destroy');
   };
 
   /**
@@ -1347,11 +1341,9 @@ function Parvus(userOptions) {
    * Dispatch a custom event
    *
    * @param {String} type - The type of the event to dispatch
-   * @param {Function} event - The event object
    */
-  const fire = (type, event = {}) => {
+  const dispatchCustomEvent = type => {
     const CUSTOM_EVENT = new CustomEvent(type, {
-      detail: event,
       cancelable: true
     });
     lightbox.dispatchEvent(CUSTOM_EVENT);

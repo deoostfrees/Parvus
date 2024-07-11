@@ -300,14 +300,6 @@ The following events are available:
 | `close` | Triggered after Parvus has been closed |
 | `destroy` | Triggered after Parvus has been destroyed |
 
-Except for the `close` and `destroy` events, you can access the current source element using the `event.detail.source` property.
-
-```js
-prvs.on('open', function (event) {
-  console.log(event.detail.source);
-})
-```
-
 ## Browser Support
 
 Parvus is supported on the latest versions of the following browsers:
