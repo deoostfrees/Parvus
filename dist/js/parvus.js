@@ -834,9 +834,9 @@
     };
 
     /**
-     * Clear drag after touchend event
+     * Clear drag after pointerup event
      *
-     * This function clears the drag state after the touchend event is triggered.
+     * This function clears the drag state after the pointerup event is triggered.
      */
     const clearDrag = () => {
       drag = {
@@ -896,11 +896,10 @@
       const TOTAL_TRIGGER_ELEMENTS = TRIGGER_ELEMENTS.length;
       const SLIDER = GROUPS[activeGroup].slider;
       const SLIDER_ELEMENTS = GROUPS[activeGroup].sliderElements;
-      const IS_TOUCH = config.simulateTouch || isTouchDevice();
       const IS_DRAGGABLE = SLIDER.classList.contains('parvus__slider--is-draggable');
 
       // Add draggable class if neccesary
-      if (IS_TOUCH && config.swipeClose && !IS_DRAGGABLE || IS_TOUCH && TOTAL_TRIGGER_ELEMENTS > 1 && !IS_DRAGGABLE) {
+      if (config.swipeClose && !IS_DRAGGABLE || TOTAL_TRIGGER_ELEMENTS > 1 && !IS_DRAGGABLE) {
         SLIDER.classList.add('parvus__slider--is-draggable');
       } else {
         SLIDER.classList.remove('parvus__slider--is-draggable');
@@ -1067,16 +1066,19 @@
     };
 
     /**
-     * Event handler for the mousedown event.
+     * Event handler for the pointerdown event.
      *
-     * This function is called when the mouse button is pressed down.
-     * It handles the necessary actions and logic related to the mousedown event.
+     * This function is triggered when a pointer becomes active buttons state.
+     * It handles the necessary actions and logic related to the pointerdown event.
      *
-     * @param {Event} event - The mousedown event object
+     * @param {Event} event - The pointerdown event object
      */
-    const mousedownHandler = event => {
+    const pointerdownHandler = event => {
       event.preventDefault();
       event.stopPropagation();
+      if (event.pointerType === 'mouse' && !config.simulateTouch) {
+        return;
+      }
       isDraggingX = false;
       isDraggingY = false;
       pointerDown = true;
@@ -1095,14 +1097,14 @@
     };
 
     /**
-     * Event handler for the mousemove event.
+     * Event handler for the pointermove event.
      *
-     * This function is called when the mouse is moved.
-     * It handles the necessary actions and logic related to the mousemove event.
+     * This function is triggered when a pointer changes coordinates.
+     * It handles the necessary actions and logic related to the pointermove event.
      *
-     * @param {Event} event - The mousemove event object
+     * @param {Event} event - The pointermove event object
      */
-    const mousemoveHandler = event => {
+    const pointermoveHandler = event => {
       event.preventDefault();
       if (pointerDown) {
         const {
@@ -1116,79 +1118,16 @@
     };
 
     /**
-     * Event handler for the mouseup event.
+     * Event handler for the pointerup event.
      *
-     * This function is called when a mouse button is released.
-     * It handles the necessary actions and logic related to the mouseup event.
+     * This function is triggered when a pointer is no longer active buttons state.
+     * It handles the necessary actions and logic related to the pointerup event.
+     *
+     * @param {Event} event - The pointerup event object
      */
-    const mouseupHandler = event => {
+    const pointerupHandler = event => {
       event.stopPropagation();
       pointerDown = false;
-      const {
-        slider
-      } = GROUPS[activeGroup];
-      slider.classList.remove('parvus__slider--is-dragging');
-      slider.style.willChange = '';
-      if (drag.endX || drag.endY) {
-        updateAfterDrag();
-      }
-      clearDrag();
-    };
-
-    /**
-     * Event handler for the touchstart event.
-     *
-     * This function is called when a touch interaction begins.
-     * It handles the necessary actions and logic related to the touchstart event.
-     *
-     * @param {Event} event - The touchstart event object
-     */
-    const touchstartHandler = event => {
-      event.stopPropagation();
-      isDraggingX = false;
-      isDraggingY = false;
-      const {
-        clientX,
-        clientY
-      } = event.changedTouches[0];
-      drag.startX = parseInt(clientX, 10);
-      drag.startY = parseInt(clientY, 10);
-      const {
-        slider
-      } = GROUPS[activeGroup];
-      slider.classList.add('parvus__slider--is-dragging');
-      slider.style.willChange = 'transform';
-      lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).opacity;
-    };
-
-    /**
-     * Event handler for the touchmove event.
-     *
-     * This function is called when the touch position changes during a touch interaction.
-     * It handles the necessary actions and logic related to the touchmove event.
-     *
-     * @param {Event} event - The touchmove event object
-     */
-    const touchmoveHandler = event => {
-      event.preventDefault();
-      event.stopPropagation();
-      const {
-        clientX,
-        clientY
-      } = event.changedTouches[0];
-      drag.endX = parseInt(clientX, 10);
-      drag.endY = parseInt(clientY, 10);
-      doSwipe();
-    };
-
-    /**
-     * Event handler for the touchend event.
-     *
-     * This function is called when the touch interaction ends. It handles the necessary
-     * actions and logic related to the touchend event.
-     */
-    const touchendHandler = event => {
-      event.stopPropagation();
       const {
         slider
       } = GROUPS[activeGroup];
@@ -1250,19 +1189,10 @@
       // Click event
       lightbox.addEventListener('click', clickHandler);
 
-      // Touch events
-      if (isTouchDevice()) {
-        lightbox.addEventListener('touchstart', touchstartHandler);
-        lightbox.addEventListener('touchmove', touchmoveHandler);
-        lightbox.addEventListener('touchend', touchendHandler);
-      }
-
-      // Mouse events
-      if (config.simulateTouch) {
-        lightbox.addEventListener('mousedown', mousedownHandler);
-        lightbox.addEventListener('mouseup', mouseupHandler);
-        lightbox.addEventListener('mousemove', mousemoveHandler);
-      }
+      // Pointer events
+      lightbox.addEventListener('pointerdown', pointerdownHandler);
+      lightbox.addEventListener('pointerup', pointerupHandler);
+      lightbox.addEventListener('pointermove', pointermoveHandler);
     };
 
     /**
@@ -1282,19 +1212,10 @@
       // Click event
       lightbox.removeEventListener('click', clickHandler);
 
-      // Touch events
-      if (isTouchDevice()) {
-        lightbox.removeEventListener('touchstart', touchstartHandler);
-        lightbox.removeEventListener('touchmove', touchmoveHandler);
-        lightbox.removeEventListener('touchend', touchendHandler);
-      }
-
-      // Mouse events
-      if (config.simulateTouch) {
-        lightbox.removeEventListener('mousedown', mousedownHandler);
-        lightbox.removeEventListener('mouseup', mouseupHandler);
-        lightbox.removeEventListener('mousemove', mousemoveHandler);
-      }
+      // Pointer events
+      lightbox.removeEventListener('pointerdown', pointerdownHandler);
+      lightbox.removeEventListener('pointerup', pointerupHandler);
+      lightbox.removeEventListener('pointermove', pointermoveHandler);
     };
 
     /**
@@ -1323,15 +1244,6 @@
      */
     const isOpen = () => {
       return lightbox.hasAttribute('open');
-    };
-
-    /**
-     * Check if the device supports touch events
-     *
-     * @returns {boolean} - True if the device is touch capable, otherwise false
-     */
-    const isTouchDevice = () => {
-      return 'ontouchstart' in window;
     };
 
     /**
