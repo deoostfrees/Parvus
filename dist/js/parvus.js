@@ -899,7 +899,7 @@
       const IS_DRAGGABLE = SLIDER.classList.contains('parvus__slider--is-draggable');
 
       // Add draggable class if neccesary
-      if (config.swipeClose && !IS_DRAGGABLE || TOTAL_TRIGGER_ELEMENTS > 1 && !IS_DRAGGABLE) {
+      if (config.simulateTouch && config.swipeClose && !IS_DRAGGABLE || config.simulateTouch && TOTAL_TRIGGER_ELEMENTS > 1 && !IS_DRAGGABLE) {
         SLIDER.classList.add('parvus__slider--is-draggable');
       } else {
         SLIDER.classList.remove('parvus__slider--is-draggable');
