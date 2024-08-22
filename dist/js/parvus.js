@@ -125,6 +125,7 @@
       const DEFAULT_OPTIONS = {
         selector: '.lightbox',
         gallerySelector: null,
+        zoomIndicator: true,
         captions: true,
         captionsSelector: 'self',
         captionsAttribute: 'data-caption',
@@ -209,7 +210,9 @@
         throw new Error('Ups, element already added.');
       }
       GROUPS[newGroup].triggerElements.push(el);
-      addZoomIndicator(el, config);
+      if (config.zoomIndicator) {
+        addZoomIndicator(el, config);
+      }
       el.classList.add('parvus-trigger');
       el.addEventListener('click', triggerParvus);
       if (isOpen() && newGroup === activeGroup) {
@@ -242,9 +245,9 @@
       const EL_INDEX = GROUPS[EL_GROUP].triggerElements.indexOf(el);
       GROUPS[EL_GROUP].triggerElements.splice(EL_INDEX, 1);
       GROUPS[EL_GROUP].sliderElements.splice(EL_INDEX, 1);
-
-      // Remove lightbox indicator icon
-      removeZoomIndicator(el);
+      if (config.zoomIndicator) {
+        removeZoomIndicator(el);
+      }
       if (isOpen() && EL_GROUP === activeGroup) {
         updateAttributes();
         updateSliderNavigationStatus();
