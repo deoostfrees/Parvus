@@ -215,6 +215,9 @@ Available options include:
   // Selector for a group of elements combined as a gallery, overrides the `data-group` attribute.
   gallerySelector: null,
 
+  // Display zoom indicator
+  zoomIndicator: true,
+
   // Display captions if available
   captions: true,
 
