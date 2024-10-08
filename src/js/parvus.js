@@ -298,9 +298,6 @@ export default function Parvus (userOptions) {
 
     SLIDER.className = 'parvus__slider'
 
-    // Hide the slider
-    SLIDER.setAttribute('aria-hidden', 'true')
-
     // Update the slider reference in GROUPS
     GROUPS[activeGroup].slider = SLIDER
 
@@ -426,8 +423,6 @@ export default function Parvus (userOptions) {
 
     createSlider()
     createSlide(currentIndex)
-
-    GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false')
 
     updateOffset()
     updateAttributes()
