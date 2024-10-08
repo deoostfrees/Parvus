@@ -340,9 +340,6 @@ function Parvus(userOptions) {
     const SLIDER = document.createElement('div');
     SLIDER.className = 'parvus__slider';
 
-    // Hide the slider
-    SLIDER.setAttribute('aria-hidden', 'true');
-
     // Update the slider reference in GROUPS
     GROUPS[activeGroup].slider = SLIDER;
 
@@ -450,7 +447,6 @@ function Parvus(userOptions) {
     lightbox.showModal();
     createSlider();
     createSlide(currentIndex);
-    GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false');
     updateOffset();
     updateAttributes();
     updateSliderNavigationStatus();
