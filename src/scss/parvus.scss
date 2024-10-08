@@ -31,6 +31,11 @@
 ::view-transition-group(lightboximage) {
   animation-duration: var(--parvus-transition-duration);
   animation-timing-function: var(--parvus-transition-timing-function);
+  z-index: 7;
+}
+
+::view-transition-group(toolbar) {
+	z-index: 8;
 }
 
 body:has(.parvus[open]) {
@@ -190,6 +195,8 @@ body:has(.parvus[open]) {
     inset-inline: 1rem;
     justify-content: space-between;
     position: absolute;
+    view-transition-name: toolbar;
+    z-index: 8;
   }
 
   &__controls {
