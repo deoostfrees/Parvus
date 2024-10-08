@@ -28,6 +28,11 @@
   --parvus-loader-color: hsl(228deg 24% 23%);
 }
 
+::view-transition-group(lightboximage) {
+  animation-duration: var(--parvus-transition-duration);
+  animation-timing-function: var(--parvus-transition-timing-function);
+}
+
 body:has(.parvus[open]) {
   touch-action: none;
 }
