@@ -255,6 +255,8 @@ function Parvus(userOptions) {
   const createLightbox = () => {
     // Create the lightbox container
     lightbox = document.createElement('dialog');
+    lightbox.setAttribute('role', 'dialog');
+    lightbox.setAttribute('aria-modal', 'true');
     lightbox.setAttribute('aria-label', config.l10n.lightboxLabel);
     lightbox.classList.add('parvus');
 
