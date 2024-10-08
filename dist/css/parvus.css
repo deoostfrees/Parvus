@@ -1,5 +1,5 @@
 :root {
-  --parvus-transition-duration: 300ms;
+  --parvus-transition-duration: 0.3s;
   --parvus-transition-timing-function: cubic-bezier(0.62, 0.16, 0.13, 1.01);
   --parvus-background-color: hsl(23deg 44% 96%);
   --parvus-color: hsl(228deg 24% 23%);
@@ -109,7 +109,6 @@ body:has(.parvus[open]) {
   display: block;
   inline-size: auto;
   margin-inline: auto;
-  transform-origin: left top;
 }
 .parvus__content--error {
   background-color: var(--parvus-loading-error-background-color);

@@ -1,6 +1,6 @@
 :root {
   // Transition
-  --parvus-transition-duration: 300ms;
+  --parvus-transition-duration: 0.3s;
   --parvus-transition-timing-function: cubic-bezier(0.62, 0.16, 0.13, 1.01);
 
   // Overlay
@@ -135,7 +135,6 @@ body:has(.parvus[open]) {
       display: block;
       inline-size: auto;
       margin-inline: auto;
-      transform-origin: left top;
     }
   }
 

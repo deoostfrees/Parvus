@@ -111,7 +111,6 @@
     let offset = null;
     let offsetTmp = null;
     let resizeTicking = false;
-    let transitionDuration = null;
     let isReducedMotion = true;
 
     /**
@@ -134,8 +133,6 @@
         simulateTouch: true,
         threshold: 50,
         hideScrollbar: true,
-        transitionDuration: 300,
-        transitionTimingFunction: 'cubic-bezier(0.62, 0.16, 0.13, 1.01)',
         lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
         previousButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke="currentColor"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18" /></svg>',
         nextButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke="currentColor"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="9 6 15 12 9 18" /></svg>',
@@ -164,10 +161,8 @@
     const reducedMotionCheck = () => {
       if (MOTIONQUERY.matches) {
         isReducedMotion = true;
-        transitionDuration = 0.1;
       } else {
         isReducedMotion = false;
-        transitionDuration = config.transitionDuration;
       }
     };
 
@@ -493,26 +488,11 @@
         history.back();
       }
       lightbox.classList.add('parvus--is-closing');
-      requestAnimationFrame(() => {
-        const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
-        if (IMAGE && IMAGE.tagName === 'IMG') {
-          const IMAGE_SIZE = IMAGE.getBoundingClientRect();
-          const WIDTH_DIFFERENCE = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
-          const HEIGHT_DIFFERENCE = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
-          const X_DIFFERENCE = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
-          const Y_DIFFERENCE = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
-          IMAGE.style.transform = `translate(${X_DIFFERENCE}px, ${Y_DIFFERENCE}px) scale(${WIDTH_DIFFERENCE}, ${HEIGHT_DIFFERENCE})`;
-        }
-        IMAGE.style.opacity = 0;
-        IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction} ${transitionDuration / 2}ms`;
-      });
       const transitionendHandler = () => {
         leaveSlide(currentIndex);
         lightbox.close();
         lightbox.classList.remove('parvus--is-closing');
         lightbox.classList.remove('parvus--is-vertical-closing');
-        IMAGE.style.transform = '';
-        IMAGE.removeEventListener('transitionend', transitionendHandler);
         GROUPS[activeGroup].slider.remove();
         GROUPS[activeGroup].slider = null;
         GROUPS[activeGroup].sliderElements = [];
@@ -527,9 +507,25 @@
           document.body.style.overflow = '';
         }
       };
-      IMAGE.addEventListener('transitionend', transitionendHandler, {
-        once: true
-      });
+      if (IMAGE && IMAGE.tagName === 'IMG') {
+        if (document.startViewTransition) {
+          IMAGE.style.viewTransitionName = 'lightboximage';
+          const transition = document.startViewTransition(() => {
+            IMAGE.style.opacity = '0';
+            IMAGE.style.viewTransitionName = null;
+            THUMBNAIL.style.viewTransitionName = 'lightboximage';
+          });
+          transition.finished.finally(() => {
+            transitionendHandler();
+            THUMBNAIL.style.viewTransitionName = null;
+          });
+        } else {
+          IMAGE.style.opacity = '0';
+          transitionendHandler();
+        }
+      } else {
+        transitionendHandler();
+      }
     };
 
     /**
@@ -686,23 +682,15 @@
       const IMAGE = GROUPS[activeGroup].contentElements[index];
       if (IMAGE && IMAGE.tagName === 'IMG') {
         const THUMBNAIL = GROUPS[activeGroup].triggerElements[index];
-        if (animate) {
-          const IMAGE_SIZE = IMAGE.getBoundingClientRect();
-          const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
-          const WIDTH_DIFFERENCE = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
-          const HEIGHT_DIFFERENCE = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
-          const X_DIFFERENCE = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
-          const Y_DIFFERENCE = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
-          requestAnimationFrame(() => {
-            IMAGE.style.transform = `translate(${X_DIFFERENCE}px, ${Y_DIFFERENCE}px) scale(${WIDTH_DIFFERENCE}, ${HEIGHT_DIFFERENCE})`;
-            IMAGE.style.transition = 'transform 0s, opacity 0s';
-
-            // Animate the difference reversal on the next tick
-            requestAnimationFrame(() => {
-              IMAGE.style.transform = '';
-              IMAGE.style.opacity = '';
-              IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration / 2}ms ${config.transitionTimingFunction}`;
-            });
+        if (animate && document.startViewTransition) {
+          THUMBNAIL.style.viewTransitionName = 'lightboximage';
+          const transition = document.startViewTransition(() => {
+            IMAGE.style.opacity = '';
+            THUMBNAIL.style.viewTransitionName = null;
+            IMAGE.style.viewTransitionName = 'lightboximage';
+          });
+          transition.finished.finally(() => {
+            IMAGE.style.viewTransitionName = null;
           });
         } else {
           IMAGE.style.opacity = '';
