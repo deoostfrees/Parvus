@@ -1,8 +1,13 @@
 /**
- * Import language file
+ * Import Parvus
  *
  */
 import Parvus from '../dist/js/parvus.esm.min.js'
+
+/**
+ * Import language file
+ *
+ */
 import de from '../src/l10n/de.js'
 
 /**
@@ -36,25 +41,22 @@ setTimeout(() => {
  * Events
  *
  */
-prvs.on('open', function (event) {
-  console.log(`
-    Opened by: ${event.detail.source}
-    at index: ${prvs.currentIndex()},
-    selected slide: ${prvs.currentIndex() + 1}
-  `)
+prvs.on('open', () => {
+  console.log(`Open:
+    Index: ${prvs.currentIndex()},
+    Slide: ${prvs.currentIndex() + 1}`)
 })
 
-prvs.on('select', function () {
-  console.log(`
-    Selected index: ${prvs.currentIndex()},
-    selected slide: ${prvs.currentIndex() + 1}
-  `)
+prvs.on('select', () => {
+  console.log(`Select:
+    Index: ${prvs.currentIndex()},
+    Slide: ${prvs.currentIndex() + 1}`)
 })
 
-prvs.on('close', function () {
-  console.log('Closed')
+prvs.on('close', () => {
+  console.log('Close')
 })
 
-prvs.on('destroy', function () {
-  console.log('Destroyed')
+prvs.on('destroy', () => {
+  console.log('Destroy')
 })

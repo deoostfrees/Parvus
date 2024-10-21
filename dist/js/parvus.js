@@ -2,7 +2,7 @@
  * Parvus
  *
  * @author Benjamin de Oostfrees
- * @version 2.6.0
+ * @version 3.0.0
  * @url https://github.com/deoostfrees/parvus
  *
  * MIT license
@@ -108,11 +108,9 @@
     let isDraggingX = false;
     let isDraggingY = false;
     let pointerDown = false;
-    let lastFocus = null;
     let offset = null;
     let offsetTmp = null;
     let resizeTicking = false;
-    let transitionDuration = null;
     let isReducedMotion = true;
 
     /**
@@ -124,9 +122,9 @@
     const mergeOptions = userOptions => {
       // Default options
       const DEFAULT_OPTIONS = {
-        loadEmpty: false,
         selector: '.lightbox',
         gallerySelector: null,
+        zoomIndicator: true,
         captions: true,
         captionsSelector: 'self',
         captionsAttribute: 'data-caption',
@@ -134,10 +132,7 @@
         swipeClose: true,
         simulateTouch: true,
         threshold: 50,
-        backFocus: true,
         hideScrollbar: true,
-        transitionDuration: 300,
-        transitionTimingFunction: 'cubic-bezier(0.62, 0.16, 0.13, 1.01)',
         lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
         previousButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke="currentColor"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18" /></svg>',
         nextButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke="currentColor"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="9 6 15 12 9 18" /></svg>',
@@ -166,10 +161,8 @@
     const reducedMotionCheck = () => {
       if (MOTIONQUERY.matches) {
         isReducedMotion = true;
-        transitionDuration = 0.1;
       } else {
         isReducedMotion = false;
-        transitionDuration = config.transitionDuration;
       }
     };
 
@@ -197,8 +190,9 @@
      * @param {HTMLElement} el - The element to be added
      */
     const add = el => {
+      // Check if the lightbox already exists
       if (!lightbox) {
-        return;
+        createLightbox();
       }
       if (!(el.tagName === 'A' && el.hasAttribute('href') || el.tagName === 'BUTTON' && el.hasAttribute('data-target'))) {
         throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must contain a path to the image file.');
@@ -211,7 +205,9 @@
         throw new Error('Ups, element already added.');
       }
       GROUPS[newGroup].triggerElements.push(el);
-      addZoomIndicator(el, config);
+      if (config.zoomIndicator) {
+        addZoomIndicator(el, config);
+      }
       el.classList.add('parvus-trigger');
       el.addEventListener('click', triggerParvus);
       if (isOpen() && newGroup === activeGroup) {
@@ -244,9 +240,9 @@
       const EL_INDEX = GROUPS[EL_GROUP].triggerElements.indexOf(el);
       GROUPS[EL_GROUP].triggerElements.splice(EL_INDEX, 1);
       GROUPS[EL_GROUP].sliderElements.splice(EL_INDEX, 1);
-
-      // Remove lightbox indicator icon
-      removeZoomIndicator(el);
+      if (config.zoomIndicator) {
+        removeZoomIndicator(el);
+      }
       if (isOpen() && EL_GROUP === activeGroup) {
         updateAttributes();
         updateSliderNavigationStatus();
@@ -264,11 +260,9 @@
      */
     const createLightbox = () => {
       // Create the lightbox container
-      lightbox = document.createElement('div');
+      lightbox = document.createElement('dialog');
       lightbox.setAttribute('role', 'dialog');
       lightbox.setAttribute('aria-modal', 'true');
-      lightbox.setAttribute('aria-hidden', 'true');
-      lightbox.setAttribute('tabindex', '-1');
       lightbox.setAttribute('aria-label', config.l10n.lightboxLabel);
       lightbox.classList.add('parvus');
 
@@ -351,9 +345,6 @@
     const createSlider = () => {
       const SLIDER = document.createElement('div');
       SLIDER.className = 'parvus__slider';
-
-      // Hide the slider
-      SLIDER.setAttribute('aria-hidden', 'true');
 
       // Update the slider reference in GROUPS
       GROUPS[activeGroup].slider = SLIDER;
@@ -450,30 +441,22 @@
         throw new Error('Ups, I can\'t find the element.');
       }
       currentIndex = GROUPS[activeGroup].triggerElements.indexOf(el);
-      lastFocus = document.activeElement;
       history.pushState({
         parvus: 'close'
       }, 'Image', window.location.href);
       bindEvents();
-      const NON_LIGHTBOX_ELEMENTS = document.querySelectorAll('body > *:not([aria-hidden="true"])');
-      NON_LIGHTBOX_ELEMENTS.forEach(nonLightboxEl => {
-        nonLightboxEl.setAttribute('aria-hidden', 'true');
-        nonLightboxEl.classList.add('parvus-hidden');
-      });
       if (config.hideScrollbar) {
         document.body.style.marginInlineEnd = `${getScrollbarWidth()}px`;
         document.body.style.overflow = 'hidden';
       }
       lightbox.classList.add('parvus--is-opening');
-      lightbox.setAttribute('aria-hidden', 'false');
+      lightbox.showModal();
       createSlider();
       createSlide(currentIndex);
-      GROUPS[activeGroup].slider.setAttribute('aria-hidden', 'false');
       updateOffset();
       updateAttributes();
       updateSliderNavigationStatus();
       updateCounter();
-      setFocusToFirstItem();
       loadSlide(currentIndex);
       createImage(el, currentIndex, () => {
         loadImage(currentIndex, true);
@@ -484,9 +467,7 @@
       preload(currentIndex - 1);
 
       // Create and dispatch a new event
-      fire('open', {
-        source: el
-      });
+      dispatchCustomEvent('open');
     };
 
     /**
@@ -504,36 +485,12 @@
       if (history.state?.parvus === 'close') {
         history.back();
       }
-      const NON_LIGHTBOX_ELEMENTS = document.querySelectorAll('.parvus-hidden');
-      NON_LIGHTBOX_ELEMENTS.forEach(nonLightboxEl => {
-        nonLightboxEl.removeAttribute('aria-hidden');
-        nonLightboxEl.classList.remove('parvus-hidden');
-      });
       lightbox.classList.add('parvus--is-closing');
-      requestAnimationFrame(() => {
-        const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
-        if (IMAGE && IMAGE.tagName === 'IMG') {
-          const IMAGE_SIZE = IMAGE.getBoundingClientRect();
-          const WIDTH_DIFFERENCE = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
-          const HEIGHT_DIFFERENCE = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
-          const X_DIFFERENCE = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
-          const Y_DIFFERENCE = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
-          IMAGE.style.transform = `translate(${X_DIFFERENCE}px, ${Y_DIFFERENCE}px) scale(${WIDTH_DIFFERENCE}, ${HEIGHT_DIFFERENCE})`;
-        }
-        IMAGE.style.opacity = 0;
-        IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration}ms ${config.transitionTimingFunction} ${transitionDuration / 2}ms`;
-      });
       const transitionendHandler = () => {
         leaveSlide(currentIndex);
-        lastFocus = config.backFocus ? lastFocus : GROUPS[activeGroup].triggerElements[currentIndex];
-        lastFocus.focus({
-          preventScroll: true
-        });
-        lightbox.setAttribute('aria-hidden', 'true');
+        lightbox.close();
         lightbox.classList.remove('parvus--is-closing');
         lightbox.classList.remove('parvus--is-vertical-closing');
-        IMAGE.style.transform = '';
-        IMAGE.removeEventListener('transitionend', transitionendHandler);
         GROUPS[activeGroup].slider.remove();
         GROUPS[activeGroup].slider = null;
         GROUPS[activeGroup].sliderElements = [];
@@ -548,16 +505,25 @@
           document.body.style.overflow = '';
         }
       };
-      IMAGE.addEventListener('transitionend', transitionendHandler, {
-        once: true
-      });
-
-      // Create and dispatch a new event
-      fire('close', {
-        detail: {
-          source: GROUPS[activeGroup].triggerElements[currentIndex]
+      if (IMAGE && IMAGE.tagName === 'IMG') {
+        if (document.startViewTransition) {
+          IMAGE.style.viewTransitionName = 'lightboximage';
+          const transition = document.startViewTransition(() => {
+            IMAGE.style.opacity = '0';
+            IMAGE.style.viewTransitionName = null;
+            THUMBNAIL.style.viewTransitionName = 'lightboximage';
+          });
+          transition.finished.finally(() => {
+            transitionendHandler();
+            THUMBNAIL.style.viewTransitionName = null;
+          });
+        } else {
+          IMAGE.style.opacity = '0';
+          transitionendHandler();
         }
-      });
+      } else {
+        transitionendHandler();
+      }
     };
 
     /**
@@ -714,23 +680,15 @@
       const IMAGE = GROUPS[activeGroup].contentElements[index];
       if (IMAGE && IMAGE.tagName === 'IMG') {
         const THUMBNAIL = GROUPS[activeGroup].triggerElements[index];
-        if (animate) {
-          const IMAGE_SIZE = IMAGE.getBoundingClientRect();
-          const THUMBNAIL_SIZE = THUMBNAIL.getBoundingClientRect();
-          const WIDTH_DIFFERENCE = THUMBNAIL_SIZE.width / IMAGE_SIZE.width;
-          const HEIGHT_DIFFERENCE = THUMBNAIL_SIZE.height / IMAGE_SIZE.height;
-          const X_DIFFERENCE = THUMBNAIL_SIZE.left - IMAGE_SIZE.left;
-          const Y_DIFFERENCE = THUMBNAIL_SIZE.top - IMAGE_SIZE.top;
-          requestAnimationFrame(() => {
-            IMAGE.style.transform = `translate(${X_DIFFERENCE}px, ${Y_DIFFERENCE}px) scale(${WIDTH_DIFFERENCE}, ${HEIGHT_DIFFERENCE})`;
-            IMAGE.style.transition = 'transform 0s, opacity 0s';
-
-            // Animate the difference reversal on the next tick
-            requestAnimationFrame(() => {
-              IMAGE.style.transform = '';
-              IMAGE.style.opacity = '';
-              IMAGE.style.transition = `transform ${transitionDuration}ms ${config.transitionTimingFunction}, opacity ${transitionDuration / 2}ms ${config.transitionTimingFunction}`;
-            });
+        if (animate && document.startViewTransition) {
+          THUMBNAIL.style.viewTransitionName = 'lightboximage';
+          const transition = document.startViewTransition(() => {
+            IMAGE.style.opacity = '';
+            THUMBNAIL.style.viewTransitionName = null;
+            IMAGE.style.viewTransitionName = 'lightboximage';
+          });
+          transition.finished.finally(() => {
+            IMAGE.style.viewTransitionName = null;
           });
         } else {
           IMAGE.style.opacity = '';
@@ -777,11 +735,7 @@
       updateCounter();
 
       // Create and dispatch a new event
-      fire('select', {
-        detail: {
-          source: GROUPS[activeGroup].triggerElements[currentIndex]
-        }
-      });
+      dispatchCustomEvent('select');
     };
 
     /**
@@ -869,9 +823,9 @@
     };
 
     /**
-     * Clear drag after touchend event
+     * Clear drag after pointerup event
      *
-     * This function clears the drag state after the touchend event is triggered.
+     * This function clears the drag state after the pointerup event is triggered.
      */
     const clearDrag = () => {
       drag = {
@@ -931,11 +885,10 @@
       const TOTAL_TRIGGER_ELEMENTS = TRIGGER_ELEMENTS.length;
       const SLIDER = GROUPS[activeGroup].slider;
       const SLIDER_ELEMENTS = GROUPS[activeGroup].sliderElements;
-      const IS_TOUCH = config.simulateTouch || isTouchDevice();
       const IS_DRAGGABLE = SLIDER.classList.contains('parvus__slider--is-draggable');
 
       // Add draggable class if neccesary
-      if (IS_TOUCH && config.swipeClose && !IS_DRAGGABLE || IS_TOUCH && TOTAL_TRIGGER_ELEMENTS > 1 && !IS_DRAGGABLE) {
+      if (config.simulateTouch && config.swipeClose && !IS_DRAGGABLE || config.simulateTouch && TOTAL_TRIGGER_ELEMENTS > 1 && !IS_DRAGGABLE) {
         SLIDER.classList.add('parvus__slider--is-draggable');
       } else {
         SLIDER.classList.remove('parvus__slider--is-draggable');
@@ -1050,15 +1003,6 @@
     };
 
     /**
-     * Set focus to the first item in the list
-     *
-     */
-    const setFocusToFirstItem = () => {
-      const FOCUSABLE_CHILDREN = getFocusableChildren(lightbox);
-      FOCUSABLE_CHILDREN[0].focus();
-    };
-
-    /**
      * Event handler for the keydown event
      *
      * @param {Event} event - The keydown event object
@@ -1111,16 +1055,19 @@
     };
 
     /**
-     * Event handler for the mousedown event.
+     * Event handler for the pointerdown event.
      *
-     * This function is called when the mouse button is pressed down.
-     * It handles the necessary actions and logic related to the mousedown event.
+     * This function is triggered when a pointer becomes active buttons state.
+     * It handles the necessary actions and logic related to the pointerdown event.
      *
-     * @param {Event} event - The mousedown event object
+     * @param {Event} event - The pointerdown event object
      */
-    const mousedownHandler = event => {
+    const pointerdownHandler = event => {
       event.preventDefault();
       event.stopPropagation();
+      if (event.pointerType === 'mouse' && !config.simulateTouch) {
+        return;
+      }
       isDraggingX = false;
       isDraggingY = false;
       pointerDown = true;
@@ -1139,14 +1086,14 @@
     };
 
     /**
-     * Event handler for the mousemove event.
+     * Event handler for the pointermove event.
      *
-     * This function is called when the mouse is moved.
-     * It handles the necessary actions and logic related to the mousemove event.
+     * This function is triggered when a pointer changes coordinates.
+     * It handles the necessary actions and logic related to the pointermove event.
      *
-     * @param {Event} event - The mousemove event object
+     * @param {Event} event - The pointermove event object
      */
-    const mousemoveHandler = event => {
+    const pointermoveHandler = event => {
       event.preventDefault();
       if (pointerDown) {
         const {
@@ -1160,79 +1107,16 @@
     };
 
     /**
-     * Event handler for the mouseup event.
+     * Event handler for the pointerup event.
      *
-     * This function is called when a mouse button is released.
-     * It handles the necessary actions and logic related to the mouseup event.
+     * This function is triggered when a pointer is no longer active buttons state.
+     * It handles the necessary actions and logic related to the pointerup event.
+     *
+     * @param {Event} event - The pointerup event object
      */
-    const mouseupHandler = event => {
+    const pointerupHandler = event => {
       event.stopPropagation();
       pointerDown = false;
-      const {
-        slider
-      } = GROUPS[activeGroup];
-      slider.classList.remove('parvus__slider--is-dragging');
-      slider.style.willChange = '';
-      if (drag.endX || drag.endY) {
-        updateAfterDrag();
-      }
-      clearDrag();
-    };
-
-    /**
-     * Event handler for the touchstart event.
-     *
-     * This function is called when a touch interaction begins.
-     * It handles the necessary actions and logic related to the touchstart event.
-     *
-     * @param {Event} event - The touchstart event object
-     */
-    const touchstartHandler = event => {
-      event.stopPropagation();
-      isDraggingX = false;
-      isDraggingY = false;
-      const {
-        clientX,
-        clientY
-      } = event.changedTouches[0];
-      drag.startX = parseInt(clientX, 10);
-      drag.startY = parseInt(clientY, 10);
-      const {
-        slider
-      } = GROUPS[activeGroup];
-      slider.classList.add('parvus__slider--is-dragging');
-      slider.style.willChange = 'transform';
-      lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).opacity;
-    };
-
-    /**
-     * Event handler for the touchmove event.
-     *
-     * This function is called when the touch position changes during a touch interaction.
-     * It handles the necessary actions and logic related to the touchmove event.
-     *
-     * @param {Event} event - The touchmove event object
-     */
-    const touchmoveHandler = event => {
-      event.preventDefault();
-      event.stopPropagation();
-      const {
-        clientX,
-        clientY
-      } = event.changedTouches[0];
-      drag.endX = parseInt(clientX, 10);
-      drag.endY = parseInt(clientY, 10);
-      doSwipe();
-    };
-
-    /**
-     * Event handler for the touchend event.
-     *
-     * This function is called when the touch interaction ends. It handles the necessary
-     * actions and logic related to the touchend event.
-     */
-    const touchendHandler = event => {
-      event.stopPropagation();
       const {
         slider
       } = GROUPS[activeGroup];
@@ -1294,19 +1178,10 @@
       // Click event
       lightbox.addEventListener('click', clickHandler);
 
-      // Touch events
-      if (isTouchDevice()) {
-        lightbox.addEventListener('touchstart', touchstartHandler);
-        lightbox.addEventListener('touchmove', touchmoveHandler);
-        lightbox.addEventListener('touchend', touchendHandler);
-      }
-
-      // Mouse events
-      if (config.simulateTouch) {
-        lightbox.addEventListener('mousedown', mousedownHandler);
-        lightbox.addEventListener('mouseup', mouseupHandler);
-        lightbox.addEventListener('mousemove', mousemoveHandler);
-      }
+      // Pointer events
+      lightbox.addEventListener('pointerdown', pointerdownHandler);
+      lightbox.addEventListener('pointerup', pointerupHandler);
+      lightbox.addEventListener('pointermove', pointermoveHandler);
     };
 
     /**
@@ -1326,19 +1201,10 @@
       // Click event
       lightbox.removeEventListener('click', clickHandler);
 
-      // Touch events
-      if (isTouchDevice()) {
-        lightbox.removeEventListener('touchstart', touchstartHandler);
-        lightbox.removeEventListener('touchmove', touchmoveHandler);
-        lightbox.removeEventListener('touchend', touchendHandler);
-      }
-
-      // Mouse events
-      if (config.simulateTouch) {
-        lightbox.removeEventListener('mousedown', mousedownHandler);
-        lightbox.removeEventListener('mouseup', mouseupHandler);
-        lightbox.removeEventListener('mousemove', mousemoveHandler);
-      }
+      // Pointer events
+      lightbox.removeEventListener('pointerdown', pointerdownHandler);
+      lightbox.removeEventListener('pointerup', pointerupHandler);
+      lightbox.removeEventListener('pointermove', pointermoveHandler);
     };
 
     /**
@@ -1357,7 +1223,7 @@
       LIGHTBOX_TRIGGER_ELS.forEach(remove);
 
       // Create and dispatch a new event
-      fire('destroy');
+      dispatchCustomEvent('destroy');
     };
 
     /**
@@ -1366,16 +1232,7 @@
      * @returns {boolean} - True if Parvus is open, otherwise false
      */
     const isOpen = () => {
-      return lightbox.getAttribute('aria-hidden') === 'false';
-    };
-
-    /**
-     * Check if the device supports touch events
-     *
-     * @returns {boolean} - True if the device is touch capable, otherwise false
-     */
-    const isTouchDevice = () => {
-      return 'ontouchstart' in window;
+      return lightbox.hasAttribute('open');
     };
 
     /**
@@ -1391,11 +1248,9 @@
      * Dispatch a custom event
      *
      * @param {String} type - The type of the event to dispatch
-     * @param {Function} event - The event object
      */
-    const fire = (type, event = {}) => {
+    const dispatchCustomEvent = type => {
       const CUSTOM_EVENT = new CustomEvent(type, {
-        detail: event,
         cancelable: true
       });
       lightbox.dispatchEvent(CUSTOM_EVENT);
@@ -1432,17 +1287,7 @@
     const init = () => {
       // Merge user options into defaults
       config = mergeOptions(userOptions);
-
-      // Check if the lightbox should be loaded empty or if there are elements for the lightbox.
-      if (!config.loadEmpty && !document.querySelectorAll(config.selector).length) {
-        return;
-      }
       reducedMotionCheck();
-
-      // Check if the lightbox already exists
-      if (!lightbox) {
-        createLightbox();
-      }
       if (config.gallerySelector !== null) {
         // Get a list of all `gallerySelector` elements within the document
         const GALLERY_ELS = document.querySelectorAll(config.gallerySelector);
