@@ -91,9 +91,6 @@ body:has(.parvus[open]) {
   inset: 0;
   position: absolute;
 }
-.parvus__slider[aria-hidden=true] {
-  display: none;
-}
 @media screen and (prefers-reduced-motion: no-preference) {
   .parvus__slider--animate:not(.parvus__slider--is-dragging) {
     transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function);
@@ -110,7 +107,7 @@ body:has(.parvus[open]) {
   block-size: 100%;
   display: grid;
   inline-size: 100%;
-  padding-block: 3.75rem 1rem;
+  padding-block: 1rem;
   padding-inline: 1rem;
   place-items: center;
 }
@@ -157,9 +154,13 @@ body:has(.parvus[open]) {
   inset-block-start: 1rem;
   inset-inline: 1rem;
   justify-content: space-between;
+  pointer-events: none;
   position: absolute;
   view-transition-name: toolbar;
   z-index: 8;
+}
+.parvus__toolbar > * {
+  pointer-events: auto;
 }
 .parvus__controls {
   display: flex;
@@ -222,19 +223,19 @@ body:has(.parvus[open]) {
   .parvus--is-opening .parvus__overlay, .parvus--is-opening .parvus__counter, .parvus--is-opening .parvus__btn--close, .parvus--is-opening .parvus__btn--previous, .parvus--is-opening .parvus__btn--next, .parvus--is-opening .parvus__caption, .parvus--is-closing .parvus__overlay, .parvus--is-closing .parvus__counter, .parvus--is-closing .parvus__btn--close, .parvus--is-closing .parvus__btn--previous, .parvus--is-closing .parvus__btn--next, .parvus--is-closing .parvus__caption {
     opacity: 0;
   }
-  .parvus--is-vertical-closing .parvus__counter, .parvus--is-vertical-closing .parvus__btn--close {
+  .parvus--is-vertical-closing .parvus__counter, .parvus--is-vertical-closing .parvus__btn--close, .parvus--is-zooming .parvus__counter, .parvus--is-zooming .parvus__btn--close {
     transform: translateY(-100%);
     opacity: 0;
   }
-  .parvus--is-vertical-closing .parvus__btn--previous {
+  .parvus--is-vertical-closing .parvus__btn--previous, .parvus--is-zooming .parvus__btn--previous {
     transform: translate(-100%, -50%);
     opacity: 0;
   }
-  .parvus--is-vertical-closing .parvus__btn--next {
+  .parvus--is-vertical-closing .parvus__btn--next, .parvus--is-zooming .parvus__btn--next {
     transform: translate(100%, -50%);
     opacity: 0;
   }
-  .parvus--is-vertical-closing .parvus__caption {
+  .parvus--is-vertical-closing .parvus__caption, .parvus--is-zooming .parvus__caption {
     transform: translateY(100%);
     opacity: 0;
   }

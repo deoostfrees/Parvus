@@ -1104,28 +1104,31 @@
       if (!pointerDown) {
         return;
       }
-      const currentImg = GROUPS[activeGroup].sliderElements[currentIndex];
+      const currentImg = GROUPS[activeGroup].contentElements[currentIndex];
 
       // Update pointer position
       activePointers.set(event.pointerId, event);
 
       // Zoom
-      if (activePointers.size === 2) {
-        const points = Array.from(activePointers.values());
-        const distance = Math.hypot(points[1].clientX - points[0].clientX, points[1].clientY - points[0].clientY);
-        if (!isPinching) {
-          pinchStartDistance = distance;
-          isPinching = true;
-          baseScale = lastScale;
+      if (currentImg && currentImg.tagName === 'IMG') {
+        if (activePointers.size === 2) {
+          const points = Array.from(activePointers.values());
+          const distance = Math.hypot(points[1].clientX - points[0].clientX, points[1].clientY - points[0].clientY);
+          if (!isPinching) {
+            pinchStartDistance = distance;
+            isPinching = true;
+            baseScale = lastScale;
+            lightbox.classList.add('parvus--is-zooming');
+          }
+          currentScale = baseScale * (distance / pinchStartDistance);
+          currentScale = Math.min(Math.max(1, currentScale), 3);
+          currentImg.style.transform = `scale(${currentScale})`;
+          lastScale = currentScale;
+          return;
         }
-        currentScale = baseScale * (distance / pinchStartDistance);
-        currentScale = Math.min(Math.max(1, currentScale), 3);
-        currentImg.style.transform = `scale(${currentScale})`;
-        lastScale = currentScale;
-        return;
-      }
-      if (currentScale > 1) {
-        return;
+        if (currentScale > 1) {
+          return;
+        }
       }
       const {
         pageX,
@@ -1162,6 +1165,7 @@
         baseScale = lastScale;
       } else {
         pinchStartDistance = 0;
+        lightbox.classList.remove('parvus--is-zooming');
       }
     };
 
