@@ -75,11 +75,13 @@
     slideLabel: 'Image'
   };
 
+  /**
+   * Parvus Lightbox
+   *
+   * @param {Object} userOptions - User configuration options
+   * @returns {Object} Parvus instance
+   */
   function Parvus(userOptions) {
-    /**
-     * Global variables
-     *
-     */
     const BROWSER_WINDOW = window;
     const GROUP_ATTRIBUTES = {
       triggerElements: [],
@@ -88,6 +90,7 @@
       contentElements: []
     };
     const GROUPS = {};
+    const activePointers = new Map();
     let groupIdCounter = 0;
     let newGroup = null;
     let activeGroup = null;
@@ -108,6 +111,11 @@
     let isDraggingX = false;
     let isDraggingY = false;
     let pointerDown = false;
+    let pinchStartDistance = 0;
+    let currentScale = 1;
+    let isPinching = false;
+    let lastScale = 1;
+    let baseScale = 1;
     let offset = null;
     let offsetTmp = null;
     let resizeTicking = false;
@@ -1065,9 +1073,6 @@
     const pointerdownHandler = event => {
       event.preventDefault();
       event.stopPropagation();
-      if (event.pointerType === 'mouse' && !config.simulateTouch) {
-        return;
-      }
       isDraggingX = false;
       isDraggingY = false;
       pointerDown = true;
@@ -1075,6 +1080,7 @@
         pageX,
         pageY
       } = event;
+      activePointers.set(event.pointerId, event);
       drag.startX = pageX;
       drag.startY = pageY;
       const {
@@ -1095,15 +1101,39 @@
      */
     const pointermoveHandler = event => {
       event.preventDefault();
-      if (pointerDown) {
-        const {
-          pageX,
-          pageY
-        } = event;
-        drag.endX = pageX;
-        drag.endY = pageY;
-        doSwipe();
+      if (!pointerDown) {
+        return;
       }
+      const currentImg = GROUPS[activeGroup].sliderElements[currentIndex];
+
+      // Update pointer position
+      activePointers.set(event.pointerId, event);
+
+      // Zoom
+      if (activePointers.size === 2) {
+        const points = Array.from(activePointers.values());
+        const distance = Math.hypot(points[1].clientX - points[0].clientX, points[1].clientY - points[0].clientY);
+        if (!isPinching) {
+          pinchStartDistance = distance;
+          isPinching = true;
+          baseScale = lastScale;
+        }
+        currentScale = baseScale * (distance / pinchStartDistance);
+        currentScale = Math.min(Math.max(1, currentScale), 3);
+        currentImg.style.transform = `scale(${currentScale})`;
+        lastScale = currentScale;
+        return;
+      }
+      if (currentScale > 1) {
+        return;
+      }
+      const {
+        pageX,
+        pageY
+      } = event;
+      drag.endX = pageX;
+      drag.endY = pageY;
+      doSwipe();
     };
 
     /**
@@ -1117,6 +1147,7 @@
     const pointerupHandler = event => {
       event.stopPropagation();
       pointerDown = false;
+      isPinching = false;
       const {
         slider
       } = GROUPS[activeGroup];
@@ -1126,6 +1157,12 @@
         updateAfterDrag();
       }
       clearDrag();
+      activePointers.delete(event.pointerId);
+      if (currentScale > 1) {
+        baseScale = lastScale;
+      } else {
+        pinchStartDistance = 0;
+      }
     };
 
     /**
