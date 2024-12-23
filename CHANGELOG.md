@@ -1,8 +1,25 @@
 # Changelog
 
-## [Unreleased]
+## [3.0.0] - 2024-
 
-- Pinch zoom gestures
+### Added
+
+- Pinch zoom gestures 4a591e7 4a8355a @deoostfrees #42
+- Option to make the zoom indicator optional e65d5c7 @deoostfrees #62
+
+### Changed
+
+- Use the native HTML `dialog` element e703293 @deoostfrees #60
+- Use the View Transitions API for the zoom in/ out animation 11e183f @deoostfrees
+- Use pointer events instead of mouse and touch events b4941cf @deoostfrees
+
+### Removed
+
+- **Breaking:** The custom event `detail` property 4ea8e38 @deoostfrees
+- The `transitionDuration` option. This option is now also set via the available CSS custom property 11e183f @deoostfrees
+- The `transitionTimingFunction` option. This option is now also set via the available CSS custom property 11e183f @deoostfrees
+- The `loadEmpty` option. The internal `add` function now creates the lightbox 98e41b5 @deoostfrees
+- The custom `close` event. The native HTML `dialog` element has its own `close` event dba4678 @deoostfrees
 
 ## [2.6.0] - 2024-06-05
 
