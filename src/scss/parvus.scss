@@ -110,10 +110,6 @@ body:has(.parvus[open]) {
     inset: 0;
     position: absolute;
 
-    &[aria-hidden='true'] {
-      display: none;
-    }
-
     @media screen and (prefers-reduced-motion: no-preference) {
 
       &--animate:not(&--is-dragging) {
@@ -135,7 +131,7 @@ body:has(.parvus[open]) {
     block-size: 100%;
     display: grid;
     inline-size: 100%;
-    padding-block: 3.75rem 1rem;
+    padding-block: 1rem;
     padding-inline: 1rem;
     place-items: center;
 
@@ -194,9 +190,15 @@ body:has(.parvus[open]) {
     inset-block-start: 1rem;
     inset-inline: 1rem;
     justify-content: space-between;
+    pointer-events: none;
     position: absolute;
     view-transition-name: toolbar;
     z-index: 8;
+
+
+    & > * {
+      pointer-events: auto;
+    }
   }
 
   &__controls {
@@ -291,7 +293,8 @@ body:has(.parvus[open]) {
       }
     }
 
-    &--is-vertical-closing {
+    &--is-vertical-closing,
+    &--is-zooming {
 
 
 
