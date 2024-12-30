@@ -1044,7 +1044,6 @@
       const {
         target
       } = event;
-      console.log(target);
       if (target === previousButton) {
         previous();
       } else if (target === nextButton) {
