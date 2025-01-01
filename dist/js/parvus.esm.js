@@ -37,9 +37,9 @@ const getScrollbarWidth = () => {
  * @param {Object} config - Options object
  */
 const addZoomIndicator = (el, config) => {
-  if (el.querySelector('img') && el.querySelector('.parvus-zoom__indicator') === null) {
+  if (el.querySelector('img') && el.querySelector(config.lightboxIndicatorClass) === null) {
     const LIGHTBOX_INDICATOR_ICON = document.createElement('div');
-    LIGHTBOX_INDICATOR_ICON.className = 'parvus-zoom__indicator';
+    LIGHTBOX_INDICATOR_ICON.className = config.lightboxIndicatorClass;
     LIGHTBOX_INDICATOR_ICON.innerHTML = config.lightboxIndicatorIcon;
     el.appendChild(LIGHTBOX_INDICATOR_ICON);
   }
@@ -51,8 +51,8 @@ const addZoomIndicator = (el, config) => {
  * @param {HTMLElement} el - The element to remove the zoom indicator to
  */
 const removeZoomIndicator = el => {
-  if (el.querySelector('img') && el.querySelector('.parvus-zoom__indicator') !== null) {
-    const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator');
+  if (el.querySelector('img') && el.querySelector(config.lightboxIndicatorClass) !== null) {
+    const LIGHTBOX_INDICATOR_ICON = el.querySelector(config.lightboxIndicatorClass);
     el.removeChild(LIGHTBOX_INDICATOR_ICON);
   }
 };
@@ -132,10 +132,15 @@ function Parvus(userOptions) {
       hideScrollbar: true,
       transitionDuration: 300,
       transitionTimingFunction: 'cubic-bezier(0.62, 0.16, 0.13, 1.01)',
+      lightboxIndicator: true,
       lightboxIndicatorIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
       previousButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke="currentColor"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18" /></svg>',
       nextButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke="currentColor"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="9 6 15 12 9 18" /></svg>',
       closeButtonIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke="currentColor"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+      previousButtonClass: 'parvus__btn parvus__btn--previous',
+      nextButtonClass: 'parvus__btn parvus__btn--next',
+      closeButtonClass: 'parvus__btn parvus__btn--close',
+      lightboxIndicatorClass: 'parvus-zoom__indicator',
       l10n: en
     };
     const MERGED_OPTIONS = {
@@ -205,7 +210,7 @@ function Parvus(userOptions) {
       throw new Error('Ups, element already added.');
     }
     GROUPS[newGroup].triggerElements.push(el);
-    addZoomIndicator(el, config);
+    if (config.lightboxIndicator) addZoomIndicator(el, config);
     el.classList.add('parvus-trigger');
     el.addEventListener('click', triggerParvus);
     if (isOpen() && newGroup === activeGroup) {
@@ -240,7 +245,7 @@ function Parvus(userOptions) {
     GROUPS[EL_GROUP].sliderElements.splice(EL_INDEX, 1);
 
     // Remove lightbox indicator icon
-    removeZoomIndicator(el);
+    if (config.lightboxIndicator) removeZoomIndicator(el);
     if (isOpen() && EL_GROUP === activeGroup) {
       updateAttributes();
       updateSliderNavigationStatus();
@@ -292,7 +297,7 @@ function Parvus(userOptions) {
 
     // Create the close button
     closeButton = document.createElement('button');
-    closeButton.className = 'parvus__btn parvus__btn--close';
+    closeButton.className = config.closeButtonClass;
     closeButton.setAttribute('type', 'button');
     closeButton.setAttribute('aria-label', config.l10n.closeButtonLabel);
     closeButton.innerHTML = config.closeButtonIcon;
@@ -302,7 +307,7 @@ function Parvus(userOptions) {
 
     // Create the previous button
     previousButton = document.createElement('button');
-    previousButton.className = 'parvus__btn parvus__btn--previous';
+    previousButton.className = config.previousButtonClass;
     previousButton.setAttribute('type', 'button');
     previousButton.setAttribute('aria-label', config.l10n.previousButtonLabel);
     previousButton.innerHTML = config.previousButtonIcon;
@@ -312,7 +317,7 @@ function Parvus(userOptions) {
 
     // Create the next button
     nextButton = document.createElement('button');
-    nextButton.className = 'parvus__btn parvus__btn--next';
+    nextButton.className = config.nextButtonClass;
     nextButton.setAttribute('type', 'button');
     nextButton.setAttribute('aria-label', config.l10n.nextButtonLabel);
     nextButton.innerHTML = config.nextButtonIcon;
