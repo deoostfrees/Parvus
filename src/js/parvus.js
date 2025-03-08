@@ -109,21 +109,22 @@ export default function Parvus (userOptions) {
   }
 
   /**
-   * Get the group from element
+   * Retrieves or creates a group identifier for the given element
    *
-   * @param {HTMLElement} el - The element to retrieve the group from
-   * @return {String} - The group of the element
+   * @param {HTMLElement} el - DOM element to get or assign a group to
+   * @returns {string} The group identifier associated with the element
    */
   const getGroup = (el) => {
-    // Check if the data attribute "group" exists or set an alternative value
-    const EL_GROUP = el.dataset.group || `default-${groupIdCounter}`
-
-    ++groupIdCounter
-
-    // Set the "group" data attribute if it doesn't exist
-    if (!el.hasAttribute('data-group')) {
-      el.setAttribute('data-group', EL_GROUP)
+    // Return existing group identifier if already assigned
+    if (el.dataset.group) {
+      return el.dataset.group
     }
+
+    // Generate new unique group identifier using counter
+    const EL_GROUP = `default-${groupIdCounter++}`
+
+    // Assign the new group identifier to element's dataset
+    el.dataset.group = EL_GROUP
 
     return EL_GROUP
   }
