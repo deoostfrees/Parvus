@@ -1164,7 +1164,9 @@ export default function Parvus (userOptions) {
     slider.classList.add('parvus__slider--is-dragging')
     slider.style.willChange = 'transform'
 
-    lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).opacity
+    if (config.swipeClose) {
+      lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).opacity
+    }
   }
 
   /**
