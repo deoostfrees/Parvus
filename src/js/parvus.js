@@ -849,23 +849,30 @@ export default function Parvus (userOptions) {
     const { triggerElements } = GROUPS[activeGroup]
     const TOTAL_TRIGGER_ELEMENTS = triggerElements.length
 
+    if (TOTAL_TRIGGER_ELEMENTS <= 1) {
+      return
+    }
+
+    // Determine navigation state
     const FIRST_SLIDE = currentIndex === 0
     const LAST_SLIDE = currentIndex === TOTAL_TRIGGER_ELEMENTS - 1
 
-    if (TOTAL_TRIGGER_ELEMENTS > 1) {
-      if (FIRST_SLIDE) {
-        previousButton.setAttribute('aria-disabled', 'true')
+    // Set previous button state
+    const PREV_DISABLED = FIRST_SLIDE ? 'true' : null
 
-        nextButton.removeAttribute('aria-disabled')
-      } else if (LAST_SLIDE) {
-        previousButton.removeAttribute('aria-disabled')
+    if ((previousButton.getAttribute('aria-disabled') === 'true') !== !!PREV_DISABLED) {
+      PREV_DISABLED
+        ? previousButton.setAttribute('aria-disabled', 'true')
+        : previousButton.removeAttribute('aria-disabled')
+    }
 
-        nextButton.setAttribute('aria-disabled', 'true')
-      } else {
-        previousButton.removeAttribute('aria-disabled')
+    // Set next button state
+    const NEXT_DISABLED = LAST_SLIDE ? 'true' : null
 
-        nextButton.removeAttribute('aria-disabled')
-      }
+    if ((nextButton.getAttribute('aria-disabled') === 'true') !== !!NEXT_DISABLED) {
+      NEXT_DISABLED
+        ? nextButton.setAttribute('aria-disabled', 'true')
+        : nextButton.removeAttribute('aria-disabled')
     }
   }
 
