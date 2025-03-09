@@ -415,19 +415,26 @@ export default function Parvus (userOptions) {
 
     activeGroup = getGroup(el)
 
-    if (!GROUPS[activeGroup].triggerElements.includes(el)) {
-      throw new Error('Ups, I can\'t find the element.')
+    const GROUP = GROUPS[activeGroup]
+    const EL_INDEX = GROUP.triggerElements.indexOf(el)
+
+    if (EL_INDEX === -1) {
+      throw new Error('Ups, element not found in group.')
     }
 
-    currentIndex = GROUPS[activeGroup].triggerElements.indexOf(el)
+    currentIndex = EL_INDEX
 
     history.pushState({ parvus: 'close' }, 'Image', window.location.href)
 
     bindEvents()
 
     if (config.hideScrollbar) {
-      document.body.style.marginInlineEnd = `${getScrollbarWidth()}px`
-      document.body.style.overflow = 'hidden'
+      const SCROLLBAR_WIDTH = getScrollbarWidth()
+
+      document.body.style.cssText = `
+        margin-inline-end: ${SCROLLBAR_WIDTH}px;
+        overflow: hidden;
+      `
     }
 
     lightbox.classList.add('parvus--is-opening')
@@ -446,7 +453,8 @@ export default function Parvus (userOptions) {
     createImage(el, currentIndex, () => {
       loadImage(currentIndex, true)
       lightbox.classList.remove('parvus--is-opening')
-      GROUPS[activeGroup].slider.classList.add('parvus__slider--animate')
+
+      GROUP.slider.classList.add('parvus__slider--animate')
     })
 
     preload(currentIndex + 1)
