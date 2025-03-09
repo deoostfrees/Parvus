@@ -1239,28 +1239,34 @@ export default function Parvus (userOptions) {
   const pointerupHandler = (event) => {
     event.stopPropagation()
 
+    const { slider } = GROUPS[activeGroup]
+
     pointerDown = false
     isPinching = false
 
-    const { slider } = GROUPS[activeGroup]
+    const CURRENT_IMAGE = GROUPS[activeGroup].contentElements[currentIndex]
 
     slider.classList.remove('parvus__slider--is-dragging')
     slider.style.willChange = ''
 
-    if (drag.endX || drag.endY) {
-      updateAfterDrag()
+    if (currentScale > 1) {
+      baseScale = lastScale
+
+      if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG') {
+        CURRENT_IMAGE.style.transform = `scale(${currentScale})`
+      }
+    } else {
+      pinchStartDistance = 0
+      lightbox.classList.remove('parvus--is-zooming')
+
+      if (drag.endX || drag.endY) {
+        updateAfterDrag()
+      }
     }
 
     clearDrag()
 
     activePointers.delete(event.pointerId)
-
-    if (currentScale > 1) {
-      baseScale = lastScale
-    } else {
-      pinchStartDistance = 0
-      lightbox.classList.remove('parvus--is-zooming')
-    }
   }
 
   /**
