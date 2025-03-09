@@ -429,12 +429,8 @@ export default function Parvus (userOptions) {
     bindEvents()
 
     if (config.hideScrollbar) {
-      const SCROLLBAR_WIDTH = getScrollbarWidth()
-
-      document.body.style.cssText = `
-        margin-inline-end: ${SCROLLBAR_WIDTH}px;
-        overflow: hidden;
-      `
+      document.body.style.marginInlineEnd = `${getScrollbarWidth()}px`
+      document.body.style.overflow = 'hidden'
     }
 
     lightbox.classList.add('parvus--is-opening')
