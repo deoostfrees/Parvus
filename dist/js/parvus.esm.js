@@ -169,20 +169,22 @@ function Parvus(userOptions) {
   };
 
   /**
-   * Get the group from element
+   * Retrieves or creates a group identifier for the given element
    *
-   * @param {HTMLElement} el - The element to retrieve the group from
-   * @return {String} - The group of the element
+   * @param {HTMLElement} el - DOM element to get or assign a group to
+   * @returns {string} The group identifier associated with the element
    */
   const getGroup = el => {
-    // Check if the data attribute "group" exists or set an alternative value
-    const EL_GROUP = el.dataset.group || `default-${groupIdCounter}`;
-    ++groupIdCounter;
-
-    // Set the "group" data attribute if it doesn't exist
-    if (!el.hasAttribute('data-group')) {
-      el.setAttribute('data-group', EL_GROUP);
+    // Return existing group identifier if already assigned
+    if (el.dataset.group) {
+      return el.dataset.group;
     }
+
+    // Generate new unique group identifier using counter
+    const EL_GROUP = `default-${groupIdCounter++}`;
+
+    // Assign the new group identifier to element's dataset
+    el.dataset.group = EL_GROUP;
     return EL_GROUP;
   };
 
@@ -192,12 +194,16 @@ function Parvus(userOptions) {
    * @param {HTMLElement} el - The element to be added
    */
   const add = el => {
+    // Check element type and attributes
+    const IS_VALID_LINK = el.tagName === 'A' && el.hasAttribute('href');
+    const IS_VALID_BUTTON = el.tagName === 'BUTTON' && el.hasAttribute('data-target');
+    if (!IS_VALID_LINK && !IS_VALID_BUTTON) {
+      throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must contain a path to the image file.');
+    }
+
     // Check if the lightbox already exists
     if (!lightbox) {
       createLightbox();
-    }
-    if (!(el.tagName === 'A' && el.hasAttribute('href') || el.tagName === 'BUTTON' && el.hasAttribute('data-target'))) {
-      throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must contain a path to the image file.');
     }
     newGroup = getGroup(el);
     if (!GROUPS[newGroup]) {
@@ -261,6 +267,9 @@ function Parvus(userOptions) {
    *
    */
   const createLightbox = () => {
+    // Use DocumentFragment to batch DOM operations
+    const fragment = document.createDocumentFragment();
+
     // Create the lightbox container
     lightbox = document.createElement('dialog');
     lightbox.setAttribute('role', 'dialog');
@@ -271,9 +280,6 @@ function Parvus(userOptions) {
     // Create the lightbox overlay container
     lightboxOverlay = document.createElement('div');
     lightboxOverlay.classList.add('parvus__overlay');
-
-    // Add the lightbox overlay container to the lightbox container
-    lightbox.appendChild(lightboxOverlay);
 
     // Create the toolbar
     toolbar = document.createElement('div');
@@ -289,18 +295,12 @@ function Parvus(userOptions) {
     controls.setAttribute('role', 'group');
     controls.setAttribute('aria-label', config.l10n.controlsLabel);
 
-    // Add the controls to the right toolbar item
-    toolbarRight.appendChild(controls);
-
     // Create the close button
     closeButton = document.createElement('button');
     closeButton.className = 'parvus__btn parvus__btn--close';
     closeButton.setAttribute('type', 'button');
     closeButton.setAttribute('aria-label', config.l10n.closeButtonLabel);
     closeButton.innerHTML = config.closeButtonIcon;
-
-    // Add the close button to the controls
-    controls.appendChild(closeButton);
 
     // Create the previous button
     previousButton = document.createElement('button');
@@ -309,9 +309,6 @@ function Parvus(userOptions) {
     previousButton.setAttribute('aria-label', config.l10n.previousButtonLabel);
     previousButton.innerHTML = config.previousButtonIcon;
 
-    // Add the previous button to the controls
-    controls.appendChild(previousButton);
-
     // Create the next button
     nextButton = document.createElement('button');
     nextButton.className = 'parvus__btn parvus__btn--next';
@@ -319,25 +316,28 @@ function Parvus(userOptions) {
     nextButton.setAttribute('aria-label', config.l10n.nextButtonLabel);
     nextButton.innerHTML = config.nextButtonIcon;
 
-    // Add the next button to the controls
-    controls.appendChild(nextButton);
-
     // Create the counter
     counter = document.createElement('div');
     counter.className = 'parvus__counter';
 
+    // Add the control buttons to the controls
+    controls.append(closeButton, previousButton, nextButton);
+
     // Add the counter to the left toolbar item
     toolbarLeft.appendChild(counter);
 
+    // Add the controls to the right toolbar item
+    toolbarRight.appendChild(controls);
+
     // Add the toolbar items to the toolbar
-    toolbar.appendChild(toolbarLeft);
-    toolbar.appendChild(toolbarRight);
+    toolbar.append(toolbarLeft, toolbarRight);
 
-    // Add the toolbar to the lightbox container
-    lightbox.appendChild(toolbar);
+    // Add the overlay and the toolbar to the lightbox
+    lightbox.append(lightboxOverlay, toolbar);
+    fragment.appendChild(lightbox);
 
-    // Add the lightbox container to the body
-    document.body.appendChild(lightbox);
+    // Add to document body
+    document.body.appendChild(fragment);
   };
 
   /**
@@ -358,7 +358,8 @@ function Parvus(userOptions) {
   /**
    * Get next slide index
    *
-   * @param {Number} index
+   * @param {Number} curentIndex - Current slide index
+   * @returns {number} Index of the next available slide or -1 if none found
    */
   const getNextSlideIndex = currentIndex => {
     const SLIDE_ELEMENTS = GROUPS[activeGroup].sliderElements;
@@ -374,8 +375,8 @@ function Parvus(userOptions) {
   /**
    * Get previous slide index
    *
-   * @param {number} index - The current slide index
-   * @returns {number} - The index of the previous slide, or -1 if there is no previous slide
+   * @param {number} currentIndex - Current slide index
+   * @returns {number} Index of the previous available slide or -1 if no found
    */
   const getPreviousSlideIndex = currentIndex => {
     const SLIDE_ELEMENTS = GROUPS[activeGroup].sliderElements;
@@ -396,35 +397,43 @@ function Parvus(userOptions) {
     if (GROUPS[activeGroup].sliderElements[index] !== undefined) {
       return;
     }
-    const SLIDER_ELEMENT = document.createElement('div');
-    const SLIDER_ELEMENT_CONTENT = document.createElement('div');
-    const TRIGGER_ELEMENTS = GROUPS[activeGroup].triggerElements;
-    const TOTAL_TRIGGER_ELEMENTS = TRIGGER_ELEMENTS.length;
-    SLIDER_ELEMENT.className = 'parvus__slide';
-    SLIDER_ELEMENT.style.position = 'absolute';
-    SLIDER_ELEMENT.style.left = `${index * 100}%`;
-    SLIDER_ELEMENT.setAttribute('aria-hidden', 'true');
-    SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT);
+    const FRAGMENT = document.createDocumentFragment();
+    const SLIDE_ELEMENT = document.createElement('div');
+    const SLIDE_ELEMENT_CONTENT = document.createElement('div');
+    const GROUP = GROUPS[activeGroup];
+    const TOTAL_TRIGGER_ELEMENTS = GROUP.triggerElements.length;
+    SLIDE_ELEMENT.className = 'parvus__slide';
+    SLIDE_ELEMENT.style.cssText = `
+      position: absolute;
+      left: ${index * 100}%;
+    `;
+    SLIDE_ELEMENT.setAttribute('aria-hidden', 'true');
 
-    // Add extra output for screen reader if there is more than one slide
+    // Add accessibility attributes if gallery has multiple slides
     if (TOTAL_TRIGGER_ELEMENTS > 1) {
-      SLIDER_ELEMENT.setAttribute('role', 'group');
-      SLIDER_ELEMENT.setAttribute('aria-label', `${config.l10n.slideLabel} ${index + 1}/${TOTAL_TRIGGER_ELEMENTS}`);
+      SLIDE_ELEMENT.setAttribute('role', 'group');
+      SLIDE_ELEMENT.setAttribute('aria-label', `${config.l10n.slideLabel} ${index + 1}/${TOTAL_TRIGGER_ELEMENTS}`);
     }
-    GROUPS[activeGroup].sliderElements[index] = SLIDER_ELEMENT;
+    SLIDE_ELEMENT.appendChild(SLIDE_ELEMENT_CONTENT);
+    FRAGMENT.appendChild(SLIDE_ELEMENT);
+    GROUP.sliderElements[index] = SLIDE_ELEMENT;
+
+    // Insert the slide element based on index position
     if (index >= currentIndex) {
+      // Insert the slide element after the current slide
       const NEXT_SLIDE_INDEX = getNextSlideIndex(index);
       if (NEXT_SLIDE_INDEX !== -1) {
-        GROUPS[activeGroup].sliderElements[NEXT_SLIDE_INDEX].before(SLIDER_ELEMENT);
+        GROUP.sliderElements[NEXT_SLIDE_INDEX].before(SLIDE_ELEMENT);
       } else {
-        GROUPS[activeGroup].slider.appendChild(SLIDER_ELEMENT);
+        GROUP.slider.appendChild(SLIDE_ELEMENT);
       }
     } else {
+      // Insert the slide element before the current slide
       const PREVIOUS_SLIDE_INDEX = getPreviousSlideIndex(index);
       if (PREVIOUS_SLIDE_INDEX !== -1) {
-        GROUPS[activeGroup].sliderElements[PREVIOUS_SLIDE_INDEX].after(SLIDER_ELEMENT);
+        GROUP.sliderElements[PREVIOUS_SLIDE_INDEX].after(SLIDE_ELEMENT);
       } else {
-        GROUPS[activeGroup].slider.prepend(SLIDER_ELEMENT);
+        GROUP.slider.prepend(SLIDE_ELEMENT);
       }
     }
   };
@@ -439,10 +448,12 @@ function Parvus(userOptions) {
       return;
     }
     activeGroup = getGroup(el);
-    if (!GROUPS[activeGroup].triggerElements.includes(el)) {
-      throw new Error('Ups, I can\'t find the element.');
+    const GROUP = GROUPS[activeGroup];
+    const EL_INDEX = GROUP.triggerElements.indexOf(el);
+    if (EL_INDEX === -1) {
+      throw new Error('Ups, element not found in group.');
     }
-    currentIndex = GROUPS[activeGroup].triggerElements.indexOf(el);
+    currentIndex = EL_INDEX;
     history.pushState({
       parvus: 'close'
     }, 'Image', window.location.href);
@@ -463,7 +474,7 @@ function Parvus(userOptions) {
     createImage(el, currentIndex, () => {
       loadImage(currentIndex, true);
       lightbox.classList.remove('parvus--is-opening');
-      GROUPS[activeGroup].slider.classList.add('parvus__slider--animate');
+      GROUP.slider.classList.add('parvus__slider--animate');
     });
     preload(currentIndex + 1);
     preload(currentIndex - 1);
@@ -478,7 +489,7 @@ function Parvus(userOptions) {
    */
   const close = () => {
     if (!isOpen()) {
-      throw new Error('Ups, I\'m already closed.');
+      return;
     }
     const IMAGE = GROUPS[activeGroup].contentElements[currentIndex];
     const THUMBNAIL = GROUPS[activeGroup].triggerElements[currentIndex];
@@ -521,7 +532,7 @@ function Parvus(userOptions) {
         });
       } else {
         IMAGE.style.opacity = '0';
-        transitionendHandler();
+        requestAnimationFrame(transitionendHandler);
       }
     } else {
       transitionendHandler();
@@ -699,42 +710,47 @@ function Parvus(userOptions) {
       IMAGE.style.opacity = '';
     }
   };
+
+  /**
+   * Select a specific slide by index
+   *
+   * @param {number} index - Index of the slide to select
+   */
   const select = index => {
-    const OLD_INDEX = currentIndex;
     if (!isOpen()) {
       throw new Error("Oops, I'm closed.");
-    } else {
-      if (typeof index !== 'number' || isNaN(index)) {
-        throw new Error('Oops, no slide specified.');
-      }
-      const triggerElements = GROUPS[activeGroup].triggerElements;
-      if (index === currentIndex) {
-        throw new Error(`Oops, slide ${index} is already selected.`);
-      }
-      if (index < -1 || index >= triggerElements.length) {
-        throw new Error(`Oops, I can't find slide ${index}.`);
-      }
     }
-    if (GROUPS[activeGroup].sliderElements[index] !== undefined) {
+    if (typeof index !== 'number' || isNaN(index)) {
+      throw new Error('Oops, no slide specified.');
+    }
+    const GROUP = GROUPS[activeGroup];
+    const triggerElements = GROUP.triggerElements;
+    if (index === currentIndex) {
+      throw new Error(`Oops, slide ${index} is already selected.`);
+    }
+    if (index < 0 || index >= triggerElements.length) {
+      throw new Error(`Oops, I can't find slide ${index}.`);
+    }
+    const OLD_INDEX = currentIndex;
+    currentIndex = index;
+    if (GROUP.sliderElements[index]) {
       loadSlide(index);
     } else {
       createSlide(index);
-      createImage(GROUPS[activeGroup].triggerElements[index], index, () => {
+      createImage(GROUP.triggerElements[index], index, () => {
         loadImage(index);
       });
       loadSlide(index);
     }
-    currentIndex = index;
     updateOffset();
+    updateSliderNavigationStatus();
+    updateCounter();
     if (index < OLD_INDEX) {
-      updateSliderNavigationStatus();
       preload(index - 1);
-    } else if (index > OLD_INDEX) {
-      updateSliderNavigationStatus();
+    } else {
       preload(index + 1);
     }
     leaveSlide(OLD_INDEX);
-    updateCounter();
 
     // Create and dispatch a new event
     dispatchCustomEvent('select');
@@ -799,19 +815,24 @@ function Parvus(userOptions) {
       triggerElements
     } = GROUPS[activeGroup];
     const TOTAL_TRIGGER_ELEMENTS = triggerElements.length;
+    if (TOTAL_TRIGGER_ELEMENTS <= 1) {
+      return;
+    }
+
+    // Determine navigation state
     const FIRST_SLIDE = currentIndex === 0;
     const LAST_SLIDE = currentIndex === TOTAL_TRIGGER_ELEMENTS - 1;
-    if (TOTAL_TRIGGER_ELEMENTS > 1) {
-      if (FIRST_SLIDE) {
-        previousButton.setAttribute('aria-disabled', 'true');
-        nextButton.removeAttribute('aria-disabled');
-      } else if (LAST_SLIDE) {
-        previousButton.removeAttribute('aria-disabled');
-        nextButton.setAttribute('aria-disabled', 'true');
-      } else {
-        previousButton.removeAttribute('aria-disabled');
-        nextButton.removeAttribute('aria-disabled');
-      }
+
+    // Set previous button state
+    const PREV_DISABLED = FIRST_SLIDE ? 'true' : null;
+    if (previousButton.getAttribute('aria-disabled') === 'true' !== !!PREV_DISABLED) {
+      PREV_DISABLED ? previousButton.setAttribute('aria-disabled', 'true') : previousButton.removeAttribute('aria-disabled');
+    }
+
+    // Set next button state
+    const NEXT_DISABLED = LAST_SLIDE ? 'true' : null;
+    if (nextButton.getAttribute('aria-disabled') === 'true' !== !!NEXT_DISABLED) {
+      NEXT_DISABLED ? nextButton.setAttribute('aria-disabled', 'true') : nextButton.removeAttribute('aria-disabled');
     }
   };
 
@@ -858,15 +879,17 @@ function Parvus(userOptions) {
     } = GROUPS[activeGroup];
     const TOTAL_TRIGGER_ELEMENTS = triggerElements.length;
     if (isDraggingX) {
-      if (MOVEMENT_X > 2 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex > 0) {
-        previous();
-      } else if (MOVEMENT_X < 2 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex !== TOTAL_TRIGGER_ELEMENTS - 1) {
-        next();
-      } else {
-        updateOffset();
+      const IS_RIGHT_SWIPE = MOVEMENT_X > 0;
+      if (MOVEMENT_X_DISTANCE >= config.threshold) {
+        if (IS_RIGHT_SWIPE && currentIndex > 0) {
+          previous();
+        } else if (!IS_RIGHT_SWIPE && currentIndex < TOTAL_TRIGGER_ELEMENTS - 1) {
+          next();
+        }
       }
+      updateOffset();
     } else if (isDraggingY) {
-      if (MOVEMENT_Y_DISTANCE > 2 && config.swipeClose && MOVEMENT_Y_DISTANCE >= config.threshold) {
+      if (MOVEMENT_Y_DISTANCE >= config.threshold && config.swipeClose) {
         close();
       } else {
         lightbox.classList.remove('parvus--is-vertical-closing');
@@ -954,25 +977,24 @@ function Parvus(userOptions) {
     if (contentEl.tagName !== 'IMG') {
       return;
     }
-    const SLIDE_EL_STYLES = getComputedStyle(slideEl);
-    const CAPTION_EL = slideEl.querySelector('.parvus__caption');
-    const CAPTION_REC = CAPTION_EL ? CAPTION_EL.getBoundingClientRect().height : 0;
     const SRC_HEIGHT = contentEl.getAttribute('height');
     const SRC_WIDTH = contentEl.getAttribute('width');
-    let maxHeight = slideEl.offsetHeight;
-    let maxWidth = slideEl.offsetWidth;
-    maxHeight -= parseFloat(SLIDE_EL_STYLES.paddingTop) + parseFloat(SLIDE_EL_STYLES.paddingBottom) + parseFloat(CAPTION_REC);
-    maxWidth -= parseFloat(SLIDE_EL_STYLES.paddingLeft) + parseFloat(SLIDE_EL_STYLES.paddingRight);
-    const RATIO = Math.min(maxWidth / SRC_WIDTH || 0, maxHeight / SRC_HEIGHT);
-    const NEW_WIDTH = SRC_WIDTH * RATIO || 0;
-    const NEW_HEIGHT = SRC_HEIGHT * RATIO || 0;
-    if (SRC_HEIGHT > NEW_HEIGHT && SRC_HEIGHT < maxHeight && SRC_WIDTH > NEW_WIDTH && SRC_WIDTH < maxWidth || SRC_HEIGHT < NEW_HEIGHT && SRC_HEIGHT < maxHeight && SRC_WIDTH < NEW_WIDTH && SRC_WIDTH < maxWidth) {
-      contentEl.style.width = '';
-      contentEl.style.height = '';
-    } else {
-      contentEl.style.width = `${NEW_WIDTH}px`;
-      contentEl.style.height = `${NEW_HEIGHT}px`;
+    if (!SRC_HEIGHT || !SRC_WIDTH) {
+      return;
     }
+    const SLIDE_EL_STYLES = getComputedStyle(slideEl);
+    const HORIZONTAL_PADDING = parseFloat(SLIDE_EL_STYLES.paddingLeft) + parseFloat(SLIDE_EL_STYLES.paddingRight);
+    const VERTICAL_PADDING = parseFloat(SLIDE_EL_STYLES.paddingTop) + parseFloat(SLIDE_EL_STYLES.paddingBottom);
+    const CAPTION_EL = slideEl.querySelector('.parvus__caption');
+    const CAPTION_HEIGHT = CAPTION_EL ? CAPTION_EL.getBoundingClientRect().height : 0;
+    const MAX_WIDTH = slideEl.offsetWidth - HORIZONTAL_PADDING;
+    const MAX_HEIGHT = slideEl.offsetHeight - VERTICAL_PADDING - CAPTION_HEIGHT;
+    const RATIO = Math.min(MAX_WIDTH / SRC_WIDTH || 0, MAX_HEIGHT / SRC_HEIGHT || 0);
+    const NEW_WIDTH = SRC_WIDTH * RATIO;
+    const NEW_HEIGHT = SRC_HEIGHT * RATIO;
+    const USE_ORIGINAL_SIZE = SRC_WIDTH <= MAX_WIDTH && SRC_HEIGHT <= MAX_HEIGHT;
+    contentEl.style.width = USE_ORIGINAL_SIZE ? '' : `${NEW_WIDTH}px`;
+    contentEl.style.height = USE_ORIGINAL_SIZE ? '' : `${NEW_HEIGHT}px`;
   };
 
   /**
@@ -1082,7 +1104,9 @@ function Parvus(userOptions) {
     } = GROUPS[activeGroup];
     slider.classList.add('parvus__slider--is-dragging');
     slider.style.willChange = 'transform';
-    lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).opacity;
+    if (config.swipeClose) {
+      lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).opacity;
+    }
   };
 
   /**
@@ -1114,8 +1138,8 @@ function Parvus(userOptions) {
           baseScale = lastScale;
           lightbox.classList.add('parvus--is-zooming');
         }
-        currentScale = baseScale * (distance / pinchStartDistance);
-        currentScale = Math.min(Math.max(1, currentScale), 3);
+        currentScale = Math.min(Math.max(1, baseScale * (distance / pinchStartDistance)), 3);
+        currentImg.style.willChange = 'transform';
         currentImg.style.transform = `scale(${currentScale})`;
         lastScale = currentScale;
         return;
@@ -1143,24 +1167,28 @@ function Parvus(userOptions) {
    */
   const pointerupHandler = event => {
     event.stopPropagation();
-    pointerDown = false;
-    isPinching = false;
     const {
       slider
     } = GROUPS[activeGroup];
+    pointerDown = false;
+    isPinching = false;
+    const CURRENT_IMAGE = GROUPS[activeGroup].contentElements[currentIndex];
     slider.classList.remove('parvus__slider--is-dragging');
     slider.style.willChange = '';
-    if (drag.endX || drag.endY) {
-      updateAfterDrag();
-    }
-    clearDrag();
-    activePointers.delete(event.pointerId);
     if (currentScale > 1) {
       baseScale = lastScale;
+      if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG') {
+        CURRENT_IMAGE.style.transform = `scale(${currentScale})`;
+      }
     } else {
       pinchStartDistance = 0;
       lightbox.classList.remove('parvus--is-zooming');
+      if (drag.endX || drag.endY) {
+        updateAfterDrag();
+      }
     }
+    clearDrag();
+    activePointers.delete(event.pointerId);
   };
 
   /**
@@ -1170,6 +1198,8 @@ function Parvus(userOptions) {
    * or vertical swipe based on the direction and angle of the swipe.
    */
   const doSwipe = () => {
+    const MOVEMENT_THRESHOLD = 2;
+    const MAX_OPACITY_DISTANCE = 100;
     const {
       startX,
       endX,
@@ -1178,19 +1208,25 @@ function Parvus(userOptions) {
     } = drag;
     const MOVEMENT_X = startX - endX;
     const MOVEMENT_Y = endY - startY;
+    const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X);
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
-    if (Math.abs(MOVEMENT_X) > 2 && !isDraggingY && GROUPS[activeGroup].triggerElements.length > 1) {
+    if (MOVEMENT_X_DISTANCE > MOVEMENT_THRESHOLD && !isDraggingY && GROUPS[activeGroup].triggerElements.length > 1) {
       // Horizontal swipe
-      GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`;
+      requestAnimationFrame(() => {
+        GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`;
+      });
       isDraggingX = true;
       isDraggingY = false;
-    } else if (Math.abs(MOVEMENT_Y) > 2 && !isDraggingX && config.swipeClose) {
+    } else if (MOVEMENT_Y_DISTANCE > MOVEMENT_THRESHOLD && !isDraggingX && config.swipeClose) {
       // Vertical swipe
-      if (!isReducedMotion && MOVEMENT_Y_DISTANCE <= 100) {
-        lightboxOverlay.style.opacity = lightboxOverlayOpacity - MOVEMENT_Y_DISTANCE / 100;
-      }
-      lightbox.classList.add('parvus--is-vertical-closing');
-      GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`;
+      requestAnimationFrame(() => {
+        if (!isReducedMotion && MOVEMENT_Y_DISTANCE <= 100) {
+          const NEW_OVERLAY_OPACITY = Math.max(0, lightboxOverlayOpacity - MOVEMENT_Y_DISTANCE / MAX_OPACITY_DISTANCE);
+          lightboxOverlay.style.opacity = NEW_OVERLAY_OPACITY;
+        }
+        lightbox.classList.add('parvus--is-vertical-closing');
+        GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`;
+      });
       isDraggingX = false;
       isDraggingY = true;
     }
