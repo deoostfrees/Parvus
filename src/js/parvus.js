@@ -735,52 +735,56 @@ export default function Parvus (userOptions) {
     }
   }
 
+  /**
+   * Select a specific slide by index
+   *
+   * @param {number} index - Index of the slide to select
+   */
   const select = (index) => {
-    const OLD_INDEX = currentIndex
-
     if (!isOpen()) {
       throw new Error("Oops, I'm closed.")
-    } else {
-      if (typeof index !== 'number' || isNaN(index)) {
-        throw new Error('Oops, no slide specified.')
-      }
-
-      const triggerElements = GROUPS[activeGroup].triggerElements
-
-      if (index === currentIndex) {
-        throw new Error(`Oops, slide ${index} is already selected.`)
-      }
-
-      if (index < -1 || index >= triggerElements.length) {
-        throw new Error(`Oops, I can't find slide ${index}.`)
-      }
     }
 
-    if (GROUPS[activeGroup].sliderElements[index] !== undefined) {
+    if (typeof index !== 'number' || isNaN(index)) {
+      throw new Error('Oops, no slide specified.')
+    }
+
+    const GROUP = GROUPS[activeGroup]
+    const triggerElements = GROUP.triggerElements
+
+    if (index === currentIndex) {
+      throw new Error(`Oops, slide ${index} is already selected.`)
+    }
+
+    if (index < 0 || index >= triggerElements.length) {
+      throw new Error(`Oops, I can't find slide ${index}.`)
+    }
+
+    const OLD_INDEX = currentIndex
+
+    currentIndex = index
+
+    if (GROUP.sliderElements[index]) {
       loadSlide(index)
     } else {
       createSlide(index)
-      createImage(GROUPS[activeGroup].triggerElements[index], index, () => {
+      createImage(GROUP.triggerElements[index], index, () => {
         loadImage(index)
       })
       loadSlide(index)
     }
 
-    currentIndex = index
-
     updateOffset()
+    updateSliderNavigationStatus()
+    updateCounter()
 
     if (index < OLD_INDEX) {
-      updateSliderNavigationStatus()
       preload(index - 1)
-    } else if (index > OLD_INDEX) {
-      updateSliderNavigationStatus()
+    } else {
       preload(index + 1)
     }
 
     leaveSlide(OLD_INDEX)
-
-    updateCounter()
 
     // Create and dispatch a new event
     dispatchCustomEvent('select')
