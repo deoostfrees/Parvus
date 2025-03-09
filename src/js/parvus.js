@@ -929,9 +929,11 @@ export default function Parvus (userOptions) {
         close()
       } else {
         lightbox.classList.remove('parvus--is-vertical-closing')
-        lightboxOverlay.style.opacity = ''
+
         updateOffset()
       }
+
+      lightboxOverlay.style.opacity = ''
     } else {
       updateOffset()
     }
