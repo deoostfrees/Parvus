@@ -1025,33 +1025,33 @@ export default function Parvus (userOptions) {
       return
     }
 
-    const SLIDE_EL_STYLES = getComputedStyle(slideEl)
-    const CAPTION_EL = slideEl.querySelector('.parvus__caption')
-    const CAPTION_REC = CAPTION_EL ? CAPTION_EL.getBoundingClientRect().height : 0
     const SRC_HEIGHT = contentEl.getAttribute('height')
     const SRC_WIDTH = contentEl.getAttribute('width')
 
-    let maxHeight = slideEl.offsetHeight
-    let maxWidth = slideEl.offsetWidth
-
-    maxHeight -= parseFloat(SLIDE_EL_STYLES.paddingTop) + parseFloat(SLIDE_EL_STYLES.paddingBottom) + parseFloat(CAPTION_REC)
-    maxWidth -= parseFloat(SLIDE_EL_STYLES.paddingLeft) + parseFloat(SLIDE_EL_STYLES.paddingRight)
-
-    const RATIO = Math.min(maxWidth / SRC_WIDTH || 0, maxHeight / SRC_HEIGHT)
-
-    const NEW_WIDTH = SRC_WIDTH * RATIO || 0
-    const NEW_HEIGHT = SRC_HEIGHT * RATIO || 0
-
-    if (
-      (SRC_HEIGHT > NEW_HEIGHT && SRC_HEIGHT < maxHeight && SRC_WIDTH > NEW_WIDTH && SRC_WIDTH < maxWidth) ||
-      (SRC_HEIGHT < NEW_HEIGHT && SRC_HEIGHT < maxHeight && SRC_WIDTH < NEW_WIDTH && SRC_WIDTH < maxWidth)
-    ) {
-      contentEl.style.width = ''
-      contentEl.style.height = ''
-    } else {
-      contentEl.style.width = `${NEW_WIDTH}px`
-      contentEl.style.height = `${NEW_HEIGHT}px`
+    if (!SRC_HEIGHT || !SRC_WIDTH) {
+      return
     }
+
+    const SLIDE_EL_STYLES = getComputedStyle(slideEl)
+
+    const HORIZONTAL_PADDING = parseFloat(SLIDE_EL_STYLES.paddingLeft) + parseFloat(SLIDE_EL_STYLES.paddingRight)
+    const VERTICAL_PADDING = parseFloat(SLIDE_EL_STYLES.paddingTop) + parseFloat(SLIDE_EL_STYLES.paddingBottom)
+
+    const CAPTION_EL = slideEl.querySelector('.parvus__caption')
+    const CAPTION_HEIGHT = CAPTION_EL ? CAPTION_EL.getBoundingClientRect().height : 0
+
+    const MAX_WIDTH = slideEl.offsetWidth - HORIZONTAL_PADDING
+    const MAX_HEIGHT = slideEl.offsetHeight - VERTICAL_PADDING - CAPTION_HEIGHT
+
+    const RATIO = Math.min(MAX_WIDTH / SRC_WIDTH || 0, MAX_HEIGHT / SRC_HEIGHT || 0)
+
+    const NEW_WIDTH = SRC_WIDTH * RATIO
+    const NEW_HEIGHT = SRC_HEIGHT * RATIO
+
+    const USE_ORIGINAL_SIZE = (SRC_WIDTH <= MAX_WIDTH && SRC_HEIGHT <= MAX_HEIGHT)
+
+    contentEl.style.width = USE_ORIGINAL_SIZE ? '' : `${NEW_WIDTH}px`
+    contentEl.style.height = USE_ORIGINAL_SIZE ? '' : `${NEW_HEIGHT}px`
   }
 
   /**
