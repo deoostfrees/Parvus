@@ -279,6 +279,9 @@ export default function Parvus (userOptions) {
     // Add the control buttons to the controls
     controls.append(closeButton, previousButton, nextButton)
 
+    // Add the counter to the left toolbar item
+    toolbarLeft.appendChild(counter)
+
     // Add the controls to the right toolbar item
     toolbarRight.appendChild(controls)
 
