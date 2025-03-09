@@ -1205,9 +1205,9 @@ export default function Parvus (userOptions) {
           lightbox.classList.add('parvus--is-zooming')
         }
 
-        currentScale = baseScale * (distance / pinchStartDistance)
-        currentScale = Math.min(Math.max(1, currentScale), 3)
+        currentScale = Math.min(Math.max(1, baseScale * (distance / pinchStartDistance)), 3)
 
+        currentImg.style.willChange = 'transform'
         currentImg.style.transform = `scale(${currentScale})`
 
         lastScale = currentScale
