@@ -223,6 +223,9 @@ export default function Parvus (userOptions) {
    *
    */
   const createLightbox = () => {
+    // Use DocumentFragment to batch DOM operations
+    const fragment = document.createDocumentFragment()
+
     // Create the lightbox container
     lightbox = document.createElement('dialog')
     lightbox.setAttribute('role', 'dialog')
@@ -233,9 +236,6 @@ export default function Parvus (userOptions) {
     // Create the lightbox overlay container
     lightboxOverlay = document.createElement('div')
     lightboxOverlay.classList.add('parvus__overlay')
-
-    // Add the lightbox overlay container to the lightbox container
-    lightbox.appendChild(lightboxOverlay)
 
     // Create the toolbar
     toolbar = document.createElement('div')
@@ -251,18 +251,12 @@ export default function Parvus (userOptions) {
     controls.setAttribute('role', 'group')
     controls.setAttribute('aria-label', config.l10n.controlsLabel)
 
-    // Add the controls to the right toolbar item
-    toolbarRight.appendChild(controls)
-
     // Create the close button
     closeButton = document.createElement('button')
     closeButton.className = 'parvus__btn parvus__btn--close'
     closeButton.setAttribute('type', 'button')
     closeButton.setAttribute('aria-label', config.l10n.closeButtonLabel)
     closeButton.innerHTML = config.closeButtonIcon
-
-    // Add the close button to the controls
-    controls.appendChild(closeButton)
 
     // Create the previous button
     previousButton = document.createElement('button')
@@ -271,9 +265,6 @@ export default function Parvus (userOptions) {
     previousButton.setAttribute('aria-label', config.l10n.previousButtonLabel)
     previousButton.innerHTML = config.previousButtonIcon
 
-    // Add the previous button to the controls
-    controls.appendChild(previousButton)
-
     // Create the next button
     nextButton = document.createElement('button')
     nextButton.className = 'parvus__btn parvus__btn--next'
@@ -281,25 +272,25 @@ export default function Parvus (userOptions) {
     nextButton.setAttribute('aria-label', config.l10n.nextButtonLabel)
     nextButton.innerHTML = config.nextButtonIcon
 
-    // Add the next button to the controls
-    controls.appendChild(nextButton)
-
     // Create the counter
     counter = document.createElement('div')
     counter.className = 'parvus__counter'
 
-    // Add the counter to the left toolbar item
-    toolbarLeft.appendChild(counter)
+    // Add the control buttons to the controls
+    controls.append(closeButton, previousButton, nextButton)
+
+    // Add the controls to the right toolbar item
+    toolbarRight.appendChild(controls)
 
     // Add the toolbar items to the toolbar
-    toolbar.appendChild(toolbarLeft)
-    toolbar.appendChild(toolbarRight)
+    toolbar.append(toolbarLeft, toolbarRight)
 
-    // Add the toolbar to the lightbox container
-    lightbox.appendChild(toolbar)
+    // Add the overlay and the toolbar to the lightbox
+    lightbox.append(lightboxOverlay, toolbar)
+    fragment.appendChild(lightbox)
 
-    // Add the lightbox container to the body
-    document.body.appendChild(lightbox)
+    // Add to document body
+    document.body.appendChild(fragment)
   }
 
   /**
