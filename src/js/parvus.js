@@ -356,42 +356,49 @@ export default function Parvus (userOptions) {
       return
     }
 
-    const SLIDER_ELEMENT = document.createElement('div')
-    const SLIDER_ELEMENT_CONTENT = document.createElement('div')
+    const FRAGMENT = document.createDocumentFragment()
+    const SLIDE_ELEMENT = document.createElement('div')
+    const SLIDE_ELEMENT_CONTENT = document.createElement('div')
 
-    const TRIGGER_ELEMENTS = GROUPS[activeGroup].triggerElements
-    const TOTAL_TRIGGER_ELEMENTS = TRIGGER_ELEMENTS.length
+    const GROUP = GROUPS[activeGroup]
+    const TOTAL_TRIGGER_ELEMENTS = GROUP.triggerElements.length
 
-    SLIDER_ELEMENT.className = 'parvus__slide'
-    SLIDER_ELEMENT.style.position = 'absolute'
-    SLIDER_ELEMENT.style.left = `${index * 100}%`
+    SLIDE_ELEMENT.className = 'parvus__slide'
+    SLIDE_ELEMENT.style.cssText = `
+      position: absolute;
+      left: ${index * 100}%;
+    `
+    SLIDE_ELEMENT.setAttribute('aria-hidden', 'true')
 
-    SLIDER_ELEMENT.setAttribute('aria-hidden', 'true')
-    SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT)
-
-    // Add extra output for screen reader if there is more than one slide
+    // Add accessibility attributes if gallery has multiple slides
     if (TOTAL_TRIGGER_ELEMENTS > 1) {
-      SLIDER_ELEMENT.setAttribute('role', 'group')
-      SLIDER_ELEMENT.setAttribute('aria-label', `${config.l10n.slideLabel} ${index + 1}/${TOTAL_TRIGGER_ELEMENTS}`)
+      SLIDE_ELEMENT.setAttribute('role', 'group')
+      SLIDE_ELEMENT.setAttribute('aria-label', `${config.l10n.slideLabel} ${index + 1}/${TOTAL_TRIGGER_ELEMENTS}`)
     }
 
-    GROUPS[activeGroup].sliderElements[index] = SLIDER_ELEMENT
+    SLIDE_ELEMENT.appendChild(SLIDE_ELEMENT_CONTENT)
+    FRAGMENT.appendChild(SLIDE_ELEMENT)
 
+    GROUP.sliderElements[index] = SLIDE_ELEMENT
+
+    // Insert the slide element based on index position
     if (index >= currentIndex) {
+      // Insert the slide element after the current slide
       const NEXT_SLIDE_INDEX = getNextSlideIndex(index)
 
       if (NEXT_SLIDE_INDEX !== -1) {
-        GROUPS[activeGroup].sliderElements[NEXT_SLIDE_INDEX].before(SLIDER_ELEMENT)
+        GROUP.sliderElements[NEXT_SLIDE_INDEX].before(SLIDE_ELEMENT)
       } else {
-        GROUPS[activeGroup].slider.appendChild(SLIDER_ELEMENT)
+        GROUP.slider.appendChild(SLIDE_ELEMENT)
       }
     } else {
+      // Insert the slide element before the current slide
       const PREVIOUS_SLIDE_INDEX = getPreviousSlideIndex(index)
 
       if (PREVIOUS_SLIDE_INDEX !== -1) {
-        GROUPS[activeGroup].sliderElements[PREVIOUS_SLIDE_INDEX].after(SLIDER_ELEMENT)
+        GROUP.sliderElements[PREVIOUS_SLIDE_INDEX].after(SLIDE_ELEMENT)
       } else {
-        GROUPS[activeGroup].slider.prepend(SLIDER_ELEMENT)
+        GROUP.slider.prepend(SLIDE_ELEMENT)
       }
     }
   }
