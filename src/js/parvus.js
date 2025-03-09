@@ -913,22 +913,25 @@ export default function Parvus (userOptions) {
     const TOTAL_TRIGGER_ELEMENTS = triggerElements.length
 
     if (isDraggingX) {
-      if (MOVEMENT_X > 2 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex > 0) {
-        previous()
-      } else if (MOVEMENT_X < 2 && MOVEMENT_X_DISTANCE >= config.threshold && currentIndex !== TOTAL_TRIGGER_ELEMENTS - 1) {
-        next()
-      } else {
-        updateOffset()
+      const IS_RIGHT_SWIPE = MOVEMENT_X > 0
+
+      if (MOVEMENT_X_DISTANCE >= config.threshold) {
+        if (IS_RIGHT_SWIPE && currentIndex > 0) {
+          previous()
+        } else if (!IS_RIGHT_SWIPE && currentIndex < TOTAL_TRIGGER_ELEMENTS - 1) {
+          next()
+        }
       }
+
+      updateOffset()
     } else if (isDraggingY) {
-      if (MOVEMENT_Y_DISTANCE > 2 && config.swipeClose && MOVEMENT_Y_DISTANCE >= config.threshold) {
+      if (MOVEMENT_Y_DISTANCE >= config.threshold && config.swipeClose) {
         close()
       } else {
         lightbox.classList.remove('parvus--is-vertical-closing')
+        lightboxOverlay.style.opacity = ''
         updateOffset()
       }
-
-      lightboxOverlay.style.opacity = ''
     } else {
       updateOffset()
     }
