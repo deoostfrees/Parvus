@@ -1287,25 +1287,21 @@ export default function Parvus (userOptions) {
 
     if (MOVEMENT_X_DISTANCE > MOVEMENT_THRESHOLD && !isDraggingY && GROUPS[activeGroup].triggerElements.length > 1) {
       // Horizontal swipe
-      requestAnimationFrame(() => {
-        GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`
-      })
+      GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`
 
       isDraggingX = true
       isDraggingY = false
     } else if (MOVEMENT_Y_DISTANCE > MOVEMENT_THRESHOLD && !isDraggingX && config.swipeClose) {
       // Vertical swipe
-      requestAnimationFrame(() => {
-        if (!isReducedMotion && MOVEMENT_Y_DISTANCE <= 100) {
-          const NEW_OVERLAY_OPACITY = Math.max(0, lightboxOverlayOpacity - (MOVEMENT_Y_DISTANCE / MAX_OPACITY_DISTANCE))
+      if (!isReducedMotion && MOVEMENT_Y_DISTANCE <= 100) {
+        const NEW_OVERLAY_OPACITY = Math.max(0, lightboxOverlayOpacity - (MOVEMENT_Y_DISTANCE / MAX_OPACITY_DISTANCE))
 
-          lightboxOverlay.style.opacity = NEW_OVERLAY_OPACITY
-        }
+        lightboxOverlay.style.opacity = NEW_OVERLAY_OPACITY
+      }
 
-        lightbox.classList.add('parvus--is-vertical-closing')
+      lightbox.classList.add('parvus--is-vertical-closing')
 
-        GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`
-      })
+      GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`
 
       isDraggingX = false
       isDraggingY = true
