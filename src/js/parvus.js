@@ -1276,26 +1276,36 @@ export default function Parvus (userOptions) {
    * or vertical swipe based on the direction and angle of the swipe.
    */
   const doSwipe = () => {
+    const MOVEMENT_THRESHOLD = 2
+    const MAX_OPACITY_DISTANCE = 100
+
     const { startX, endX, startY, endY } = drag
     const MOVEMENT_X = startX - endX
     const MOVEMENT_Y = endY - startY
+    const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
 
-    if (Math.abs(MOVEMENT_X) > 2 && !isDraggingY && GROUPS[activeGroup].triggerElements.length > 1) {
+    if (MOVEMENT_X_DISTANCE > MOVEMENT_THRESHOLD && !isDraggingY && GROUPS[activeGroup].triggerElements.length > 1) {
       // Horizontal swipe
-      GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`
+      requestAnimationFrame(() => {
+        GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`
+      })
 
       isDraggingX = true
       isDraggingY = false
-    } else if (Math.abs(MOVEMENT_Y) > 2 && !isDraggingX && config.swipeClose) {
+    } else if (MOVEMENT_Y_DISTANCE > MOVEMENT_THRESHOLD && !isDraggingX && config.swipeClose) {
       // Vertical swipe
-      if (!isReducedMotion && MOVEMENT_Y_DISTANCE <= 100) {
-        lightboxOverlay.style.opacity = lightboxOverlayOpacity - (MOVEMENT_Y_DISTANCE / 100)
-      }
+      requestAnimationFrame(() => {
+        if (!isReducedMotion && MOVEMENT_Y_DISTANCE <= 100) {
+          const NEW_OVERLAY_OPACITY = Math.max(0, lightboxOverlayOpacity - (MOVEMENT_Y_DISTANCE / MAX_OPACITY_DISTANCE))
 
-      lightbox.classList.add('parvus--is-vertical-closing')
+          lightboxOverlay.style.opacity = NEW_OVERLAY_OPACITY
+        }
 
-      GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`
+        lightbox.classList.add('parvus--is-vertical-closing')
+
+        GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`
+      })
 
       isDraggingX = false
       isDraggingY = true
