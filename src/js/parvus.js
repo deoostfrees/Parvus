@@ -312,7 +312,8 @@ export default function Parvus (userOptions) {
   /**
    * Get next slide index
    *
-   * @param {Number} index
+   * @param {Number} curentIndex - Current slide index
+   * @returns {number} Index of the next available slide or -1 if none found
    */
   const getNextSlideIndex = (currentIndex) => {
     const SLIDE_ELEMENTS = GROUPS[activeGroup].sliderElements
