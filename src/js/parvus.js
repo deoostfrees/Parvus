@@ -135,13 +135,17 @@ export default function Parvus (userOptions) {
    * @param {HTMLElement} el - The element to be added
    */
   const add = (el) => {
+    // Check element type and attributes
+    const IS_VALID_LINK = el.tagName === 'A' && el.hasAttribute('href')
+    const IS_VALID_BUTTON = el.tagName === 'BUTTON' && el.hasAttribute('data-target')
+
+    if (!IS_VALID_LINK && !IS_VALID_BUTTON) {
+      throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must contain a path to the image file.')
+    }
+
     // Check if the lightbox already exists
     if (!lightbox) {
       createLightbox()
-    }
-
-    if (!((el.tagName === 'A' && el.hasAttribute('href')) || (el.tagName === 'BUTTON' && el.hasAttribute('data-target')))) {
-      throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must contain a path to the image file.')
     }
 
     newGroup = getGroup(el)
