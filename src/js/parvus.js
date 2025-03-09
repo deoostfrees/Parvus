@@ -470,7 +470,7 @@ export default function Parvus (userOptions) {
    */
   const close = () => {
     if (!isOpen()) {
-      throw new Error('Ups, I\'m already closed.')
+      return
     }
 
     const IMAGE = GROUPS[activeGroup].contentElements[currentIndex]
@@ -530,7 +530,7 @@ export default function Parvus (userOptions) {
       } else {
         IMAGE.style.opacity = '0'
 
-        transitionendHandler()
+        requestAnimationFrame(transitionendHandler)
       }
     } else {
       transitionendHandler()
