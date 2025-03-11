@@ -1367,8 +1367,9 @@ export default function Parvus (userOptions) {
    * or vertical swipe based on the direction and angle of the swipe.
    */
   const doSwipe = () => {
-    const MOVEMENT_THRESHOLD = 2
+    const MOVEMENT_THRESHOLD = 1.5
     const MAX_OPACITY_DISTANCE = 100
+    const DIRECTION_BIAS = 1.15
 
     const { startX, endX, startY, endY } = drag
     const MOVEMENT_X = startX - endX
@@ -1376,47 +1377,69 @@ export default function Parvus (userOptions) {
     const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
 
-    // Check if we are at the beginning or the end
-    const { triggerElements } = GROUPS[activeGroup]
-    const TOTAL_SLIDES = triggerElements.length
-    const IS_FIRST_SLIDE = currentIndex === 0
-    const IS_LAST_SLIDE = currentIndex === TOTAL_SLIDES - 1
+    const GROUP = GROUPS[activeGroup]
+    const SLIDER = GROUP.slider
+    const TOTAL_SLIDES = GROUP.triggerElements.length
 
-    if (MOVEMENT_X_DISTANCE > MOVEMENT_THRESHOLD && !isDraggingY && TOTAL_SLIDES > 1) {
-      // Horizontal swipe
-      const IS_RIGHT_SWIPE = MOVEMENT_X < 0
-      const IS_LEFT_SWIPE = MOVEMENT_X > 0
+    const handleHorizontalSwipe = (movementX, distance) => {
+      const IS_FIRST_SLIDE = currentIndex === 0
+      const IS_LAST_SLIDE = currentIndex === TOTAL_SLIDES - 1
+
+      const IS_LEFT_SWIPE = movementX > 0
+      const IS_RIGHT_SWIPE = movementX < 0
 
       if ((IS_FIRST_SLIDE && IS_RIGHT_SWIPE) || (IS_LAST_SLIDE && IS_LEFT_SWIPE)) {
-        const reducedMovement = MOVEMENT_X * (1 / (1 + Math.pow(MOVEMENT_X_DISTANCE / 100, 0.15)))
+        const DAMPING_FACTOR = 1 / (1 + Math.pow(distance / 100, 0.15))
+        const REDUCED_MOVEMENT = movementX * DAMPING_FACTOR
 
-        GROUPS[activeGroup].slider.style.transform = `
-          translate3d(${offsetTmp - Math.round(reducedMovement)}px, 0, 0)
+        SLIDER.style.transform = `
+          translate3d(${offsetTmp - Math.round(REDUCED_MOVEMENT)}px, 0, 0)
         `
       } else {
-        GROUPS[activeGroup].slider.style.transform = `
-          translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)
+        SLIDER.style.transform = `
+          translate3d(${offsetTmp - Math.round(movementX)}px, 0, 0)
         `
       }
+    }
 
-      isDraggingX = true
-      isDraggingY = false
-    } else if (MOVEMENT_Y_DISTANCE > MOVEMENT_THRESHOLD && !isDraggingX && config.swipeClose) {
-      // Vertical swipe
-      if (!isReducedMotion && MOVEMENT_Y_DISTANCE <= 100) {
-        const NEW_OVERLAY_OPACITY = Math.max(0, lightboxOverlayOpacity - (MOVEMENT_Y_DISTANCE / MAX_OPACITY_DISTANCE))
+    const handleVerticalSwipe = (movementY, distance) => {
+      if (!isReducedMotion && distance <= 100) {
+        const NEW_OVERLAY_OPACITY = Math.max(0, lightboxOverlayOpacity - (distance / MAX_OPACITY_DISTANCE))
 
         lightboxOverlay.style.opacity = NEW_OVERLAY_OPACITY
       }
 
       lightbox.classList.add('parvus--is-vertical-closing')
 
-      GROUPS[activeGroup].slider.style.transform = `
-        translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)
+      SLIDER.style.transform = `
+        translate3d(${offsetTmp}px, ${Math.round(movementY)}px, 0)
       `
+    }
 
-      isDraggingX = false
-      isDraggingY = true
+    if (isDraggingX || isDraggingY) {
+      if (isDraggingX) {
+        handleHorizontalSwipe(MOVEMENT_X, MOVEMENT_X_DISTANCE)
+      } else if (isDraggingY) {
+        handleVerticalSwipe(MOVEMENT_Y, MOVEMENT_Y_DISTANCE)
+      }
+      return
+    }
+
+    // Direction detection based on the relative ratio of movements
+    if (MOVEMENT_X_DISTANCE > MOVEMENT_THRESHOLD || MOVEMENT_Y_DISTANCE > MOVEMENT_THRESHOLD) {
+      // Horizontal swipe if X-movement is stronger than Y-movement * DIRECTION_BIAS
+      if (MOVEMENT_X_DISTANCE > MOVEMENT_Y_DISTANCE * DIRECTION_BIAS && TOTAL_SLIDES > 1) {
+        isDraggingX = true
+        isDraggingY = false
+
+        handleHorizontalSwipe(MOVEMENT_X, MOVEMENT_X_DISTANCE)
+      } else if (MOVEMENT_Y_DISTANCE > MOVEMENT_X_DISTANCE * DIRECTION_BIAS && config.swipeClose) {
+        // Vertical swipe if Y-movement is stronger than X-movement * DIRECTION_BIAS
+        isDraggingX = false
+        isDraggingY = true
+
+        handleVerticalSwipe(MOVEMENT_Y, MOVEMENT_Y_DISTANCE)
+      }
     }
   }
 
