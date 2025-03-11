@@ -1333,9 +1333,28 @@ export default function Parvus (userOptions) {
     const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
 
-    if (MOVEMENT_X_DISTANCE > MOVEMENT_THRESHOLD && !isDraggingY && GROUPS[activeGroup].triggerElements.length > 1) {
+    // Check if we are at the beginning or the end
+    const { triggerElements } = GROUPS[activeGroup]
+    const TOTAL_SLIDES = triggerElements.length
+    const IS_FIRST_SLIDE = currentIndex === 0
+    const IS_LAST_SLIDE = currentIndex === TOTAL_SLIDES - 1
+
+    if (MOVEMENT_X_DISTANCE > MOVEMENT_THRESHOLD && !isDraggingY && TOTAL_SLIDES > 1) {
       // Horizontal swipe
-      GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)`
+      const IS_RIGHT_SWIPE = MOVEMENT_X < 0
+      const IS_LEFT_SWIPE = MOVEMENT_X > 0
+
+      if ((IS_FIRST_SLIDE && IS_RIGHT_SWIPE) || (IS_LAST_SLIDE && IS_LEFT_SWIPE)) {
+        const reducedMovement = MOVEMENT_X * (1 / (1 + Math.pow(MOVEMENT_X_DISTANCE / 100, 0.15)))
+
+        GROUPS[activeGroup].slider.style.transform = `
+          translate3d(${offsetTmp - Math.round(reducedMovement)}px, 0, 0)
+        `
+      } else {
+        GROUPS[activeGroup].slider.style.transform = `
+          translate3d(${offsetTmp - Math.round(MOVEMENT_X)}px, 0, 0)
+        `
+      }
 
       isDraggingX = true
       isDraggingY = false
@@ -1349,7 +1368,9 @@ export default function Parvus (userOptions) {
 
       lightbox.classList.add('parvus--is-vertical-closing')
 
-      GROUPS[activeGroup].slider.style.transform = `translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)`
+      GROUPS[activeGroup].slider.style.transform = `
+        translate3d(${offsetTmp}px, ${Math.round(MOVEMENT_Y)}px, 0)
+      `
 
       isDraggingX = false
       isDraggingY = true
