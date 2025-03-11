@@ -190,25 +190,68 @@ export default function Parvus (userOptions) {
     }
 
     const EL_GROUP = getGroup(el)
+    const GROUP = GROUPS[EL_GROUP]
 
     // Check if element exists
-    if (!GROUPS[EL_GROUP] || !GROUPS[EL_GROUP].triggerElements.includes(el)) {
+    if (!GROUP) {
       return
     }
 
-    const EL_INDEX = GROUPS[EL_GROUP].triggerElements.indexOf(el)
+    const EL_INDEX = GROUP.triggerElements.indexOf(el)
 
-    GROUPS[EL_GROUP].triggerElements.splice(EL_INDEX, 1)
-    GROUPS[EL_GROUP].sliderElements.splice(EL_INDEX, 1)
+    if (EL_INDEX === -1) {
+      return
+    }
+
+    const IS_CURRENT_EL = isOpen() && EL_GROUP === activeGroup && EL_INDEX === currentIndex
+
+    // Remove group data
+    if (GROUP.contentElements[EL_INDEX]) {
+      const content = GROUP.contentElements[EL_INDEX]
+
+      if (content.tagName === 'IMG') {
+        content.src = ''
+        content.srcset = ''
+      }
+    }
+
+    // Remove DOM element
+    const sliderElement = GROUP.sliderElements[EL_INDEX]
+
+    if (sliderElement && sliderElement.parentNode) {
+      sliderElement.parentNode.removeChild(sliderElement)
+    }
+
+    // Remove all array elements
+    GROUP.triggerElements.splice(EL_INDEX, 1)
+    GROUP.sliderElements.splice(EL_INDEX, 1)
+    GROUP.contentElements.splice(EL_INDEX, 1)
 
     if (config.zoomIndicator) {
       removeZoomIndicator(el)
     }
 
     if (isOpen() && EL_GROUP === activeGroup) {
-      updateAttributes()
-      updateSliderNavigationStatus()
-      updateCounter()
+      if (IS_CURRENT_EL) {
+        if (GROUP.triggerElements.length === 0) {
+          close()
+        } else if (currentIndex >= GROUP.triggerElements.length) {
+          select(GROUP.triggerElements.length - 1)
+        } else {
+          updateAttributes()
+          updateSliderNavigationStatus()
+          updateCounter()
+        }
+      } else if (EL_INDEX < currentIndex) {
+        currentIndex--
+        updateAttributes()
+        updateSliderNavigationStatus()
+        updateCounter()
+      } else {
+        updateAttributes()
+        updateSliderNavigationStatus()
+        updateCounter()
+      }
     }
 
     // Unbind click event handler
