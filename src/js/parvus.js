@@ -661,7 +661,7 @@ export default function Parvus (userOptions) {
         ERROR_CONTAINER.classList.add('parvus__content')
         ERROR_CONTAINER.classList.add('parvus__content--error')
 
-        ERROR_CONTAINER.innerHTML = `${config.l10n.lightboxLoadingError}`
+        ERROR_CONTAINER.textContent = config.l10n.lightboxLoadingError
 
         CONTENT_CONTAINER_EL.appendChild(ERROR_CONTAINER)
 
