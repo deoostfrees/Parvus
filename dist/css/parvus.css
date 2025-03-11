@@ -90,6 +90,7 @@ body:has(.parvus[open]) {
 .parvus__slider {
   inset: 0;
   position: absolute;
+  transform: translateZ(0);
 }
 @media screen and (prefers-reduced-motion: no-preference) {
   .parvus__slider--animate:not(.parvus__slider--is-dragging) {
@@ -99,12 +100,15 @@ body:has(.parvus[open]) {
 }
 .parvus__slider--is-draggable {
   cursor: grab;
+  touch-action: pan-y pinch-zoom;
 }
 .parvus__slider--is-dragging {
   cursor: grabbing;
+  touch-action: none;
 }
 .parvus__slide {
   block-size: 100%;
+  contain: layout;
   display: grid;
   inline-size: 100%;
   padding-block: 1rem;
@@ -116,6 +120,7 @@ body:has(.parvus[open]) {
   display: block;
   inline-size: auto;
   margin-inline: auto;
+  transform: translateZ(0);
 }
 .parvus__content--error {
   background-color: var(--parvus-loading-error-background-color);
@@ -139,7 +144,7 @@ body:has(.parvus[open]) {
   inline-size: 6.25rem;
 }
 .parvus__loader::before {
-  animation: spin 1s infinite;
+  animation: spin 1s infinite linear;
   border-radius: 100%;
   border: 0.25rem solid var(--parvus-loader-background-color);
   border-block-start-color: var(--parvus-loader-color);
@@ -242,6 +247,9 @@ body:has(.parvus[open]) {
 }
 
 @keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
   to {
     transform: rotate(360deg);
   }
