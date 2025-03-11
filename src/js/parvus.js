@@ -1415,14 +1415,80 @@ export default function Parvus (userOptions) {
       close()
     }
 
-    lightbox.remove()
+    // Add setTimeout to ensure all possible close transitions are completed
+    setTimeout(() => {
+      unbindEvents()
 
-    const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll('.parvus-trigger')
+      // Remove all registered event listeners for custom events
+      const eventTypes = [
+        'open',
+        'close',
+        'select',
+        'destroy'
+      ]
 
-    LIGHTBOX_TRIGGER_ELS.forEach(remove)
+      eventTypes.forEach(eventType => {
+        const listeners = lightbox._listeners?.[eventType] || []
 
-    // Create and dispatch a new event
-    dispatchCustomEvent('destroy')
+        listeners.forEach(listener => {
+          lightbox.removeEventListener(eventType, listener)
+        })
+      })
+
+      // Remove event listeners from trigger elements
+      const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll('.parvus-trigger')
+
+      LIGHTBOX_TRIGGER_ELS.forEach(el => {
+        el.removeEventListener('click', triggerParvus)
+        el.classList.remove('parvus-trigger')
+
+        if (config.zoomIndicator) {
+          removeZoomIndicator(el)
+        }
+
+        if (el.dataset.group) {
+          delete el.dataset.group
+        }
+      })
+
+      // Create and dispatch a new event
+      dispatchCustomEvent('destroy')
+
+      lightbox.remove()
+
+      // Remove references
+      lightbox = null
+      lightboxOverlay = null
+      toolbar = null
+      toolbarLeft = null
+      toolbarRight = null
+      controls = null
+      previousButton = null
+      nextButton = null
+      closeButton = null
+      counter = null
+
+      // Remove group data
+      Object.keys(GROUPS).forEach(groupKey => {
+        const group = GROUPS[groupKey]
+
+        if (group && group.contentElements) {
+          group.contentElements.forEach(content => {
+            if (content && content.tagName === 'IMG') {
+              content.src = ''
+              content.srcset = ''
+            }
+          })
+        }
+        delete GROUPS[groupKey]
+      })
+
+      // Reset variables
+      groupIdCounter = 0
+      newGroup = null
+      activeGroup = null
+      currentIndex = 0
+    }, 1000)
   }
 
   /**
