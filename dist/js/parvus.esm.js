@@ -1276,9 +1276,15 @@ function Parvus(userOptions) {
     lightbox.addEventListener('click', clickHandler);
 
     // Pointer events
-    lightbox.addEventListener('pointerdown', pointerdownHandler);
-    lightbox.addEventListener('pointerup', pointerupHandler);
-    lightbox.addEventListener('pointermove', pointermoveHandler);
+    lightbox.addEventListener('pointerdown', pointerdownHandler, {
+      passive: false
+    });
+    lightbox.addEventListener('pointerup', pointerupHandler, {
+      passive: true
+    });
+    lightbox.addEventListener('pointermove', pointermoveHandler, {
+      passive: false
+    });
   };
 
   /**
