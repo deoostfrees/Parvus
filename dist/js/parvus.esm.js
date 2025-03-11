@@ -105,11 +105,10 @@ function Parvus(userOptions) {
   let isDraggingX = false;
   let isDraggingY = false;
   let pointerDown = false;
-  let pinchStartDistance = 0;
   let currentScale = 1;
   let isPinching = false;
-  let lastScale = 1;
-  let baseScale = 1;
+  let pinchStartDistance = 0;
+  let lastPointersId = null;
   let offset = null;
   let offsetTmp = null;
   let resizeTicking = false;
@@ -998,6 +997,40 @@ function Parvus(userOptions) {
   };
 
   /**
+   * Pinch zoom gesture
+   *
+   * @param {HTMLImageElement} currentImg - The image to zoom
+   */
+  const pinchZoom = currentImg => {
+    // Determine current finger positions
+    const points = Array.from(activePointers.values());
+
+    // Calculate current distance between fingers
+    const currentDistance = Math.hypot(points[1].clientX - points[0].clientX, points[1].clientY - points[0].clientY);
+
+    // When pinch gesture is about to start or the finger IDs have changed
+    // We use a unique ID based on the pointer IDs to recognize changes
+    const currentPointersId = points.map(p => p.pointerId).sort().join('-');
+    const isNewPointerCombination = lastPointersId !== currentPointersId;
+    if (!isPinching || isNewPointerCombination) {
+      isPinching = true;
+      lastPointersId = currentPointersId;
+
+      // Save the start distance and current scaling as a basis
+      pinchStartDistance = currentDistance / currentScale;
+      lightbox.classList.add('parvus--is-zooming');
+    }
+
+    // Calculate scaling factor based on distance change
+    const scaleFactor = currentDistance / pinchStartDistance;
+
+    // Limit scaling to 1 - 3
+    currentScale = Math.min(Math.max(1, scaleFactor), 3);
+    currentImg.style.willChange = 'transform';
+    currentImg.style.transform = `scale(${currentScale})`;
+  };
+
+  /**
    * Click event handler to trigger Parvus
    *
    * @param {Event} event - The click event object
@@ -1092,13 +1125,11 @@ function Parvus(userOptions) {
     isDraggingX = false;
     isDraggingY = false;
     pointerDown = true;
-    const {
-      pageX,
-      pageY
-    } = event;
     activePointers.set(event.pointerId, event);
-    drag.startX = pageX;
-    drag.startY = pageY;
+    drag.startX = event.pageX;
+    drag.startY = event.pageY;
+    drag.endX = event.pageX;
+    drag.endY = event.pageY;
     const {
       slider
     } = GROUPS[activeGroup];
@@ -1122,38 +1153,23 @@ function Parvus(userOptions) {
     if (!pointerDown) {
       return;
     }
-    const currentImg = GROUPS[activeGroup].contentElements[currentIndex];
+    const CURRENT_IMAGE = GROUPS[activeGroup].contentElements[currentIndex];
 
     // Update pointer position
     activePointers.set(event.pointerId, event);
 
     // Zoom
-    if (currentImg && currentImg.tagName === 'IMG') {
+    if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG') {
       if (activePointers.size === 2) {
-        const points = Array.from(activePointers.values());
-        const distance = Math.hypot(points[1].clientX - points[0].clientX, points[1].clientY - points[0].clientY);
-        if (!isPinching) {
-          pinchStartDistance = distance;
-          isPinching = true;
-          baseScale = lastScale;
-          lightbox.classList.add('parvus--is-zooming');
-        }
-        currentScale = Math.min(Math.max(1, baseScale * (distance / pinchStartDistance)), 3);
-        currentImg.style.willChange = 'transform';
-        currentImg.style.transform = `scale(${currentScale})`;
-        lastScale = currentScale;
+        pinchZoom(CURRENT_IMAGE);
         return;
       }
       if (currentScale > 1) {
         return;
       }
     }
-    const {
-      pageX,
-      pageY
-    } = event;
-    drag.endX = pageX;
-    drag.endY = pageY;
+    drag.endX = event.pageX;
+    drag.endY = event.pageY;
     doSwipe();
   };
 
@@ -1170,25 +1186,39 @@ function Parvus(userOptions) {
     const {
       slider
     } = GROUPS[activeGroup];
+    activePointers.delete(event.pointerId);
+    if (activePointers.size > 0) {
+      return;
+    }
     pointerDown = false;
-    isPinching = false;
     const CURRENT_IMAGE = GROUPS[activeGroup].contentElements[currentIndex];
+
     slider.classList.remove('parvus__slider--is-dragging');
     slider.style.willChange = '';
     if (currentScale > 1) {
-      baseScale = lastScale;
-      if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG') {
-        CURRENT_IMAGE.style.transform = `scale(${currentScale})`;
+      {
+        CURRENT_IMAGE.style.transform = `
+          scale(${currentScale})
+        `;
       }
     } else {
-      pinchStartDistance = 0;
-      lightbox.classList.remove('parvus--is-zooming');
+      if (isPinching) {
+        CURRENT_IMAGE.style.transition = 'transform 0.3s ease';
+        CURRENT_IMAGE.style.transform = '';
+        setTimeout(() => {
+          CURRENT_IMAGE.style.transition = '';
+        }, 300);
+        isPinching = false;
+        currentScale = 1;
+        pinchStartDistance = 0;
+        lastPointersId = '';
+        lightbox.classList.remove('parvus--is-zooming');
+      }
       if (drag.endX || drag.endY) {
         updateAfterDrag();
       }
     }
     clearDrag();
-    activePointers.delete(event.pointerId);
   };
 
   /**
