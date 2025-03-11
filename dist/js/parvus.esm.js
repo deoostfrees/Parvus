@@ -646,7 +646,7 @@ function Parvus(userOptions) {
       const ERROR_CONTAINER = document.createElement('div');
       ERROR_CONTAINER.classList.add('parvus__content');
       ERROR_CONTAINER.classList.add('parvus__content--error');
-      ERROR_CONTAINER.innerHTML = `${config.l10n.lightboxLoadingError}`;
+      ERROR_CONTAINER.textContent = config.l10n.lightboxLoadingError;
       CONTENT_CONTAINER_EL.appendChild(ERROR_CONTAINER);
       contentElements[index] = ERROR_CONTAINER;
     }).finally(() => {
@@ -1315,12 +1315,69 @@ function Parvus(userOptions) {
     if (isOpen()) {
       close();
     }
-    lightbox.remove();
-    const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll('.parvus-trigger');
-    LIGHTBOX_TRIGGER_ELS.forEach(remove);
 
-    // Create and dispatch a new event
-    dispatchCustomEvent('destroy');
+    // Add setTimeout to ensure all possible close transitions are completed
+    setTimeout(() => {
+      unbindEvents();
+
+      // Remove all registered event listeners for custom events
+      const eventTypes = ['open', 'close', 'select', 'destroy'];
+      eventTypes.forEach(eventType => {
+        const listeners = lightbox._listeners?.[eventType] || [];
+        listeners.forEach(listener => {
+          lightbox.removeEventListener(eventType, listener);
+        });
+      });
+
+      // Remove event listeners from trigger elements
+      const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll('.parvus-trigger');
+      LIGHTBOX_TRIGGER_ELS.forEach(el => {
+        el.removeEventListener('click', triggerParvus);
+        el.classList.remove('parvus-trigger');
+        if (config.zoomIndicator) {
+          removeZoomIndicator(el);
+        }
+        if (el.dataset.group) {
+          delete el.dataset.group;
+        }
+      });
+
+      // Create and dispatch a new event
+      dispatchCustomEvent('destroy');
+      lightbox.remove();
+
+      // Remove references
+      lightbox = null;
+      lightboxOverlay = null;
+      toolbar = null;
+      toolbarLeft = null;
+      toolbarRight = null;
+      controls = null;
+      previousButton = null;
+      nextButton = null;
+      closeButton = null;
+      counter = null;
+
+      // Remove group data
+      Object.keys(GROUPS).forEach(groupKey => {
+        const group = GROUPS[groupKey];
+        if (group && group.contentElements) {
+          group.contentElements.forEach(content => {
+            if (content && content.tagName === 'IMG') {
+              content.src = '';
+              content.srcset = '';
+            }
+          });
+        }
+        delete GROUPS[groupKey];
+      });
+
+      // Reset variables
+      groupIdCounter = 0;
+      newGroup = null;
+      activeGroup = null;
+      currentIndex = 0;
+    }, 1000);
   };
 
   /**
