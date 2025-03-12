@@ -1043,29 +1043,44 @@ function Parvus(userOptions) {
    */
   const pinchZoom = currentImg => {
     // Determine current finger positions
-    const points = Array.from(activePointers.values());
+    const POINTS = Array.from(activePointers.values());
 
     // Calculate current distance between fingers
-    const currentDistance = Math.hypot(points[1].clientX - points[0].clientX, points[1].clientY - points[0].clientY);
+    const CURRENT_DISTANCE = Math.hypot(POINTS[1].clientX - POINTS[0].clientX, POINTS[1].clientY - POINTS[0].clientY);
+
+    // Calculate the midpoint between the two points
+    const MIDPOINT_X = (POINTS[0].clientX + POINTS[1].clientX) / 2;
+    const MIDPOINT_Y = (POINTS[0].clientY + POINTS[1].clientY) / 2;
+
+    // Convert midpoint to relative position within the image
+    const IMG_RECT = currentImg.getBoundingClientRect();
+    const RELATIVE_X = (MIDPOINT_X - IMG_RECT.left) / IMG_RECT.width;
+    const RELATIVE_Y = (MIDPOINT_Y - IMG_RECT.top) / IMG_RECT.height;
 
     // When pinch gesture is about to start or the finger IDs have changed
-    // We use a unique ID based on the pointer IDs to recognize changes
-    const currentPointersId = points.map(p => p.pointerId).sort().join('-');
-    const isNewPointerCombination = lastPointersId !== currentPointersId;
-    if (!isPinching || isNewPointerCombination) {
+    // Use a unique ID based on the pointer IDs to recognize changes
+    const CURRENT_POINTERS_ID = POINTS.map(p => p.pointerId).sort().join('-');
+    const IS_NEW_POINTER_COMBINATION = lastPointersId !== CURRENT_POINTERS_ID;
+    if (!isPinching || IS_NEW_POINTER_COMBINATION) {
       isPinching = true;
-      lastPointersId = currentPointersId;
+      lastPointersId = CURRENT_POINTERS_ID;
 
       // Save the start distance and current scaling as a basis
-      pinchStartDistance = currentDistance / currentScale;
+      pinchStartDistance = CURRENT_DISTANCE / currentScale;
+
+      // Store initial pinch position for this gesture
+      if (!currentImg.style.transformOrigin && currentScale === 1 || currentScale === 1 && IS_NEW_POINTER_COMBINATION) {
+        // Set the transform origin to the pinch midpoint
+        currentImg.style.transformOrigin = `${RELATIVE_X * 100}% ${RELATIVE_Y * 100}%`;
+      }
       lightbox.classList.add('parvus--is-zooming');
     }
 
     // Calculate scaling factor based on distance change
-    const scaleFactor = currentDistance / pinchStartDistance;
+    const SCALE_FACTOR = CURRENT_DISTANCE / pinchStartDistance;
 
     // Limit scaling to 1 - 3
-    currentScale = Math.min(Math.max(1, scaleFactor), 3);
+    currentScale = Math.min(Math.max(1, SCALE_FACTOR), 3);
     currentImg.style.willChange = 'transform';
     currentImg.style.transform = `scale(${currentScale})`;
   };
@@ -1247,6 +1262,7 @@ function Parvus(userOptions) {
         CURRENT_IMAGE.style.transform = '';
         setTimeout(() => {
           CURRENT_IMAGE.style.transition = '';
+          CURRENT_IMAGE.style.transformOrigin = '';
         }, 300);
         isPinching = false;
         currentScale = 1;
