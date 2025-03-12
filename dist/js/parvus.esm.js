@@ -539,6 +539,11 @@ function Parvus(userOptions) {
     }
     lightbox.classList.add('parvus--is-closing');
     const transitionendHandler = () => {
+      // Reset the image zoom (if ESC was pressed or went back in the browser history)
+      // after the ViewTransition (otherwise it looks bad)
+      if (isPinching) {
+        resetZoom(IMAGE);
+      }
       leaveSlide(currentIndex);
       lightbox.close();
       lightbox.classList.remove('parvus--is-closing');
@@ -1037,6 +1042,25 @@ function Parvus(userOptions) {
   };
 
   /**
+   * Reset image zoom
+   *
+   * @param {HTMLImageElement} currentImg - The image
+   */
+  const resetZoom = currentImg => {
+    currentImg.style.transition = 'transform 0.3s ease';
+    currentImg.style.transform = '';
+    setTimeout(() => {
+      currentImg.style.transition = '';
+      currentImg.style.transformOrigin = '';
+    }, 300);
+    isPinching = false;
+    currentScale = 1;
+    pinchStartDistance = 0;
+    lastPointersId = '';
+    lightbox.classList.remove('parvus--is-zooming');
+  };
+
+  /**
    * Pinch zoom gesture
    *
    * @param {HTMLImageElement} currentImg - The image to zoom
@@ -1258,17 +1282,7 @@ function Parvus(userOptions) {
       }
     } else {
       if (isPinching) {
-        CURRENT_IMAGE.style.transition = 'transform 0.3s ease';
-        CURRENT_IMAGE.style.transform = '';
-        setTimeout(() => {
-          CURRENT_IMAGE.style.transition = '';
-          CURRENT_IMAGE.style.transformOrigin = '';
-        }, 300);
-        isPinching = false;
-        currentScale = 1;
-        pinchStartDistance = 0;
-        lastPointersId = '';
-        lightbox.classList.remove('parvus--is-zooming');
+        resetZoom(CURRENT_IMAGE);
       }
       if (drag.endX || drag.endY) {
         updateAfterDrag();
