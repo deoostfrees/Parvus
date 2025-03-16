@@ -1,10 +1,10 @@
 # Changelog
 
-## [3.0.0] - 2024-
+## [3.0.0] - 2025-03-16
 
 ### Added
 
-- Pinch zoom gestures 4a591e7 4a8355a @deoostfrees #42
+- Pinch zoom gestures 4a591e7 4a8355a fd4ebf1 4e472ef 49c5b16 d27efd9 @deoostfrees #42
 - Option to make the zoom indicator optional e65d5c7 @deoostfrees #62
 
 ### Changed
