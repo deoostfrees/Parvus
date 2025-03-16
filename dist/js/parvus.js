@@ -113,6 +113,7 @@
     let pointerDown = false;
     let currentScale = 1;
     let isPinching = false;
+    let isTap = false;
     let pinchStartDistance = 0;
     let lastPointersId = null;
     let offset = null;
@@ -1060,6 +1061,7 @@
         currentImg.style.transformOrigin = '';
       }, 300);
       isPinching = false;
+      isTap = false;
       currentScale = 1;
       pinchStartDistance = 0;
       lastPointersId = '';
@@ -1220,6 +1222,7 @@
       } = GROUPS[activeGroup];
       slider.classList.add('parvus__slider--is-dragging');
       slider.style.willChange = 'transform';
+      isTap = activePointers.size === 1;
       if (config.swipeClose) {
         lightboxOverlayOpacity = getComputedStyle(lightboxOverlay).opacity;
       }
@@ -1278,10 +1281,16 @@
       pointerDown = false;
       const CURRENT_IMAGE = GROUPS[activeGroup].contentElements[currentIndex];
 
+      // Reset zoom state by one tap
+      const MOVEMENT_X = Math.abs(drag.endX - drag.startX);
+      const MOVEMENT_Y = Math.abs(drag.endY - drag.startY);
+      const IS_TAP = MOVEMENT_X < 8 && MOVEMENT_Y < 8 && !isDraggingX && !isDraggingY && isTap;
       slider.classList.remove('parvus__slider--is-dragging');
       slider.style.willChange = '';
       if (currentScale > 1) {
-        {
+        if (IS_TAP) {
+          resetZoom(CURRENT_IMAGE);
+        } else {
           CURRENT_IMAGE.style.transform = `
           scale(${currentScale})
         `;
