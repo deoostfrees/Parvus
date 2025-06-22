@@ -7,28 +7,26 @@
   "module": "./dist/js/parvus.esm.js",
   "style": "./dist/css/parvus.css",
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/preset-env": "^7.26.9",
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
     "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
-    "core-js": "^3.41.0",
-    "postcss": "^8.5.3",
-    "rollup": "^4.35.0",
+    "core-js": "^3.43.0",
+    "postcss": "^8.5.6",
+    "rollup": "^4.44.0",
     "rollup-plugin-license": "^3.6.0",
     "rollup-plugin-postcss": "^4.0.2",
-    "sass": "^1.85.1",
+    "sass": "^1.89.2",
     "standard": "^17.1.2",
-    "stylelint": "^16.16.0",
-    "stylelint-config-standard-scss": "^14.0.0",
-    "stylelint-scss": "^6.11.1",
+    "stylelint": "^16.21.0",
+    "stylelint-config-standard-scss": "^15.0.1",
+    "stylelint-scss": "^6.12.1",
     "stylelint-use-logical": "^2.1.2"
   },
   "browserslist": [
-    "last 2 versions",
-    "> 1%",
-    "not dead"
+    "last 2 versions and > 1% and not dead"
   ],
   "standard": {
     "globals": [
