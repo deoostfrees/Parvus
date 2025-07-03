@@ -1,11 +1,11 @@
 export default {
-  lightboxLabel: 'This is a dialog window that overlays the main content of the page. The modal displays the enlarged image. Pressing the Escape key will close the modal and bring you back to where you were on the page.',
-  lightboxLoadingIndicatorLabel: 'Image loading',
-  lightboxLoadingError: 'The requested image cannot be loaded.',
-  controlsLabel: 'Controls',
-  previousButtonLabel: 'Previous image',
-  nextButtonLabel: 'Next image',
-  closeButtonLabel: 'Close dialog window',
-  sliderLabel: 'Images',
-  slideLabel: 'Image'
+  lightboxLabel: 'Questa è una finestra di dialogo che si sovrappone al contenuto principale della pagina. La modale mostra l\'immagine ingrandita. Premendo il tasto Escape si chiuderà la modale e tornerai dove eri sulla pagina.',
+  lightboxLoadingIndicatorLabel: 'Caricamento immagine',
+  lightboxLoadingError: 'Impossibile caricare l\'immagine richiesta.',
+  controlsLabel: 'Controlli',
+  previousButtonLabel: 'Immagine precedente',
+  nextButtonLabel: 'Immagine successiva',
+  closeButtonLabel: 'Chiudi finestra di dialogo',
+  sliderLabel: 'Immagini',
+  slideLabel: 'Immagine'
 }
