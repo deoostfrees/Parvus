@@ -617,27 +617,46 @@ function Parvus(userOptions) {
    * @param {Number} index - The index of the caption
    */
   const addCaption = (containerEl, imageEl, el, index) => {
-    const CAPTION_CONTAINER = document.createElement('div');
-    let captionData = null;
-    CAPTION_CONTAINER.className = 'parvus__caption';
-    if (config.captionsSelector === 'self') {
-      if (el.hasAttribute(config.captionsAttribute) && el.getAttribute(config.captionsAttribute) !== '') {
-        captionData = el.getAttribute(config.captionsAttribute);
-      }
-    } else {
-      const CAPTION_SELECTOR = el.querySelector(config.captionsSelector);
-      if (CAPTION_SELECTOR !== null) {
-        if (CAPTION_SELECTOR.hasAttribute(config.captionsAttribute) && CAPTION_SELECTOR.getAttribute(config.captionsAttribute) !== '') {
-          captionData = CAPTION_SELECTOR.getAttribute(config.captionsAttribute);
-        } else {
-          captionData = CAPTION_SELECTOR.innerHTML;
+    const getCaptionData = triggerEl => {
+      const {
+        captionsAttribute,
+        captionsSelector,
+        captionsIdAttribute = 'data-caption-id'
+      } = config;
+
+      // Check for an ID reference on the trigger element
+      // This allows the caption to be anywhere on the page
+      const CAPTION_ID = triggerEl.getAttribute(captionsIdAttribute);
+      if (CAPTION_ID) {
+        const CAPTION_EL = document.getElementById(CAPTION_ID);
+        if (CAPTION_EL) {
+          return CAPTION_EL.innerHTML;
         }
       }
-    }
-    if (captionData !== null) {
+
+      // Check for a direct caption attribute on the trigger element
+      const DIRECT_CAPTION = triggerEl.getAttribute(captionsAttribute);
+      if (DIRECT_CAPTION) {
+        return DIRECT_CAPTION;
+      }
+
+      // Query for a selector inside the trigger element
+      if (captionsSelector !== 'self') {
+        const CAPTION_EL = triggerEl.querySelector(captionsSelector);
+        if (CAPTION_EL) {
+          // Prefer a direct attribute on the found element, otherwise use its content
+          return CAPTION_EL.getAttribute(captionsAttribute) || CAPTION_EL.innerHTML;
+        }
+      }
+      return null;
+    };
+    const CAPTION_DATA = getCaptionData(el);
+    if (CAPTION_DATA) {
+      const CAPTION_CONTAINER = document.createElement('div');
       const CAPTION_ID = `parvus__caption-${index}`;
+      CAPTION_CONTAINER.className = 'parvus__caption';
       CAPTION_CONTAINER.id = CAPTION_ID;
-      CAPTION_CONTAINER.innerHTML = `<p>${captionData}</p>`;
+      CAPTION_CONTAINER.innerHTML = `<p>${CAPTION_DATA}</p>`;
       containerEl.appendChild(CAPTION_CONTAINER);
       imageEl.setAttribute('aria-describedby', CAPTION_ID);
     }
