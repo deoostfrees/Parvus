@@ -94,15 +94,37 @@ const prvs = new Parvus()
 
 ### Captions
 
-To show a caption under the image, add a `data-caption` attribute:
+There are three ways to add a caption to an image:
+
+#### Reference by ID
+
+You can add an ID to your caption element and reference it from the trigger element using the `data-caption-id` attribute.
 
 ```html
-<a href="path/to/image.jpg" class="lightbox" data-caption="I'm a caption">
+<figure>
+  <a href="path/to/image.jpg" class="lightbox" data-caption-id="caption-1">
+    <img src="path/to/thumbnail.jpg" alt="">
+  </a>
+
+  <figcaption id="caption-1">
+    I'm a caption, and I live outside the link.
+  </figcaption>
+</figure>
+```
+
+#### Direct Attribute
+
+You can add a `data-caption` attribute directly to the trigger element.
+
+```html
+<a href="path/to/image.jpg" class="lightbox" data-caption="I'm a simple caption">
   <img src="path/to/thumbnail.jpg" alt="">
 </a>
 ```
 
-Alternatively, set the option `captionsSelector` to select captions from an element's innerHTML:
+#### Child Element
+
+Alternatively, set the option `captionsSelector` to select a caption from a child element's `innerHTML`.
 
 ```html
 <a href="path/to/image.jpg" class="lightbox">
@@ -110,7 +132,7 @@ Alternatively, set the option `captionsSelector` to select captions from an elem
     <img src="path/to/thumbnail.jpg" alt="">
 
     <figcaption class="figure__caption">
-      <p>I'm a caption</p>
+      I'm a caption inside a child element
     </figcaption>
   </figure>
 </a>
