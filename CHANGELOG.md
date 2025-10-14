@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.1.0] - 2025-10
+
+### Added
+
+- Add support for captions via ID reference f6e1b8c @deoostfrees
+- Add Italian translations 30c42e2 ea54ca2 @conlaccento
+- Add French translations 4d04d8d @slolo2000
+
 ## [3.0.0] - 2025-03-16
 
 ### Added
