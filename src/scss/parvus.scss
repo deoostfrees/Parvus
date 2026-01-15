@@ -19,6 +19,10 @@
   --parvus-caption-background-color: transparent;
   --parvus-caption-color: hsl(228deg 24% 23%);
 
+  // Copyright
+  --parvus-copyright-background-color: hsl(0deg 0% 100% / 80%);
+  --parvus-copyright-color: hsl(228deg 24% 23%);
+
   // Loading error
   --parvus-loading-error-background-color: hsl(0deg 0% 100%);
   --parvus-loading-error-color: hsl(228deg 24% 23%);
@@ -150,7 +154,7 @@ body:has(.parvus[open]) {
   }
 
   &__content {
-
+    position: relative;
 
 
     &--error {
@@ -166,6 +170,15 @@ body:has(.parvus[open]) {
     color: var(--parvus-caption-color);
     padding-block-start: 0.5rem;
     text-align: start;
+  }
+
+  &__copyright {
+    background-color: var(--parvus-copyright-background-color);
+    color: var(--parvus-copyright-color);
+    inset-block-end: 0;
+    inset-inline-end: 0;
+    padding-inline: 0.25rem;
+    position: absolute;
   }
 
   &__loader {
@@ -277,9 +290,19 @@ body:has(.parvus[open]) {
     &__overlay,
     &__counter,
     &__btn,
-    &__caption {
+    &__caption,
+    &__copyright {
       transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function);
       will-change: transform, opacity;
+    }
+
+    &__copyright {
+      transition-delay: var(--parvus-transition-duration);
+
+      .parvus--is-closing & {
+        transition-delay: 0s;
+        transition-duration: 0s;
+      }
     }
 
     &--is-opening,
@@ -290,7 +313,8 @@ body:has(.parvus[open]) {
       & .parvus__overlay,
       & .parvus__counter,
       & .parvus__btn,
-      & .parvus__caption {
+      & .parvus__caption,
+      & .parvus__copyright {
         opacity: 0;
       }
     }

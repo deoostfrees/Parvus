@@ -51,6 +51,9 @@ const DEFAULT_OPTIONS = {
   captions: true,
   captionsSelector: 'self',
   captionsAttribute: 'data-caption',
+  copyright: true,
+  copyrightSelector: 'self',
+  copyrightAttribute: 'data-copyright',
   docClose: true,
   swipeClose: true,
   simulateTouch: true,
@@ -1235,6 +1238,69 @@ const addCaption = (config, containerEl, imageEl, el, index) => {
 };
 
 /**
+ * Add copyright to the image container element
+ *
+ * @param {Object} config - Configuration object
+ * @param {HTMLElement} imageContainer - The image container element (parvus__content) to which the copyright will be added
+ * @param {HTMLElement} imageEl - The image the copyright is linked to
+ * @param {HTMLElement} el - The trigger element associated with the copyright
+ * @param {Number} index - The index of the copyright
+ * @returns {void}
+ */
+const addCopyright = (config, imageContainer, imageEl, el, index) => {
+  const getCopyrightData = triggerEl => {
+    const {
+      copyrightAttribute,
+      copyrightSelector,
+      copyrightIdAttribute = 'data-copyright-id'
+    } = config;
+
+    // Check for an ID reference on the trigger element
+    // This allows the copyright to be anywhere on the page
+    const COPYRIGHT_ID = triggerEl.getAttribute(copyrightIdAttribute);
+    if (COPYRIGHT_ID) {
+      const COPYRIGHT_EL = document.getElementById(COPYRIGHT_ID);
+      if (COPYRIGHT_EL) {
+        return COPYRIGHT_EL.innerHTML;
+      }
+    }
+
+    // Check for a direct copyright attribute on the trigger element
+    const DIRECT_COPYRIGHT = triggerEl.getAttribute(copyrightAttribute);
+    if (DIRECT_COPYRIGHT) {
+      return DIRECT_COPYRIGHT;
+    }
+
+    // Query for a selector inside the trigger element
+    if (copyrightSelector !== 'self') {
+      const COPYRIGHT_EL = triggerEl.querySelector(copyrightSelector);
+      if (COPYRIGHT_EL) {
+        // Prefer a direct attribute on the found element, otherwise use its content
+        return COPYRIGHT_EL.getAttribute(copyrightAttribute) || COPYRIGHT_EL.innerHTML;
+      }
+    }
+    return null;
+  };
+  const COPYRIGHT_DATA = getCopyrightData(el);
+  if (COPYRIGHT_DATA) {
+    const COPYRIGHT_CONTAINER = document.createElement('div');
+    const COPYRIGHT_ID = `parvus__copyright-${index}`;
+    COPYRIGHT_CONTAINER.className = 'parvus__copyright';
+    COPYRIGHT_CONTAINER.id = COPYRIGHT_ID;
+    COPYRIGHT_CONTAINER.innerHTML = `<small>${COPYRIGHT_DATA}</small>`;
+    imageContainer.appendChild(COPYRIGHT_CONTAINER);
+
+    // If image already has aria-describedby (from caption), append copyright ID
+    const existingAriaDescribedby = imageEl.getAttribute('aria-describedby');
+    if (existingAriaDescribedby) {
+      imageEl.setAttribute('aria-describedby', `${existingAriaDescribedby} ${COPYRIGHT_ID}`);
+    } else {
+      imageEl.setAttribute('aria-describedby', COPYRIGHT_ID);
+    }
+  }
+};
+
+/**
  * Create image
  *
  * @param {Object} state - The application state
@@ -1275,6 +1341,11 @@ const createImage = (state, el, index, callback) => {
   checkImagePromise.then(loadedImage => {
     loadedImage.style.opacity = 0;
     IMAGE_CONTAINER.appendChild(loadedImage);
+
+    // Add copyright if available (inside IMAGE_CONTAINER)
+    if (state.config.copyright) {
+      addCopyright(state.config, IMAGE_CONTAINER, IMAGE, el, index);
+    }
     CONTENT_CONTAINER_EL.appendChild(IMAGE_CONTAINER);
 
     // Add caption if available
