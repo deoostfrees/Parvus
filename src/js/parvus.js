@@ -7,6 +7,7 @@ import { ParvusState } from './core/state.js'
 import { dispatchCustomEvent, on as addEventListener, off as removeEventListener } from './core/events.js'
 import { updateOffset, loadSlide, leaveSlide, preload } from './core/navigation.js'
 import { reducedMotionCheck, getGroup } from './core/utils.js'
+import { PluginManager } from './core/plugins.js'
 
 // UI modules
 import { createLightbox, createSlider, createSlide, updateCounter, updateAttributes, updateSliderNavigationStatus } from './ui/lightbox.js'
@@ -28,6 +29,7 @@ export default function Parvus (userOptions) {
   const BROWSER_WINDOW = window
   const STATE = new ParvusState()
   const MOTIONQUERY = BROWSER_WINDOW.matchMedia('(prefers-reduced-motion)')
+  const PLUGIN_MANAGER = new PluginManager()
 
   // Event handlers will be created after actions are defined
   let keydownHandler, clickHandler, pointerdownHandler, pointermoveHandler, pointerupHandler, resizeHandler
@@ -60,6 +62,9 @@ export default function Parvus (userOptions) {
     // Check if the lightbox already exists
     if (!STATE.lightbox) {
       createLightbox(STATE)
+
+      // Execute afterInit hook when lightbox is first created
+      PLUGIN_MANAGER.executeHook('afterInit', { state: STATE })
     }
 
     STATE.newGroup = getGroup(STATE, el)
@@ -228,6 +233,9 @@ export default function Parvus (userOptions) {
     preload(STATE, createSlide, createImage, loadImage, STATE.currentIndex + 1)
     preload(STATE, createSlide, createImage, loadImage, STATE.currentIndex - 1)
 
+    // Execute afterOpen hook
+    PLUGIN_MANAGER.executeHook('afterOpen', { element: el, state: STATE })
+
     // Create and dispatch a new event
     dispatchCustomEvent(STATE.lightbox, 'open')
   }
@@ -276,12 +284,16 @@ export default function Parvus (userOptions) {
       STATE.previousButton.removeAttribute('aria-disabled')
 
       STATE.nextButton.removeAttribute('aria-hidden')
+
       STATE.nextButton.removeAttribute('aria-disabled')
 
       if (STATE.config.hideScrollbar) {
         document.body.style.marginInlineEnd = ''
         document.body.style.overflow = ''
       }
+
+      // Execute afterClose hook
+      PLUGIN_MANAGER.executeHook('afterClose', { state: STATE })
     }
 
     if (IMAGE && IMAGE.tagName === 'IMG') {
@@ -352,6 +364,9 @@ export default function Parvus (userOptions) {
     updateOffset(STATE)
     updateSliderNavigationStatus(STATE)
     updateCounter(STATE)
+
+    // Execute slideChange hook
+    PLUGIN_MANAGER.executeHook('slideChange', { index, oldIndex: OLD_INDEX, state: STATE })
 
     if (index < OLD_INDEX) {
       preload(STATE, createSlide, createImage, loadImage, index - 1)
@@ -577,6 +592,35 @@ export default function Parvus (userOptions) {
   }
 
   /**
+   * Use a plugin
+   *
+   * @param {Object} plugin - Plugin object
+   * @param {Object} options - Plugin options
+   */
+  const use = (plugin, options = {}) => {
+    PLUGIN_MANAGER.register(plugin, options)
+  }
+
+  /**
+   * Add a hook callback
+   *
+   * @param {String} hookName - Hook name
+   * @param {Function} callback - Callback function
+   */
+  const addHook = (hookName, callback) => {
+    PLUGIN_MANAGER.addHook(hookName, callback)
+  }
+
+  /**
+   * Get registered plugins
+   *
+   * @returns {Array} Array of plugin names
+   */
+  const getPlugins = () => {
+    return PLUGIN_MANAGER.getPlugins()
+  }
+
+  /**
    * Init
    */
   const init = () => {
@@ -584,6 +628,15 @@ export default function Parvus (userOptions) {
     STATE.config = mergeOptions(userOptions)
 
     reducedMotionCheck(STATE, MOTIONQUERY)
+
+    // Install plugins with context
+    const pluginContext = {
+      state: STATE,
+      on: addEventListener,
+      addHook: PLUGIN_MANAGER.addHook.bind(PLUGIN_MANAGER),
+      config: STATE.config
+    }
+    PLUGIN_MANAGER.install(pluginContext)
 
     if (STATE.config.gallerySelector !== null) {
       // Get a list of all `gallerySelector` elements within the document
@@ -624,6 +677,9 @@ export default function Parvus (userOptions) {
     destroy,
     isOpen,
     on,
-    off
+    off,
+    use,
+    addHook,
+    getPlugins
   }
 }
