@@ -30,6 +30,7 @@
     }
 
     .gallery {
+      align-items: start;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 1rem;
@@ -49,9 +50,11 @@
       font-family: monospace;
     }
 
-    .text-links a {
-      display: block;
-      margin: 0.5rem 0;
+    .text-links {
+      align-items: start;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
   </style>
 </head>
