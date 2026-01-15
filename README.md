@@ -2,7 +2,7 @@
 
 Overlays suck, but if you need one, consider using Parvus. Parvus is an open source, dependency free image lightbox with the goal of being accessible.
 
-![Screenshot of Parvus. It shows the first picture of a gallery.](https://rqrauhvmra.com/parvus/parvus.png)
+![Screenshot of Parvus. It shows the first picture of a gallery.](https://rqrauhvmra.com/parvus/parvus-3-1.png)
 
 [Open in CodePen](https://codepen.io/collection/DwLBpz)
 
