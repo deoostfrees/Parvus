@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add copyright information to an image e598627 @deoostfrees
 - Add plugin system with lifecycle hooks ae8203d 2ea0794 86f1056 @deoostfrees
 - Add support for captions via ID reference f6e1b8c @deoostfrees
 - Add Italian translations 30c42e2 ea54ca2 @conlaccento
