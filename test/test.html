@@ -284,10 +284,10 @@
   </div>
 
   <h2>13. Plugin Example</h2>
-  <p>Custom plugin that adds a button and tracks slide changes (check console).</p>
+  <p>Custom plugin that adds a button and tracks slide changes (check console). <strong>Note:</strong> The plugin is only registered for these specific images, not for the other galleries above.</p>
   <div class="gallery">
     <a href="./images/1-1200.webp"
-       class="lightbox"
+       class="lightbox-plugin"
        data-group="plugin-demo"
        data-caption="Plugin demo - Slide 1">
       <img src="./images/1-370.webp"
@@ -297,7 +297,7 @@
     </a>
 
     <a href="./images/2-1200.webp"
-       class="lightbox"
+       class="lightbox-plugin"
        data-group="plugin-demo"
        data-caption="Plugin demo - Slide 2">
       <img src="./images/2-370.webp"
@@ -307,7 +307,7 @@
     </a>
 
     <a href="./images/3-1200.webp"
-       class="lightbox"
+       class="lightbox-plugin"
        data-group="plugin-demo"
        data-caption="Plugin demo - Slide 3">
       <img src="./images/3-370.webp"
@@ -377,8 +377,13 @@
       selector: '.lightbox'
     })
 
-    // Register the custom plugin
-    prvs.use(MyPlugin, {
+    // Initialize Parvus for plugin demo (separate instance with plugin)
+    const prvsPlugin = new Parvus({
+      selector: '.lightbox-plugin'
+    })
+
+    // Register the custom plugin ONLY for prvsPlugin instance
+    prvsPlugin.use(MyPlugin, {
       customOption: 'demo value'
     })
 
@@ -400,7 +405,11 @@
     })
 
     // Log registered plugins
-    console.log('Registered plugins:', prvs.getPlugins())
+    console.log('Registered plugins (prvs):', prvs.getPlugins())
+    console.log('Registered plugins (prvsPlugin):', prvsPlugin.getPlugins())
+    console.log('Registered plugins (prvsGallery):', prvsGallery.getPlugins())
+    console.log('Registered plugins (prvsButtons):', prvsButtons.getPlugins())
+    console.log('Registered plugins (prvsGerman):', prvsGerman.getPlugins())
   </script>
 </body>
 
