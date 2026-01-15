@@ -4,148 +4,404 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Parvus test</title>
+  <title>Parvus - Feature Showcase</title>
 
-  <link href="https://rqrauhvmra.com/gibki/css/gibki.css" rel="stylesheet">
   <link href="../dist/css/parvus.min.css" rel="stylesheet">
-  <link href="test.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    h1, h2, h3 {
+      margin-top: 2rem;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .gallery img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    code {
+      background: #f4f4f4;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+
+    .text-links a {
+      display: block;
+      margin: 0.5rem 0;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>Parvus</h1>
-    <p>Overlays suck, but if you need one, consider using Parvus. Parvus is an open source, dependency free image lightbox with the goal of being accessible.</p>
+  <h1>Parvus - Feature Showcase</h1>
+  <p>This page demonstrates all features and options of Parvus.</p>
+
+  <h2>1. Basic Usage</h2>
+  <p>Simple image with no caption or grouping.</p>
+  <div class="gallery">
+    <a href="./images/4-1200.webp" class="lightbox">
+      <img src="./images/4-370.webp"
+           alt="2 glasses filled with Mojito Cocktail on a dark table."
+           width="370"
+           height="657">
+    </a>
   </div>
 
-  <div class="container">
-    <h2>Gallery</h2>
-    <p>Gallery with the <code>data-group</code> attribute.</p>
-    <div class="flex padding-top-m">
-      <div class="flex__md-4">
-        <a href="./images/2-1200.webp"
-           class="lightbox"
-           data-group="Netherlands">
-          <img src="./images/2-370.webp"
-               alt="Picturesque house facades in Leiden, a city and municipality in the province of South Holland, Netherlands."
-               width="370"
-               height="657">
-        </a>
-      </div>
-
-      <div class="flex__md-4">
-        <a href="./images/3-1200.webp"
-           class="lightbox"
-           data-group="Netherlands"
-           data-caption="A day trip to Leiden on our vacation in the Netherlands.">
-          <img src="./images/3-370.webp"
-               alt="The river 'Oude Rijn' in Leiden, a city and municipality in the province of South Holland, Netherlands."
-               loading="lazy"
-               width="370"
-               height="208">
-          </a>
-      </div>
-
-      <div class="flex__md-4">
-        <figure>
-          <a href="./images/1-1200.webp"
-            class="lightbox-new"
-            data-group="Netherlands"
-            data-srcset="./images/1-1200.webp 1200w, ./images/1-1000.webp 1000w, ./images/1-700.webp 700w, ./images/1-500.webp 500w"
-            data-caption-id="caption-1"
-          >
-            <img src="./images/1-370.webp"
-                alt="Picturesque house facades in Leiden, a city and municipality in the province of South Holland, Netherlands."
-                loading="lazy"
-                width="370"
-                height="208">
-          </a>
-
-          <figcaption id="caption-1">
-            A day trip to Leiden on our vacation in the Netherlands.
-          </figcaption>
-        </figure>
-      </div>
-    </div>
+  <h2>2. Captions - Direct Attribute</h2>
+  <p>Using <code>data-caption</code> attribute.</p>
+  <div class="gallery">
+    <a href="./images/3-1200.webp"
+       class="lightbox"
+       data-caption="A day trip to Leiden on our vacation in the Netherlands.">
+      <img src="./images/3-370.webp"
+           alt="The river 'Oude Rijn' in Leiden."
+           width="370"
+           height="208">
+    </a>
   </div>
 
-  <div class="container">
-    <h2>Text link</h2>
-    <p>Text links with the <code>data-group</code> attribute.</p>
-    <div class="flex padding-top-m">
-      <div class="flex__12">
-        <a href="./images/2-1200.webp"
-           class="lightbox"
-           data-group="textlink">
-           Picturesque house facades in Leiden.
-        </a>
-      </div>
-
-      <div class="flex__12">
-        <a href="./images/3-1200.webp"
-          class="lightbox"
-          data-group="textlink"
-          data-caption-id="caption-1">
-          The river 'Oude Rijn' in Leiden.
-        </a>
-      </div>
-
-      <div class="flex__12">
-        <a href="./images/1337.webp"
-           class="lightbox"
-           data-group="textlink">
-           This link causes an error
-        </a>
-      </div>
-    </div>
+  <h2>3. Captions - Reference by ID</h2>
+  <p>Using <code>data-caption-id</code> to reference an external element.</p>
+  <div class="gallery">
+    <figure>
+      <a href="./images/1-1200.webp"
+         class="lightbox"
+         data-caption-id="caption-1">
+        <img src="./images/1-370.webp"
+             alt="Picturesque house facades in Leiden."
+             width="370"
+             height="208">
+      </a>
+      <figcaption id="caption-1">
+        Picturesque house facades in Leiden, a city in South Holland, Netherlands.
+      </figcaption>
+    </figure>
   </div>
 
-  <div class="container gallery">
-    <h2>Gallery</h2>
-    <p>Gallery with the <code>gallerySelector</code> option.</p>
-    <div class="flex gallery padding-top-m">
-      <div class="flex__md-4">
-        <a href="./images/8-1200.webp"
-           class="lightbox">
-          <img src="./images/8-370.webp"
-               alt=""
-               loading="lazy"
-               width="370"
-               height="277">
-        </a>
-      </div>
-
-      <div class="flex__md-4">
-        <a href="./images/9-1200.webp"
-           class="lightbox">
-          <img src="./images/9-370.webp"
-               alt=""
-               loading="lazy"
-               width="370"
-               height="277">
-        </a>
-      </div>
-    </div>
+  <h2>4. Copyright - Direct Attribute</h2>
+  <p>Using <code>data-copyright</code> attribute (new feature!).</p>
+  <div class="gallery">
+    <a href="./images/2-1200.webp"
+       class="lightbox"
+       data-caption="Beautiful architecture in Leiden"
+       data-copyright="© 2026 Photography Studio">
+      <img src="./images/2-370.webp"
+           alt="Picturesque house facades in Leiden."
+           width="370"
+           height="657">
+    </a>
   </div>
 
-  <div class="container">
-    <h2>Non-grouped images</h2>
-    <div class="flex">
-      <div class="flex__md-4">
-        <a href="./images/4-1200.webp"
-           class="lightbox">
-          <img src="./images/4-370.webp"
-               alt="2 glasses filled with Mojito Cocktail on a dark table."
-               loading="lazy"
-               width="370"
-               height="657">
-        </a>
-      </div>
-    </div>
+  <h2>5. Copyright - Reference by ID</h2>
+  <p>Using <code>data-copyright-id</code> to reference an external element.</p>
+  <div class="gallery">
+    <a href="./images/8-1200.webp"
+       class="lightbox"
+       data-caption="Street view"
+       data-copyright-id="copyright-1">
+      <img src="./images/8-370.webp"
+           alt="Street scene"
+           width="370"
+           height="277">
+    </a>
+  </div>
+  <small id="copyright-1" hidden>© 2026 Street Photography Collection</small>
+
+  <h2>6. Gallery with <code>data-group</code></h2>
+  <p>Images grouped together using <code>data-group="Netherlands"</code>.</p>
+  <div class="gallery">
+    <a href="./images/1-1200.webp"
+       class="lightbox"
+       data-group="Netherlands"
+       data-caption="Leiden architecture"
+       data-copyright="© 2026 Netherlands Collection">
+      <img src="./images/1-370.webp"
+           alt="Leiden facades"
+           width="370"
+           height="208">
+    </a>
+
+    <a href="./images/2-1200.webp"
+       class="lightbox"
+       data-group="Netherlands"
+       data-caption="Historic buildings"
+       data-copyright="© 2026 Netherlands Collection">
+      <img src="./images/2-370.webp"
+           alt="Leiden houses"
+           width="370"
+           height="657">
+    </a>
+
+    <a href="./images/3-1200.webp"
+       class="lightbox"
+       data-group="Netherlands"
+       data-caption="Oude Rijn river view"
+       data-copyright="© 2026 Netherlands Collection">
+      <img src="./images/3-370.webp"
+           alt="River in Leiden"
+           width="370"
+           height="208">
+    </a>
   </div>
 
-  <div class="event" hidden></div>
+  <h2>7. Gallery with <code>gallerySelector</code></h2>
+  <p>Images automatically grouped by parent selector (no <code>data-group</code> needed).</p>
+  <div class="gallery automatic-gallery">
+    <a href="./images/8-1200.webp" class="lightbox-gallery">
+      <img src="./images/8-370.webp"
+           alt="Street scene 1"
+           width="370"
+           height="277">
+    </a>
 
-  <script type="module" src="test.js"></script>
+    <a href="./images/9-1200.webp" class="lightbox-gallery">
+      <img src="./images/9-370.webp"
+           alt="Street scene 2"
+           width="370"
+           height="277">
+    </a>
+  </div>
+
+  <h2>8. Responsive Images with <code>srcset</code></h2>
+  <p>Using <code>data-srcset</code> for responsive images.</p>
+  <div class="gallery">
+    <a href="./images/1-1200.webp"
+       class="lightbox"
+       data-srcset="./images/1-1200.webp 1200w, ./images/1-1000.webp 1000w, ./images/1-700.webp 700w, ./images/1-500.webp 500w"
+       data-caption="Responsive image with srcset">
+      <img src="./images/1-370.webp"
+           alt="Leiden with responsive sources"
+           width="370"
+           height="208">
+    </a>
+  </div>
+
+  <h2>9. Text Links</h2>
+  <p>Opening images from text links (no thumbnail image).</p>
+  <div class="text-links">
+    <a href="./images/1-1200.webp"
+       class="lightbox"
+       data-group="textlinks"
+       data-caption="Text link example 1">
+      View Photo 1
+    </a>
+
+    <a href="./images/2-1200.webp"
+       class="lightbox"
+       data-group="textlinks"
+       data-caption="Text link example 2">
+      View Photo 2
+    </a>
+
+    <a href="./images/3-1200.webp"
+       class="lightbox"
+       data-group="textlinks"
+       data-caption="Text link example 3">
+      View Photo 3
+    </a>
+  </div>
+
+  <h2>10. Button Elements</h2>
+  <p>Using buttons instead of links with <code>data-target</code> attribute.</p>
+  <div>
+    <button class="lightbox-button"
+            data-target="./images/4-1200.webp"
+            data-caption="Opened via button element"
+            data-copyright="© 2026 Button Demo">
+      Open Image via Button
+    </button>
+  </div>
+
+  <h2>11. Mixed Groups</h2>
+  <p>Different groups on the same page.</p>
+  <div class="gallery">
+    <a href="./images/8-1200.webp"
+       class="lightbox"
+       data-group="groupA"
+       data-caption="Group A - Image 1">
+      <img src="./images/8-370.webp"
+           alt="Group A"
+           width="370"
+           height="277">
+    </a>
+
+    <a href="./images/9-1200.webp"
+       class="lightbox"
+       data-group="groupB"
+       data-caption="Group B - Image 1">
+      <img src="./images/9-370.webp"
+           alt="Group B"
+           width="370"
+           height="277">
+    </a>
+
+    <a href="./images/4-1200.webp"
+       class="lightbox"
+       data-group="groupA"
+       data-caption="Group A - Image 2">
+      <img src="./images/4-370.webp"
+           alt="Group A second"
+           width="370"
+           height="657">
+    </a>
+  </div>
+
+  <h2>12. Localization</h2>
+  <p>Using different language files. This example uses German (<code>l10n: de</code>).</p>
+  <div class="gallery">
+    <a href="./images/4-1200.webp"
+       class="lightbox-german"
+       data-caption="Diese Galerie nutzt die deutsche Sprachdatei">
+      <img src="./images/4-370.webp"
+           alt="Mojito Cocktail"
+           width="370"
+           height="657">
+    </a>
+  </div>
+
+  <h2>13. Plugin Example</h2>
+  <p>Custom plugin that adds a button and tracks slide changes (check console).</p>
+  <div class="gallery">
+    <a href="./images/1-1200.webp"
+       class="lightbox"
+       data-group="plugin-demo"
+       data-caption="Plugin demo - Slide 1">
+      <img src="./images/1-370.webp"
+           alt="Plugin demo 1"
+           width="370"
+           height="208">
+    </a>
+
+    <a href="./images/2-1200.webp"
+       class="lightbox"
+       data-group="plugin-demo"
+       data-caption="Plugin demo - Slide 2">
+      <img src="./images/2-370.webp"
+           alt="Plugin demo 2"
+           width="370"
+           height="657">
+    </a>
+
+    <a href="./images/3-1200.webp"
+       class="lightbox"
+       data-group="plugin-demo"
+       data-caption="Plugin demo - Slide 3">
+      <img src="./images/3-370.webp"
+           alt="Plugin demo 3"
+           width="370"
+           height="208">
+    </a>
+  </div>
+
+  <script type="module">
+    import Parvus from '../dist/js/parvus.esm.js'
+    import de from '../src/l10n/de.js'
+
+    // Example plugin from README
+    const MyPlugin = {
+      name: 'MyPlugin',
+
+      install(parvus, options) {
+        console.log('MyPlugin installed with options:', options)
+
+        // Add a custom button on init
+        parvus.addHook('afterInit', ({ state }) => {
+          const btn = document.createElement('button')
+
+          btn.classList.add('parvus__btn')
+          btn.classList.add('parvus__btn--my-plugin')
+          btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" stroke="currentColor">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          `
+          btn.type = 'button'
+          btn.title = 'Custom Plugin Button'
+          btn.setAttribute('aria-label', 'Custom Plugin Button')
+
+          btn.addEventListener('click', () => {
+            console.log('Custom plugin button clicked!')
+            alert('Custom plugin button works! Current slide: ' + state.currentIndex)
+          })
+
+          // Add to controls as first element
+          if (state.controls) {
+            state.controls.prepend(btn)
+          }
+        })
+
+        // Track slide changes
+        parvus.addHook('slideChange', ({ index, oldIndex }) => {
+          console.log(`Changed from slide ${oldIndex} to ${index}`)
+        })
+
+        // Track open events
+        parvus.addHook('afterOpen', ({ element, state }) => {
+          console.log('Lightbox opened for element:', element)
+        })
+
+        // Track close events
+        parvus.addHook('afterClose', ({ state }) => {
+          console.log('Lightbox closed')
+        })
+      }
+    }
+
+    // Initialize Parvus for regular lightbox links
+    const prvs = new Parvus({
+      selector: '.lightbox'
+    })
+
+    // Register the custom plugin
+    prvs.use(MyPlugin, {
+      customOption: 'demo value'
+    })
+
+    // Initialize Parvus for gallery with gallerySelector
+    const prvsGallery = new Parvus({
+      selector: '.lightbox-gallery',
+      gallerySelector: '.automatic-gallery'
+    })
+
+    // Initialize Parvus for buttons
+    const prvsButtons = new Parvus({
+      selector: '.lightbox-button'
+    })
+
+    // Initialize Parvus with German language
+    const prvsGerman = new Parvus({
+      selector: '.lightbox-german',
+      l10n: de
+    })
+
+    // Log registered plugins
+    console.log('Registered plugins:', prvs.getPlugins())
+  </script>
 </body>
 
 </html>
