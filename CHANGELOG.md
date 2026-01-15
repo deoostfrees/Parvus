@@ -1,12 +1,18 @@
 # Changelog
 
-## [3.1.0] - 2025-10
+## [3.1.0] - 2026-01-
 
 ### Added
 
+- Add plugin system with lifecycle hooks ae8203d 2ea0794 86f1056 @deoostfrees
 - Add support for captions via ID reference f6e1b8c @deoostfrees
 - Add Italian translations 30c42e2 ea54ca2 @conlaccento
 - Add French translations 4d04d8d @slolo2000
+
+### Changed
+
+- Use `hsl()` instead of `hsla()` 4ac8cb6 @deoostfrees
+- Modularize codebase and improve maintainability 951d30a @deoostfrees
 
 ## [3.0.0] - 2025-03-16
 
