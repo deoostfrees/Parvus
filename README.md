@@ -13,6 +13,7 @@ Overlays suck, but if you need one, consider using Parvus. Parvus is an open sou
   - [Package Managers](#package-managers)
 - [Usage](#usage)
   - [Captions](#captions)
+  - [Copyright](#copyright)
   - [Gallery](#gallery)
   - [Responsive Images](#responsive-images)
   - [Localization](#localization)
@@ -148,6 +149,56 @@ const prvs = new Parvus({
 })
 ```
 
+### Copyright
+
+There are three ways to add copyright information to an image:
+
+#### Reference by ID
+
+You can add an ID to your copyright element and reference it from the trigger element using the `data-copyright-id` attribute.
+
+```html
+<a href="path/to/image.jpg" class="lightbox" data-copyright-id="copyright-1">
+  <img src="path/to/thumbnail.jpg" alt="">
+</a>
+
+<small id="copyright-1" hidden>
+  © 2026 Photographer Name
+</small>
+```
+
+#### Direct Attribute
+
+You can add a `data-copyright` attribute directly to the trigger element.
+
+```html
+<a href="path/to/image.jpg" class="lightbox" data-copyright="© 2026 Photographer Name">
+  <img src="path/to/thumbnail.jpg" alt="">
+</a>
+```
+
+#### Child Element
+
+Alternatively, set the option `copyrightSelector` to select a copyright from a child element's `innerHTML`.
+
+```html
+<a href="path/to/image.jpg" class="lightbox">
+  <figure class="figure">
+    <img src="path/to/thumbnail.jpg" alt="">
+
+    <small class="figure__copyright">
+      © 2026 Photographer Name
+    </small>
+  </figure>
+</a>
+```
+
+```js
+const prvs = new Parvus({
+  copyrightSelector: '.figure__copyright',
+})
+```
+
 ### Gallery
 
 To group related images into a set, add a `data-group` attribute:
@@ -252,6 +303,15 @@ Available options include:
 
   // Attribute to get the caption from
   captionsAttribute: 'data-caption',
+
+  // Display copyright if available
+  copyright: true,
+
+  // Selector for the element where the copyright is displayed; use "self" for the `a` tag itself.
+  copyrightSelector: 'self',
+
+  // Attribute to get the copyright from
+  copyrightAttribute: 'data-copyright',
 
   // Clicking outside closes Parvus
   docClose: true,

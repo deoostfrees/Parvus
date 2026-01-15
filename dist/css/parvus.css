@@ -11,6 +11,8 @@
   --parvus-btn-disabled-color: hsl(0deg 0% 100%);
   --parvus-caption-background-color: transparent;
   --parvus-caption-color: hsl(228deg 24% 23%);
+  --parvus-copyright-background-color: hsl(0deg 0% 100% / 80%);
+  --parvus-copyright-color: hsl(228deg 24% 23%);
   --parvus-loading-error-background-color: hsl(0deg 0% 100%);
   --parvus-loading-error-color: hsl(228deg 24% 23%);
   --parvus-loader-background-color: hsl(23deg 40% 96%);
@@ -122,6 +124,9 @@ body:has(.parvus[open]) {
   margin-inline: auto;
   transform: translateZ(0);
 }
+.parvus__content {
+  position: relative;
+}
 .parvus__content--error {
   background-color: var(--parvus-loading-error-background-color);
   color: var(--parvus-loading-error-color);
@@ -133,6 +138,14 @@ body:has(.parvus[open]) {
   color: var(--parvus-caption-color);
   padding-block-start: 0.5rem;
   text-align: start;
+}
+.parvus__copyright {
+  background-color: var(--parvus-copyright-background-color);
+  color: var(--parvus-copyright-color);
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  padding-inline: 0.25rem;
+  position: absolute;
 }
 .parvus__loader {
   display: inline-block;
@@ -222,11 +235,18 @@ body:has(.parvus[open]) {
   display: none;
 }
 @media screen and (prefers-reduced-motion: no-preference) {
-  .parvus__overlay, .parvus__counter, .parvus__btn, .parvus__caption {
+  .parvus__overlay, .parvus__counter, .parvus__btn, .parvus__caption, .parvus__copyright {
     transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function);
     will-change: transform, opacity;
   }
-  .parvus--is-opening .parvus__overlay, .parvus--is-opening .parvus__counter, .parvus--is-opening .parvus__btn, .parvus--is-opening .parvus__caption, .parvus--is-closing .parvus__overlay, .parvus--is-closing .parvus__counter, .parvus--is-closing .parvus__btn, .parvus--is-closing .parvus__caption {
+  .parvus__copyright {
+    transition-delay: var(--parvus-transition-duration);
+  }
+  .parvus--is-closing .parvus__copyright {
+    transition-delay: 0s;
+    transition-duration: 0s;
+  }
+  .parvus--is-opening .parvus__overlay, .parvus--is-opening .parvus__counter, .parvus--is-opening .parvus__btn, .parvus--is-opening .parvus__caption, .parvus--is-opening .parvus__copyright, .parvus--is-closing .parvus__overlay, .parvus--is-closing .parvus__counter, .parvus--is-closing .parvus__btn, .parvus--is-closing .parvus__caption, .parvus--is-closing .parvus__copyright {
     opacity: 0;
   }
   .parvus--is-vertical-closing .parvus__counter, .parvus--is-vertical-closing .parvus__btn:not(.parvus__btn--previous, .parvus__btn--next), .parvus--is-zooming .parvus__counter, .parvus--is-zooming .parvus__btn:not(.parvus__btn--previous, .parvus__btn--next) {
