@@ -387,13 +387,14 @@ const MyPlugin = {
     parvus.addHook('afterInit', ({ state }) => {
       const btn = document.createElement('button')
 
-      btn.className = 'parvus__btn'
+      btn.classList.add('parvus__btn')
+      btn.classList.add('parvus__btn--my-plugin')
       btn.textContent = 'Custom'
       btn.type = 'button'
 
-      // Add to toolbar (before controls)
-      if (state.toolbarRight && state.controls) {
-        state.toolbarRight.insertBefore(btn, state.controls)
+      // Add to controls as first element
+      if (state.controls) {
+        state.controls.prepend(btn)
       }
     })
 
