@@ -207,6 +207,7 @@ body:has(.parvus[open]) {
   }
 
   &__controls {
+    align-items: center;
     display: flex;
     gap: 0.5rem;
   }
@@ -275,9 +276,7 @@ body:has(.parvus[open]) {
 
     &__overlay,
     &__counter,
-    &__btn--close,
-    &__btn--previous,
-    &__btn--next,
+    &__btn,
     &__caption {
       transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function);
       will-change: transform, opacity;
@@ -290,9 +289,7 @@ body:has(.parvus[open]) {
 
       & .parvus__overlay,
       & .parvus__counter,
-      & .parvus__btn--close,
-      & .parvus__btn--previous,
-      & .parvus__btn--next,
+      & .parvus__btn,
       & .parvus__caption {
         opacity: 0;
       }
@@ -304,7 +301,7 @@ body:has(.parvus[open]) {
 
 
       & .parvus__counter,
-      & .parvus__btn--close {
+      & .parvus__btn:not(.parvus__btn--previous, .parvus__btn--next) {
         transform: translateY(-100%);
         opacity: 0;
       }

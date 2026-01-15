@@ -168,6 +168,7 @@ body:has(.parvus[open]) {
   pointer-events: auto;
 }
 .parvus__controls {
+  align-items: center;
   display: flex;
   gap: 0.5rem;
 }
@@ -221,14 +222,14 @@ body:has(.parvus[open]) {
   display: none;
 }
 @media screen and (prefers-reduced-motion: no-preference) {
-  .parvus__overlay, .parvus__counter, .parvus__btn--close, .parvus__btn--previous, .parvus__btn--next, .parvus__caption {
+  .parvus__overlay, .parvus__counter, .parvus__btn, .parvus__caption {
     transition: transform var(--parvus-transition-duration) var(--parvus-transition-timing-function), opacity var(--parvus-transition-duration) var(--parvus-transition-timing-function);
     will-change: transform, opacity;
   }
-  .parvus--is-opening .parvus__overlay, .parvus--is-opening .parvus__counter, .parvus--is-opening .parvus__btn--close, .parvus--is-opening .parvus__btn--previous, .parvus--is-opening .parvus__btn--next, .parvus--is-opening .parvus__caption, .parvus--is-closing .parvus__overlay, .parvus--is-closing .parvus__counter, .parvus--is-closing .parvus__btn--close, .parvus--is-closing .parvus__btn--previous, .parvus--is-closing .parvus__btn--next, .parvus--is-closing .parvus__caption {
+  .parvus--is-opening .parvus__overlay, .parvus--is-opening .parvus__counter, .parvus--is-opening .parvus__btn, .parvus--is-opening .parvus__caption, .parvus--is-closing .parvus__overlay, .parvus--is-closing .parvus__counter, .parvus--is-closing .parvus__btn, .parvus--is-closing .parvus__caption {
     opacity: 0;
   }
-  .parvus--is-vertical-closing .parvus__counter, .parvus--is-vertical-closing .parvus__btn--close, .parvus--is-zooming .parvus__counter, .parvus--is-zooming .parvus__btn--close {
+  .parvus--is-vertical-closing .parvus__counter, .parvus--is-vertical-closing .parvus__btn:not(.parvus__btn--previous, .parvus__btn--next), .parvus--is-zooming .parvus__counter, .parvus--is-zooming .parvus__btn:not(.parvus__btn--previous, .parvus__btn--next) {
     transform: translateY(-100%);
     opacity: 0;
   }
