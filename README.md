@@ -19,6 +19,10 @@ Overlays suck, but if you need one, consider using Parvus. Parvus is an open sou
 - [Options](#options)
 - [API](#api)
 - [Events](#events)
+- [Plugins](#plugins)
+  - [Using Plugins](#using-plugins)
+  - [Creating Plugins](#creating-plugins)
+  - [Plugin Hooks](#plugin-hooks)
 - [Browser Support](#browser-support)
 
 ## Installation
@@ -291,6 +295,9 @@ Parvus provides the following API functions:
 | `destroy()` | Destroy Parvus |
 | `isOpen()` | Check if Parvus is currently open |
 | `currentIndex()` | Get the index of the currently displayed slide |
+| `use(plugin, options)` | Register a plugin |
+| `addHook(hookName, callback)` | Add a hook callback |
+| `getPlugins()` | Get list of registered plugins |
 
 ## Events
 
@@ -318,6 +325,85 @@ Available events:
 | `select` | Triggered when a slide is selected |
 | `close` | Triggered after Parvus has closed |
 | `destroy` | Triggered after Parvus has destroyed |
+
+## Plugins
+
+Parvus supports a plugin system that allows you to extend its functionality.
+
+### Using Plugins
+
+To use a plugin, call the `.use()` method after initialization:
+
+```js
+import Parvus from 'parvus'
+import MyPlugin from './my-plugin.js'
+
+const prvs = new Parvus()
+
+// Register plugin
+prvs.use(MyPlugin, {
+  // Plugin-specific options
+  option1: 'value1',
+  option2: 'value2'
+})
+```
+
+### Creating Plugins
+
+A plugin is an object with a `name` and an `install` function:
+
+```js
+const MyPlugin = {
+  name: 'MyPlugin',
+
+  install(parvus, options = {}) {
+    // Plugin initialization code
+    console.log('Plugin installed with options: ', options)
+  }
+}
+
+export default MyPlugin
+```
+
+### Plugin Hooks
+
+Plugins can hook into various lifecycle events:
+
+| Hook Name | When Triggered | Provided Data |
+| --- | --- | --- |
+| `afterInit` | After lightbox DOM is created (once) | `{ state }` |
+| `afterOpen` | After lightbox opens | `{ element, state }` |
+| `afterClose` | After lightbox closes | `{ state }` |
+| `slideChange` | When slide changes | `{ index, oldIndex, state }` |
+
+Example using hooks:
+
+```js
+const MyPlugin = {
+  name: 'MyPlugin',
+
+  install(parvus, options) {
+    // Add a custom button on init
+    parvus.addHook('afterInit', ({ state }) => {
+      const btn = document.createElement('button')
+
+      btn.className = 'parvus__btn'
+      btn.textContent = 'Custom'
+      btn.type = 'button'
+
+      // Add to toolbar (before controls)
+      if (state.toolbarRight && state.controls) {
+        state.toolbarRight.insertBefore(btn, state.controls)
+      }
+    })
+
+    // Track slide changes
+    parvus.addHook('slideChange', ({ index, oldIndex }) => {
+      console.log(`Changed from slide ${oldIndex} to ${index}`)
+    })
+  }
+}
+```
 
 ## Browser Support
 

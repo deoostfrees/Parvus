@@ -327,6 +327,139 @@ const getGroup = (state, el) => {
 };
 
 /**
+ * Plugin management for Parvus
+ *
+ * Provides a system for registering and managing plugins
+ */
+
+class PluginManager {
+  constructor() {
+    this.plugins = [];
+    this.hooks = {};
+    this.context = null;
+    this.isInitialized = false;
+  }
+
+  /**
+   * Register a plugin
+   *
+   * @param {Object} plugin - Plugin object with name and install function
+   * @param {Object} options - Plugin-specific options
+   */
+  register(plugin, options = {}) {
+    if (!plugin || typeof plugin.install !== 'function') {
+      throw new Error('Plugin must have an install function');
+    }
+    if (!plugin.name) {
+      throw new Error('Plugin must have a name');
+    }
+
+    // Check if plugin is already registered
+    const existingPlugin = this.plugins.find(p => p.name === plugin.name);
+    if (existingPlugin) {
+      console.warn(`Plugin "${plugin.name}" is already registered`);
+      return;
+    }
+    this.plugins.push({
+      plugin,
+      options
+    });
+
+    // If already initialized, install immediately
+    if (this.isInitialized && this.context) {
+      this.installPlugin(plugin, options);
+    }
+  }
+
+  /**
+   * Install a single plugin
+   *
+   * @param {Object} plugin - Plugin object
+   * @param {Object} options - Plugin options
+   */
+  installPlugin(plugin, options) {
+    try {
+      plugin.install(this.context, options);
+
+      // If lightbox already exists, execute afterInit hook for this plugin immediately
+      if (this.context && this.context.state && this.context.state.lightbox) {
+        this.executeHook('afterInit', {
+          state: this.context.state
+        });
+      }
+    } catch (error) {
+      console.error(`Failed to install plugin "${plugin.name}":`, error);
+    }
+  }
+
+  /**
+   * Install all registered plugins
+   *
+   * @param {Object} context - Parvus instance context
+   */
+  install(context) {
+    this.context = context;
+    this.isInitialized = true;
+    this.plugins.forEach(({
+      plugin,
+      options
+    }) => {
+      this.installPlugin(plugin, options);
+    });
+  }
+
+  /**
+   * Execute a hook
+   *
+   * @param {String} hookName - Name of the hook
+   * @param {*} data - Data to pass to hook callbacks
+   */
+  executeHook(hookName, data) {
+    const callbacks = this.hooks[hookName] || [];
+    callbacks.forEach(callback => {
+      try {
+        callback(data);
+      } catch (error) {
+        console.error(`Error in hook "${hookName}":`, error);
+      }
+    });
+  }
+
+  /**
+   * Register a hook callback
+   *
+   * @param {String} hookName - Name of the hook
+   * @param {Function} callback - Callback function
+   */
+  addHook(hookName, callback) {
+    if (!this.hooks[hookName]) {
+      this.hooks[hookName] = [];
+    }
+    this.hooks[hookName].push(callback);
+  }
+
+  /**
+   * Remove a hook callback
+   *
+   * @param {String} hookName - Name of the hook
+   * @param {Function} callback - Callback function to remove
+   */
+  removeHook(hookName, callback) {
+    if (!this.hooks[hookName]) return;
+    this.hooks[hookName] = this.hooks[hookName].filter(cb => cb !== callback);
+  }
+
+  /**
+   * Get all registered plugins
+   *
+   * @returns {Array} Array of plugin names
+   */
+  getPlugins() {
+    return this.plugins.map(p => p.plugin.name);
+  }
+}
+
+/**
  * UI Components Module
  *
  * Handles creation of lightbox, toolbar, slider and slides
@@ -1292,6 +1425,7 @@ function Parvus(userOptions) {
   const BROWSER_WINDOW = window;
   const STATE = new ParvusState();
   const MOTIONQUERY = BROWSER_WINDOW.matchMedia('(prefers-reduced-motion)');
+  const PLUGIN_MANAGER = new PluginManager();
 
   // Event handlers will be created after actions are defined
   let keydownHandler, clickHandler, pointerdownHandler, pointermoveHandler, pointerupHandler, resizeHandler;
@@ -1322,6 +1456,11 @@ function Parvus(userOptions) {
     // Check if the lightbox already exists
     if (!STATE.lightbox) {
       createLightbox(STATE);
+
+      // Execute afterInit hook when lightbox is first created
+      PLUGIN_MANAGER.executeHook('afterInit', {
+        state: STATE
+      });
     }
     STATE.newGroup = getGroup(STATE, el);
     if (!STATE.GROUPS[STATE.newGroup]) {
@@ -1461,6 +1600,12 @@ function Parvus(userOptions) {
     preload(STATE, createSlide, createImage, loadImage, STATE.currentIndex + 1);
     preload(STATE, createSlide, createImage, loadImage, STATE.currentIndex - 1);
 
+    // Execute afterOpen hook
+    PLUGIN_MANAGER.executeHook('afterOpen', {
+      element: el,
+      state: STATE
+    });
+
     // Create and dispatch a new event
     dispatchCustomEvent(STATE.lightbox, 'open');
   };
@@ -1503,6 +1648,11 @@ function Parvus(userOptions) {
         document.body.style.marginInlineEnd = '';
         document.body.style.overflow = '';
       }
+
+      // Execute afterClose hook
+      PLUGIN_MANAGER.executeHook('afterClose', {
+        state: STATE
+      });
     };
     if (IMAGE && IMAGE.tagName === 'IMG') {
       if (document.startViewTransition) {
@@ -1559,6 +1709,13 @@ function Parvus(userOptions) {
     updateOffset(STATE);
     updateSliderNavigationStatus(STATE);
     updateCounter(STATE);
+
+    // Execute slideChange hook
+    PLUGIN_MANAGER.executeHook('slideChange', {
+      index,
+      oldIndex: OLD_INDEX,
+      state: STATE
+    });
     if (index < OLD_INDEX) {
       preload(STATE, createSlide, createImage, loadImage, index - 1);
     } else {
@@ -1773,12 +1930,50 @@ function Parvus(userOptions) {
   };
 
   /**
+   * Use a plugin
+   *
+   * @param {Object} plugin - Plugin object
+   * @param {Object} options - Plugin options
+   */
+  const use = (plugin, options = {}) => {
+    PLUGIN_MANAGER.register(plugin, options);
+  };
+
+  /**
+   * Add a hook callback
+   *
+   * @param {String} hookName - Hook name
+   * @param {Function} callback - Callback function
+   */
+  const addHook = (hookName, callback) => {
+    PLUGIN_MANAGER.addHook(hookName, callback);
+  };
+
+  /**
+   * Get registered plugins
+   *
+   * @returns {Array} Array of plugin names
+   */
+  const getPlugins = () => {
+    return PLUGIN_MANAGER.getPlugins();
+  };
+
+  /**
    * Init
    */
   const init = () => {
     // Merge user options into defaults
     STATE.config = mergeOptions(userOptions);
     reducedMotionCheck(STATE, MOTIONQUERY);
+
+    // Install plugins with context
+    const pluginContext = {
+      state: STATE,
+      on: on,
+      addHook: PLUGIN_MANAGER.addHook.bind(PLUGIN_MANAGER),
+      config: STATE.config
+    };
+    PLUGIN_MANAGER.install(pluginContext);
     if (STATE.config.gallerySelector !== null) {
       // Get a list of all `gallerySelector` elements within the document
       const GALLERY_ELS = document.querySelectorAll(STATE.config.gallerySelector);
@@ -1815,7 +2010,10 @@ function Parvus(userOptions) {
     destroy,
     isOpen,
     on: on$1,
-    off: off$1
+    off: off$1,
+    use,
+    addHook,
+    getPlugins
   };
 }
 
