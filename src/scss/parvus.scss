@@ -299,7 +299,9 @@ body:has(.parvus[open]) {
     &__copyright {
       transition-delay: var(--parvus-transition-duration);
 
-      .parvus--is-closing & {
+      .parvus--is-closing &,
+      .parvus--is-vertical-closing &,
+      .parvus--is-zooming & {
         transition-delay: 0s;
         transition-duration: 0s;
       }
@@ -342,6 +344,10 @@ body:has(.parvus[open]) {
 
       & .parvus__caption {
         transform: translateY(100%);
+        opacity: 0;
+      }
+
+      & .parvus__copyright {
         opacity: 0;
       }
     }
