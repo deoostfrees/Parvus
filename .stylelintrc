@@ -19,7 +19,6 @@
     "declaration-block-no-duplicate-properties": true,
     "rule-empty-line-before": ["always-multi-line", {"ignore": ["after-comment"]}],
     "value-keyword-case": "lower",
-    "scss/at-import-partial-extension": null,
     "selector-class-pattern": ["^([a-z][a-z0-9]*)(-[a-z0-9]+)*(_[a-z0-9]+)*(__[a-z]((_|-)?[a-z0-9])*)?(--[a-z0-9]((_|-)?[a-z0-9\\\\\\/])*)?$", { "resolveNestedSelectors": true }],
     "declaration-block-no-redundant-longhand-properties": null,
     "csstools/use-logical": true
