@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1.1] - 2026-06-27
+
+### Fixed
+
+- Respect `simulateTouch` option 0089f92 @deoostfrees
+
 ## [3.1.0] - 2026-04-18
 
 ### Added
