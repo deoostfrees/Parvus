@@ -861,6 +861,9 @@
     return event => {
       event.preventDefault();
       event.stopPropagation();
+      if (event.pointerType === 'mouse' && !state.config.simulateTouch) {
+        return;
+      }
       state.isDraggingX = false;
       state.isDraggingY = false;
       state.pointerDown = true;
