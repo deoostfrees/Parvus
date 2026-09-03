@@ -400,11 +400,16 @@
      */
     installPlugin (plugin, options) {
       try {
+        const PREVIOUS_AFTER_INIT_HOOK_COUNT = (this.hooks.afterInit || []).length;
+
         plugin.install(this.context, options);
 
-        // If lightbox already exists, execute afterInit hook for this plugin immediately
+        // If lightbox already exists, run only this plugin's newly registered
+        // afterInit hooks, so other plugins' already-fired hooks don't run again
         if (this.context && this.context.state && this.context.state.lightbox) {
-          this.executeHook('afterInit', { state: this.context.state });
+          const NEW_AFTER_INIT_HOOKS = (this.hooks.afterInit || []).slice(PREVIOUS_AFTER_INIT_HOOK_COUNT);
+
+          this.runCallbacks('afterInit', NEW_AFTER_INIT_HOOKS, { state: this.context.state });
         }
       } catch (error) {
         console.error(`Failed to install plugin "${plugin.name}":`, error);
@@ -432,7 +437,17 @@
      * @param {*} data - Data to pass to hook callbacks
      */
     executeHook (hookName, data) {
-      const callbacks = this.hooks[hookName] || [];
+      this.runCallbacks(hookName, this.hooks[hookName] || [], data);
+    }
+
+    /**
+     * Run a list of hook callbacks, isolating failures per callback
+     *
+     * @param {String} hookName - Name of the hook, used for error logging
+     * @param {Array} callbacks - Callbacks to run
+     * @param {*} data - Data to pass to the callbacks
+     */
+    runCallbacks (hookName, callbacks, data) {
       callbacks.forEach(callback => {
         try {
           callback(data);
