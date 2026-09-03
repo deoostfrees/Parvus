@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.2.0] - 2026-09-
+
+### Changed
+
+- Deduplicate update calls in remove() 91519ff @deoostfrees
+
+### Fixed
+
+- Preserve copyright's aria-describedby when a caption is added 0dadb01 @deoostfrees
+- `afterInit` hook no longer re-fires for already-registered plugins when a new plugin is added 2c69b53 @deoostfrees
+- Fix reduced-motion listener leaking on every open/close f1c643a @deoostfrees
+
 ## [3.1.1] - 2026-06-27
 
 ### Fixed
