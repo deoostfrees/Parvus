@@ -29,6 +29,7 @@ export default function Parvus (userOptions) {
   const BROWSER_WINDOW = window
   const STATE = new ParvusState()
   const MOTIONQUERY = BROWSER_WINDOW.matchMedia('(prefers-reduced-motion)')
+  const motionQueryChangeHandler = () => reducedMotionCheck(STATE, MOTIONQUERY)
   const PLUGIN_MANAGER = new PluginManager()
 
   // Event handlers will be created after actions are defined
@@ -431,9 +432,6 @@ export default function Parvus (userOptions) {
     // Popstate event
     BROWSER_WINDOW.addEventListener('popstate', close)
 
-    // Check for any OS level changes to the prefers reduced motion preference
-    MOTIONQUERY.addEventListener('change', () => reducedMotionCheck(STATE, MOTIONQUERY))
-
     // Click event
     STATE.lightbox.addEventListener('click', clickHandler)
 
@@ -452,9 +450,6 @@ export default function Parvus (userOptions) {
 
     // Popstate event
     BROWSER_WINDOW.removeEventListener('popstate', close)
-
-    // Check for any OS level changes to the prefers reduced motion preference
-    MOTIONQUERY.removeEventListener('change', () => reducedMotionCheck(STATE, MOTIONQUERY))
 
     // Click event
     STATE.lightbox.removeEventListener('click', clickHandler)
@@ -480,6 +475,9 @@ export default function Parvus (userOptions) {
     // Add setTimeout to ensure all possible close transitions are completed
     setTimeout(() => {
       unbindEvents()
+
+      // Check for any OS level changes to the prefers reduced motion preference
+      MOTIONQUERY.removeEventListener('change', motionQueryChangeHandler)
 
       // Remove all registered event listeners for custom events
       const eventTypes = [
@@ -628,6 +626,9 @@ export default function Parvus (userOptions) {
     STATE.config = mergeOptions(userOptions)
 
     reducedMotionCheck(STATE, MOTIONQUERY)
+
+    // Check for any OS level changes to the prefers reduced motion preference
+    MOTIONQUERY.addEventListener('change', motionQueryChangeHandler)
 
     // Install plugins with context
     const pluginContext = {
