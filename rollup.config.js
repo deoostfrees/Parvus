@@ -1,5 +1,3 @@
-import resolve from '@rollup/plugin-node-resolve'
-import commonjs from '@rollup/plugin-commonjs'
 import terser from '@rollup/plugin-terser'
 import postcss from 'rollup-plugin-postcss'
 import license from 'rollup-plugin-license'
@@ -63,10 +61,6 @@ if (process.env.BUILDJS) {
       }
     ],
     plugins: [
-      resolve({
-        browser: true
-      }),
-      commonjs(),
       license({
         banner: {
           content: bannerContent
@@ -93,10 +87,6 @@ if (process.env.BUILDCSS) {
         }
       ],
       plugins: [
-        resolve({
-          browser: true
-        }),
-        commonjs(),
         postcss({
           extract: true
         }),
@@ -118,10 +108,6 @@ if (process.env.BUILDCSS) {
         }
       ],
       plugins: [
-        resolve({
-          browser: true
-        }),
-        commonjs(),
         postcss({
           extract: true,
           minimize: true

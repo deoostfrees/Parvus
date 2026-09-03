@@ -7,8 +7,6 @@
   "module": "./dist/js/parvus.esm.js",
   "style": "./dist/css/parvus.css",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^29.0.3",
-    "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
     "postcss": "^8.5.28",
     "rollup": "^4.63.1",
