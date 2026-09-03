@@ -61,7 +61,15 @@ export const addCaption = (config, containerEl, imageEl, el, index) => {
     CAPTION_CONTAINER.innerHTML = `<p>${CAPTION_DATA}</p>`
 
     containerEl.appendChild(CAPTION_CONTAINER)
-    imageEl.setAttribute('aria-describedby', CAPTION_ID)
+
+    // If image already has aria-describedby (from copyright), append caption ID
+    const HAS_ARIA_DESCRIBEDBY = imageEl.getAttribute('aria-describedby')
+
+    if (HAS_ARIA_DESCRIBEDBY) {
+      imageEl.setAttribute('aria-describedby', `${HAS_ARIA_DESCRIBEDBY} ${CAPTION_ID}`)
+    } else {
+      imageEl.setAttribute('aria-describedby', CAPTION_ID)
+    }
   }
 }
 

@@ -22,17 +22,23 @@
    * @return {Number} - The scrollbar width
    */
   const getScrollbarWidth = () => {
-    return BROWSER_WINDOW.innerWidth - document.documentElement.clientWidth;
+    return BROWSER_WINDOW.innerWidth - document.documentElement.clientWidth
   };
-  const FOCUSABLE_ELEMENTS = ['a:not([inert]):not([tabindex^="-"])', 'button:not([inert]):not([tabindex^="-"]):not(:disabled)', '[tabindex]:not([inert]):not([tabindex^="-"])'];
+
+  const FOCUSABLE_ELEMENTS = [
+    'a:not([inert]):not([tabindex^="-"])',
+    'button:not([inert]):not([tabindex^="-"]):not(:disabled)',
+    '[tabindex]:not([inert]):not([tabindex^="-"])'
+  ];
 
   /**
    * Get the focusable children of the given element
    *
    * @return {Array<Element>} - An array of focusable children
    */
-  const getFocusableChildren = targetEl => {
-    return Array.from(targetEl.querySelectorAll(FOCUSABLE_ELEMENTS.join(', '))).filter(child => child.offsetParent !== null);
+  const getFocusableChildren = (targetEl) => {
+    return Array.from(targetEl.querySelectorAll(FOCUSABLE_ELEMENTS.join(', ')))
+      .filter((child) => child.offsetParent !== null)
   };
 
   var en = {
@@ -78,18 +84,20 @@
    * @param {Object} userOptions - User-provided options
    * @returns {Object} - Merged options object
    */
-  const mergeOptions = userOptions => {
+  const mergeOptions = (userOptions) => {
     const MERGED_OPTIONS = {
       ...DEFAULT_OPTIONS,
       ...userOptions
     };
+
     if (userOptions && userOptions.l10n) {
       MERGED_OPTIONS.l10n = {
         ...DEFAULT_OPTIONS.l10n,
         ...userOptions.l10n
       };
     }
-    return MERGED_OPTIONS;
+
+    return MERGED_OPTIONS
   };
 
   /**
@@ -98,7 +106,7 @@
    * Centralizes all mutable state variables
    */
   class ParvusState {
-    constructor() {
+    constructor () {
       // Group management
       this.GROUP_ATTRIBUTES = {
         triggerElements: [],
@@ -152,7 +160,7 @@
     /**
      * Clear drag state
      */
-    clearDrag() {
+    clearDrag () {
       this.drag = {
         startX: 0,
         endX: 0,
@@ -166,14 +174,14 @@
      *
      * @returns {Object} The active group
      */
-    getActiveGroup() {
-      return this.GROUPS[this.activeGroup];
+    getActiveGroup () {
+      return this.GROUPS[this.activeGroup]
     }
 
     /**
      * Reset zoom state
      */
-    resetZoomState() {
+    resetZoomState () {
       this.isPinching = false;
       this.isTap = false;
       this.currentScale = 1;
@@ -199,6 +207,7 @@
     const CUSTOM_EVENT = new CustomEvent(type, {
       cancelable: true
     });
+
     lightbox.dispatchEvent(CUSTOM_EVENT);
   };
 
@@ -242,9 +251,11 @@
    * @param {Object} state - The application state
    * @returns {void}
    */
-  const updateOffset = state => {
+  const updateOffset = (state) => {
     state.activeGroup = state.activeGroup !== null ? state.activeGroup : state.newGroup;
+
     state.offset = -state.currentIndex * state.lightbox.offsetWidth;
+
     state.GROUPS[state.activeGroup].slider.style.transform = `translate3d(${state.offset}px, 0, 0)`;
     state.offsetTmp = state.offset;
   };
@@ -285,8 +296,9 @@
    */
   const preload = (state, createSlide, createImage, loadImage, index) => {
     if (index < 0 || index >= state.GROUPS[state.activeGroup].triggerElements.length || state.GROUPS[state.activeGroup].sliderElements[index] !== undefined) {
-      return;
+      return
     }
+
     createSlide(state, index);
     createImage(state, state.GROUPS[state.activeGroup].triggerElements[index], index, () => {
       loadImage(state, index);
@@ -324,7 +336,7 @@
   const getGroup = (state, el) => {
     // Return existing group identifier if already assigned
     if (el.dataset.group) {
-      return el.dataset.group;
+      return el.dataset.group
     }
 
     // Generate new unique group identifier using counter
@@ -332,7 +344,8 @@
 
     // Assign the new group identifier to element's dataset
     el.dataset.group = EL_GROUP;
-    return EL_GROUP;
+
+    return EL_GROUP
   };
 
   /**
@@ -342,7 +355,7 @@
    */
 
   class PluginManager {
-    constructor() {
+    constructor () {
       this.plugins = [];
       this.hooks = {};
       this.context = null;
@@ -355,24 +368,23 @@
      * @param {Object} plugin - Plugin object with name and install function
      * @param {Object} options - Plugin-specific options
      */
-    register(plugin, options = {}) {
+    register (plugin, options = {}) {
       if (!plugin || typeof plugin.install !== 'function') {
-        throw new Error('Plugin must have an install function');
+        throw new Error('Plugin must have an install function')
       }
+
       if (!plugin.name) {
-        throw new Error('Plugin must have a name');
+        throw new Error('Plugin must have a name')
       }
 
       // Check if plugin is already registered
       const existingPlugin = this.plugins.find(p => p.name === plugin.name);
       if (existingPlugin) {
         console.warn(`Plugin "${plugin.name}" is already registered`);
-        return;
+        return
       }
-      this.plugins.push({
-        plugin,
-        options
-      });
+
+      this.plugins.push({ plugin, options });
 
       // If already initialized, install immediately
       if (this.isInitialized && this.context) {
@@ -386,15 +398,13 @@
      * @param {Object} plugin - Plugin object
      * @param {Object} options - Plugin options
      */
-    installPlugin(plugin, options) {
+    installPlugin (plugin, options) {
       try {
         plugin.install(this.context, options);
 
         // If lightbox already exists, execute afterInit hook for this plugin immediately
         if (this.context && this.context.state && this.context.state.lightbox) {
-          this.executeHook('afterInit', {
-            state: this.context.state
-          });
+          this.executeHook('afterInit', { state: this.context.state });
         }
       } catch (error) {
         console.error(`Failed to install plugin "${plugin.name}":`, error);
@@ -406,13 +416,11 @@
      *
      * @param {Object} context - Parvus instance context
      */
-    install(context) {
+    install (context) {
       this.context = context;
       this.isInitialized = true;
-      this.plugins.forEach(({
-        plugin,
-        options
-      }) => {
+
+      this.plugins.forEach(({ plugin, options }) => {
         this.installPlugin(plugin, options);
       });
     }
@@ -423,7 +431,7 @@
      * @param {String} hookName - Name of the hook
      * @param {*} data - Data to pass to hook callbacks
      */
-    executeHook(hookName, data) {
+    executeHook (hookName, data) {
       const callbacks = this.hooks[hookName] || [];
       callbacks.forEach(callback => {
         try {
@@ -440,7 +448,7 @@
      * @param {String} hookName - Name of the hook
      * @param {Function} callback - Callback function
      */
-    addHook(hookName, callback) {
+    addHook (hookName, callback) {
       if (!this.hooks[hookName]) {
         this.hooks[hookName] = [];
       }
@@ -453,8 +461,9 @@
      * @param {String} hookName - Name of the hook
      * @param {Function} callback - Callback function to remove
      */
-    removeHook(hookName, callback) {
-      if (!this.hooks[hookName]) return;
+    removeHook (hookName, callback) {
+      if (!this.hooks[hookName]) return
+
       this.hooks[hookName] = this.hooks[hookName].filter(cb => cb !== callback);
     }
 
@@ -463,8 +472,8 @@
      *
      * @returns {Array} Array of plugin names
      */
-    getPlugins() {
-      return this.plugins.map(p => p.plugin.name);
+    getPlugins () {
+      return this.plugins.map(p => p.plugin.name)
     }
   }
 
@@ -480,10 +489,8 @@
    * @param {Object} state - The application state
    * @returns {void}
    */
-  const createLightbox = state => {
-    const {
-      config
-    } = state;
+  const createLightbox = (state) => {
+    const { config } = state;
 
     // Use DocumentFragment to batch DOM operations
     const fragment = document.createDocumentFragment();
@@ -564,8 +571,9 @@
    * @param {Object} state - The application state
    * @returns {void}
    */
-  const createSlider = state => {
+  const createSlider = (state) => {
     const SLIDER = document.createElement('div');
+
     SLIDER.className = 'parvus__slider';
 
     // Update the slider reference in GROUPS
@@ -585,12 +593,14 @@
   const getNextSlideIndex = (state, currentIndex) => {
     const SLIDE_ELEMENTS = state.GROUPS[state.activeGroup].sliderElements;
     const TOTAL_SLIDE_ELEMENTS = SLIDE_ELEMENTS.length;
+
     for (let i = currentIndex + 1; i < TOTAL_SLIDE_ELEMENTS; i++) {
       if (SLIDE_ELEMENTS[i] !== undefined) {
-        return i;
+        return i
       }
     }
-    return -1;
+
+    return -1
   };
 
   /**
@@ -602,12 +612,14 @@
    */
   const getPreviousSlideIndex = (state, currentIndex) => {
     const SLIDE_ELEMENTS = state.GROUPS[state.activeGroup].sliderElements;
+
     for (let i = currentIndex - 1; i >= 0; i--) {
       if (SLIDE_ELEMENTS[i] !== undefined) {
-        return i;
+        return i
       }
     }
-    return -1;
+
+    return -1
   };
 
   /**
@@ -619,13 +631,16 @@
    */
   const createSlide = (state, index) => {
     if (state.GROUPS[state.activeGroup].sliderElements[index] !== undefined) {
-      return;
+      return
     }
+
     const FRAGMENT = document.createDocumentFragment();
     const SLIDE_ELEMENT = document.createElement('div');
     const SLIDE_ELEMENT_CONTENT = document.createElement('div');
+
     const GROUP = state.GROUPS[state.activeGroup];
     const TOTAL_TRIGGER_ELEMENTS = GROUP.triggerElements.length;
+
     SLIDE_ELEMENT.className = 'parvus__slide';
     SLIDE_ELEMENT.style.cssText = `
     position: absolute;
@@ -638,14 +653,17 @@
       SLIDE_ELEMENT.setAttribute('role', 'group');
       SLIDE_ELEMENT.setAttribute('aria-label', `${state.config.l10n.slideLabel} ${index + 1}/${TOTAL_TRIGGER_ELEMENTS}`);
     }
+
     SLIDE_ELEMENT.appendChild(SLIDE_ELEMENT_CONTENT);
     FRAGMENT.appendChild(SLIDE_ELEMENT);
+
     GROUP.sliderElements[index] = SLIDE_ELEMENT;
 
     // Insert the slide element based on index position
     if (index >= state.currentIndex) {
       // Insert the slide element after the current slide
       const NEXT_SLIDE_INDEX = getNextSlideIndex(state, index);
+
       if (NEXT_SLIDE_INDEX !== -1) {
         GROUP.sliderElements[NEXT_SLIDE_INDEX].before(SLIDE_ELEMENT);
       } else {
@@ -654,6 +672,7 @@
     } else {
       // Insert the slide element before the current slide
       const PREVIOUS_SLIDE_INDEX = getPreviousSlideIndex(state, index);
+
       if (PREVIOUS_SLIDE_INDEX !== -1) {
         GROUP.sliderElements[PREVIOUS_SLIDE_INDEX].after(SLIDE_ELEMENT);
       } else {
@@ -668,7 +687,7 @@
    * @param {Object} state - The application state
    * @returns {void}
    */
-  const updateCounter = state => {
+  const updateCounter = (state) => {
     state.counter.textContent = `${state.currentIndex + 1}/${state.GROUPS[state.activeGroup].triggerElements.length}`;
   };
 
@@ -678,15 +697,17 @@
    * @param {Object} state - The application state
    * @returns {void}
    */
-  const updateAttributes = state => {
+  const updateAttributes = (state) => {
     const TRIGGER_ELEMENTS = state.GROUPS[state.activeGroup].triggerElements;
     const TOTAL_TRIGGER_ELEMENTS = TRIGGER_ELEMENTS.length;
+
     const SLIDER = state.GROUPS[state.activeGroup].slider;
     const SLIDER_ELEMENTS = state.GROUPS[state.activeGroup].sliderElements;
+
     const IS_DRAGGABLE = SLIDER.classList.contains('parvus__slider--is-draggable');
 
     // Add draggable class if necessary
-    if (state.config.simulateTouch && state.config.swipeClose && !IS_DRAGGABLE || state.config.simulateTouch && TOTAL_TRIGGER_ELEMENTS > 1 && !IS_DRAGGABLE) {
+    if ((state.config.simulateTouch && state.config.swipeClose && !IS_DRAGGABLE) || (state.config.simulateTouch && TOTAL_TRIGGER_ELEMENTS > 1 && !IS_DRAGGABLE)) {
       SLIDER.classList.add('parvus__slider--is-draggable');
     } else {
       SLIDER.classList.remove('parvus__slider--is-draggable');
@@ -697,6 +718,7 @@
       SLIDER.setAttribute('role', 'region');
       SLIDER.setAttribute('aria-roledescription', 'carousel');
       SLIDER.setAttribute('aria-label', state.config.l10n.sliderLabel);
+
       SLIDER_ELEMENTS.forEach((sliderElement, index) => {
         sliderElement.setAttribute('role', 'group');
         sliderElement.setAttribute('aria-label', `${state.config.l10n.slideLabel} ${index + 1}/${TOTAL_TRIGGER_ELEMENTS}`);
@@ -705,7 +727,8 @@
       SLIDER.removeAttribute('role');
       SLIDER.removeAttribute('aria-roledescription');
       SLIDER.removeAttribute('aria-label');
-      SLIDER_ELEMENTS.forEach(sliderElement => {
+
+      SLIDER_ELEMENTS.forEach((sliderElement) => {
         sliderElement.removeAttribute('role');
         sliderElement.removeAttribute('aria-label');
       });
@@ -714,11 +737,15 @@
     // Show or hide buttons
     if (TOTAL_TRIGGER_ELEMENTS === 1) {
       state.counter.setAttribute('aria-hidden', 'true');
+
       state.previousButton.setAttribute('aria-hidden', 'true');
+
       state.nextButton.setAttribute('aria-hidden', 'true');
     } else {
       state.counter.removeAttribute('aria-hidden');
+
       state.previousButton.removeAttribute('aria-hidden');
+
       state.nextButton.removeAttribute('aria-hidden');
     }
   };
@@ -729,13 +756,12 @@
    * @param {Object} state - The application state
    * @returns {void}
    */
-  const updateSliderNavigationStatus = state => {
-    const {
-      triggerElements
-    } = state.GROUPS[state.activeGroup];
+  const updateSliderNavigationStatus = (state) => {
+    const { triggerElements } = state.GROUPS[state.activeGroup];
     const TOTAL_TRIGGER_ELEMENTS = triggerElements.length;
+
     if (TOTAL_TRIGGER_ELEMENTS <= 1) {
-      return;
+      return
     }
 
     // Determine navigation state
@@ -744,14 +770,20 @@
 
     // Set previous button state
     const PREV_DISABLED = FIRST_SLIDE ? 'true' : null;
-    if (state.previousButton.getAttribute('aria-disabled') === 'true' !== !!PREV_DISABLED) {
-      PREV_DISABLED ? state.previousButton.setAttribute('aria-disabled', 'true') : state.previousButton.removeAttribute('aria-disabled');
+
+    if ((state.previousButton.getAttribute('aria-disabled') === 'true') !== !!PREV_DISABLED) {
+      PREV_DISABLED
+        ? state.previousButton.setAttribute('aria-disabled', 'true')
+        : state.previousButton.removeAttribute('aria-disabled');
     }
 
     // Set next button state
     const NEXT_DISABLED = LAST_SLIDE ? 'true' : null;
-    if (state.nextButton.getAttribute('aria-disabled') === 'true' !== !!NEXT_DISABLED) {
-      NEXT_DISABLED ? state.nextButton.setAttribute('aria-disabled', 'true') : state.nextButton.removeAttribute('aria-disabled');
+
+    if ((state.nextButton.getAttribute('aria-disabled') === 'true') !== !!NEXT_DISABLED) {
+      NEXT_DISABLED
+        ? state.nextButton.setAttribute('aria-disabled', 'true')
+        : state.nextButton.removeAttribute('aria-disabled');
     }
   };
 
@@ -764,8 +796,10 @@
   const addZoomIndicator = (el, config) => {
     if (el.querySelector('img') && el.querySelector('.parvus-zoom__indicator') === null) {
       const LIGHTBOX_INDICATOR_ICON = document.createElement('div');
+
       LIGHTBOX_INDICATOR_ICON.className = 'parvus-zoom__indicator';
       LIGHTBOX_INDICATOR_ICON.innerHTML = config.lightboxIndicatorIcon;
+
       el.appendChild(LIGHTBOX_INDICATOR_ICON);
     }
   };
@@ -775,9 +809,10 @@
    *
    * @param {HTMLElement} el - The element to remove the zoom indicator to
    */
-  const removeZoomIndicator = el => {
+  const removeZoomIndicator = (el) => {
     if (el.querySelector('img') && el.querySelector('.parvus-zoom__indicator') !== null) {
       const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator');
+
       el.removeChild(LIGHTBOX_INDICATOR_ICON);
     }
   };
@@ -797,52 +832,49 @@
    * @returns {Function} Keyboard event handler
    */
   const createKeydownHandler = (state, actions) => {
-    return event => {
+    return (event) => {
       const FOCUSABLE_CHILDREN = getFocusableChildren(state.lightbox);
       const FOCUSED_ITEM_INDEX = FOCUSABLE_CHILDREN.indexOf(document.activeElement);
       const lastIndex = FOCUSABLE_CHILDREN.length - 1;
+
       switch (event.code) {
-        case 'Tab':
-          {
-            // Use the TAB key to navigate backwards and forwards
-            if (event.shiftKey) {
-              // Navigate backwards
-              if (FOCUSED_ITEM_INDEX === 0) {
-                FOCUSABLE_CHILDREN[lastIndex].focus();
-                event.preventDefault();
-              }
-            } else {
-              // Navigate forwards
-              if (FOCUSED_ITEM_INDEX === lastIndex) {
-                FOCUSABLE_CHILDREN[0].focus();
-                event.preventDefault();
-              }
+        case 'Tab': {
+          // Use the TAB key to navigate backwards and forwards
+          if (event.shiftKey) {
+            // Navigate backwards
+            if (FOCUSED_ITEM_INDEX === 0) {
+              FOCUSABLE_CHILDREN[lastIndex].focus();
+              event.preventDefault();
             }
-            break;
+          } else {
+            // Navigate forwards
+            if (FOCUSED_ITEM_INDEX === lastIndex) {
+              FOCUSABLE_CHILDREN[0].focus();
+              event.preventDefault();
+            }
           }
-        case 'Escape':
-          {
-            // Close Parvus when the ESC key is pressed
-            actions.close();
-            event.preventDefault();
-            break;
-          }
-        case 'ArrowLeft':
-          {
-            // Show the previous slide when the PREV key is pressed
-            actions.previous();
-            event.preventDefault();
-            break;
-          }
-        case 'ArrowRight':
-          {
-            // Show the next slide when the NEXT key is pressed
-            actions.next();
-            event.preventDefault();
-            break;
-          }
+          break
+        }
+        case 'Escape': {
+          // Close Parvus when the ESC key is pressed
+          actions.close();
+          event.preventDefault();
+          break
+        }
+        case 'ArrowLeft': {
+          // Show the previous slide when the PREV key is pressed
+          actions.previous();
+          event.preventDefault();
+          break
+        }
+        case 'ArrowRight': {
+          // Show the next slide when the NEXT key is pressed
+          actions.next();
+          event.preventDefault();
+          break
+        }
       }
-    };
+    }
   };
 
   /**
@@ -857,31 +889,38 @@
    * @param {Object} state - The application state
    * @returns {Function} Pointerdown event handler
    */
-  const createPointerdownHandler = state => {
-    return event => {
+  const createPointerdownHandler = (state) => {
+    return (event) => {
       event.preventDefault();
       event.stopPropagation();
+
       if (event.pointerType === 'mouse' && !state.config.simulateTouch) {
-        return;
+        return
       }
+
       state.isDraggingX = false;
       state.isDraggingY = false;
+
       state.pointerDown = true;
+
       state.activePointers.set(event.pointerId, event);
+
       state.drag.startX = event.pageX;
       state.drag.startY = event.pageY;
       state.drag.endX = event.pageX;
       state.drag.endY = event.pageY;
-      const {
-        slider
-      } = state.GROUPS[state.activeGroup];
+
+      const { slider } = state.GROUPS[state.activeGroup];
+
       slider.classList.add('parvus__slider--is-dragging');
       slider.style.willChange = 'transform';
+
       state.isTap = state.activePointers.size === 1;
+
       if (state.config.swipeClose) {
         state.lightboxOverlayOpacity = getComputedStyle(state.lightboxOverlay).opacity;
       }
-    };
+    }
   };
 
   /**
@@ -893,11 +932,13 @@
    * @returns {Function} Pointermove event handler
    */
   const createPointermoveHandler = (state, pinchZoom, doSwipe) => {
-    return event => {
+    return (event) => {
       event.preventDefault();
+
       if (!state.pointerDown) {
-        return;
+        return
       }
+
       const CURRENT_IMAGE = state.GROUPS[state.activeGroup].contentElements[state.currentIndex];
 
       // Update pointer position
@@ -907,16 +948,20 @@
       if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG') {
         if (state.activePointers.size === 2) {
           pinchZoom(CURRENT_IMAGE);
-          return;
+
+          return
         }
+
         if (state.currentScale > 1) {
-          return;
+          return
         }
       }
+
       state.drag.endX = event.pageX;
       state.drag.endY = event.pageY;
+
       doSwipe();
-    };
+    }
   };
 
   /**
@@ -928,24 +973,30 @@
    * @returns {Function} Pointerup event handler
    */
   const createPointerupHandler = (state, resetZoom, updateAfterDrag) => {
-    return event => {
+    return (event) => {
       event.stopPropagation();
-      const {
-        slider
-      } = state.GROUPS[state.activeGroup];
+
+      const { slider } = state.GROUPS[state.activeGroup];
+
       state.activePointers.delete(event.pointerId);
+
       if (state.activePointers.size > 0) {
-        return;
+        return
       }
+
       state.pointerDown = false;
+
       const CURRENT_IMAGE = state.GROUPS[state.activeGroup].contentElements[state.currentIndex];
 
       // Reset zoom state by one tap
       const MOVEMENT_X = Math.abs(state.drag.endX - state.drag.startX);
       const MOVEMENT_Y = Math.abs(state.drag.endY - state.drag.startY);
+
       const IS_TAP = MOVEMENT_X < 8 && MOVEMENT_Y < 8 && !state.isDraggingX && !state.isDraggingY && state.isTap;
+
       slider.classList.remove('parvus__slider--is-dragging');
       slider.style.willChange = '';
+
       if (state.currentScale > 1) {
         if (IS_TAP) {
           resetZoom(CURRENT_IMAGE);
@@ -958,12 +1009,14 @@
         if (state.isPinching) {
           resetZoom(CURRENT_IMAGE);
         }
+
         if (state.drag.endX || state.drag.endY) {
           updateAfterDrag();
         }
       }
+
       state.clearDrag();
-    };
+    }
   };
 
   /**
@@ -974,19 +1027,19 @@
    * @returns {Function} Click event handler
    */
   const createClickHandler = (state, actions) => {
-    return event => {
-      const {
-        target
-      } = event;
+    return (event) => {
+      const { target } = event;
+
       if (target === state.previousButton) {
         actions.previous();
       } else if (target === state.nextButton) {
         actions.next();
-      } else if (target === state.closeButton || state.config.docClose && !state.isDraggingY && !state.isDraggingX && target.classList.contains('parvus__slide')) {
+      } else if (target === state.closeButton || (state.config.docClose && !state.isDraggingY && !state.isDraggingX && target.classList.contains('parvus__slide'))) {
         actions.close();
       }
+
       event.stopPropagation();
-    };
+    }
   };
 
   /**
@@ -1005,11 +1058,14 @@
   const resetZoom = (state, currentImg) => {
     currentImg.style.transition = 'transform 0.3s ease';
     currentImg.style.transform = '';
+
     setTimeout(() => {
       currentImg.style.transition = '';
       currentImg.style.transformOrigin = '';
     }, 300);
+
     state.resetZoomState();
+
     state.lightbox.classList.remove('parvus--is-zooming');
   };
 
@@ -1025,7 +1081,10 @@
     const POINTS = Array.from(state.activePointers.values());
 
     // Calculate current distance between fingers
-    const CURRENT_DISTANCE = Math.hypot(POINTS[1].clientX - POINTS[0].clientX, POINTS[1].clientY - POINTS[0].clientY);
+    const CURRENT_DISTANCE = Math.hypot(
+      POINTS[1].clientX - POINTS[0].clientX,
+      POINTS[1].clientY - POINTS[0].clientY
+    );
 
     // Calculate the midpoint between the two points
     const MIDPOINT_X = (POINTS[0].clientX + POINTS[1].clientX) / 2;
@@ -1040,6 +1099,7 @@
     // Use a unique ID based on the pointer IDs to recognize changes
     const CURRENT_POINTERS_ID = POINTS.map(p => p.pointerId).sort().join('-');
     const IS_NEW_POINTER_COMBINATION = state.lastPointersId !== CURRENT_POINTERS_ID;
+
     if (!state.isPinching || IS_NEW_POINTER_COMBINATION) {
       state.isPinching = true;
       state.lastPointersId = CURRENT_POINTERS_ID;
@@ -1048,10 +1108,12 @@
       state.pinchStartDistance = CURRENT_DISTANCE / state.currentScale;
 
       // Store initial pinch position for this gesture
-      if (!currentImg.style.transformOrigin && state.currentScale === 1 || state.currentScale === 1 && IS_NEW_POINTER_COMBINATION) {
+      if ((!currentImg.style.transformOrigin && state.currentScale === 1) ||
+        (state.currentScale === 1 && IS_NEW_POINTER_COMBINATION)) {
         // Set the transform origin to the pinch midpoint
         currentImg.style.transformOrigin = `${RELATIVE_X * 100}% ${RELATIVE_Y * 100}%`;
       }
+
       state.lightbox.classList.add('parvus--is-zooming');
     }
 
@@ -1060,6 +1122,7 @@
 
     // Limit scaling to 1 - 3
     state.currentScale = Math.min(Math.max(1, SCALE_FACTOR), 3);
+
     currentImg.style.willChange = 'transform';
     currentImg.style.transform = `scale(${state.currentScale})`;
   };
@@ -1070,31 +1133,32 @@
    * @param {Object} state - The application state
    * @returns {void}
    */
-  const doSwipe = state => {
+  const doSwipe = (state) => {
     const MOVEMENT_THRESHOLD = 1.5;
     const MAX_OPACITY_DISTANCE = 100;
     const DIRECTION_BIAS = 1.15;
-    const {
-      startX,
-      endX,
-      startY,
-      endY
-    } = state.drag;
+
+    const { startX, endX, startY, endY } = state.drag;
     const MOVEMENT_X = startX - endX;
     const MOVEMENT_Y = endY - startY;
     const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X);
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
+
     const GROUP = state.GROUPS[state.activeGroup];
     const SLIDER = GROUP.slider;
     const TOTAL_SLIDES = GROUP.triggerElements.length;
+
     const handleHorizontalSwipe = (movementX, distance) => {
       const IS_FIRST_SLIDE = state.currentIndex === 0;
       const IS_LAST_SLIDE = state.currentIndex === TOTAL_SLIDES - 1;
+
       const IS_LEFT_SWIPE = movementX > 0;
       const IS_RIGHT_SWIPE = movementX < 0;
-      if (IS_FIRST_SLIDE && IS_RIGHT_SWIPE || IS_LAST_SLIDE && IS_LEFT_SWIPE) {
+
+      if ((IS_FIRST_SLIDE && IS_RIGHT_SWIPE) || (IS_LAST_SLIDE && IS_LEFT_SWIPE)) {
         const DAMPING_FACTOR = 1 / (1 + Math.pow(distance / 100, 0.15));
         const REDUCED_MOVEMENT = movementX * DAMPING_FACTOR;
+
         SLIDER.style.transform = `
         translate3d(${state.offsetTmp - Math.round(REDUCED_MOVEMENT)}px, 0, 0)
       `;
@@ -1104,23 +1168,28 @@
       `;
       }
     };
+
     const handleVerticalSwipe = (movementY, distance) => {
       if (!state.isReducedMotion && distance <= 100) {
-        const NEW_OVERLAY_OPACITY = Math.max(0, state.lightboxOverlayOpacity - distance / MAX_OPACITY_DISTANCE);
+        const NEW_OVERLAY_OPACITY = Math.max(0, state.lightboxOverlayOpacity - (distance / MAX_OPACITY_DISTANCE));
+
         state.lightboxOverlay.style.opacity = NEW_OVERLAY_OPACITY;
       }
+
       state.lightbox.classList.add('parvus--is-vertical-closing');
+
       SLIDER.style.transform = `
       translate3d(${state.offsetTmp}px, ${Math.round(movementY)}px, 0)
     `;
     };
+
     if (state.isDraggingX || state.isDraggingY) {
       if (state.isDraggingX) {
         handleHorizontalSwipe(MOVEMENT_X, MOVEMENT_X_DISTANCE);
       } else if (state.isDraggingY) {
         handleVerticalSwipe(MOVEMENT_Y, MOVEMENT_Y_DISTANCE);
       }
-      return;
+      return
     }
 
     // Direction detection based on the relative ratio of movements
@@ -1129,11 +1198,13 @@
       if (MOVEMENT_X_DISTANCE > MOVEMENT_Y_DISTANCE * DIRECTION_BIAS && TOTAL_SLIDES > 1) {
         state.isDraggingX = true;
         state.isDraggingY = false;
+
         handleHorizontalSwipe(MOVEMENT_X, MOVEMENT_X_DISTANCE);
       } else if (MOVEMENT_Y_DISTANCE > MOVEMENT_X_DISTANCE * DIRECTION_BIAS && state.config.swipeClose) {
         // Vertical swipe if Y-movement is stronger than X-movement * DIRECTION_BIAS
         state.isDraggingX = false;
         state.isDraggingY = true;
+
         handleVerticalSwipe(MOVEMENT_Y, MOVEMENT_Y_DISTANCE);
       }
     }
@@ -1147,22 +1218,17 @@
    * @returns {void}
    */
   const updateAfterDrag = (state, actions) => {
-    const {
-      startX,
-      startY,
-      endX,
-      endY
-    } = state.drag;
+    const { startX, startY, endX, endY } = state.drag;
     const MOVEMENT_X = endX - startX;
     const MOVEMENT_Y = endY - startY;
     const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X);
     const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y);
-    const {
-      triggerElements
-    } = state.GROUPS[state.activeGroup];
+    const { triggerElements } = state.GROUPS[state.activeGroup];
     const TOTAL_TRIGGER_ELEMENTS = triggerElements.length;
+
     if (state.isDraggingX) {
       const IS_RIGHT_SWIPE = MOVEMENT_X > 0;
+
       if (MOVEMENT_X_DISTANCE >= state.config.threshold) {
         if (IS_RIGHT_SWIPE && state.currentIndex > 0) {
           actions.previous();
@@ -1170,14 +1236,17 @@
           actions.next();
         }
       }
+
       actions.updateOffset();
     } else if (state.isDraggingY) {
       if (MOVEMENT_Y_DISTANCE >= state.config.threshold && state.config.swipeClose) {
         actions.close();
       } else {
         state.lightbox.classList.remove('parvus--is-vertical-closing');
+
         actions.updateOffset();
       }
+
       state.lightboxOverlay.style.opacity = '';
     } else {
       actions.updateOffset();
@@ -1201,48 +1270,61 @@
    * @returns {void}
    */
   const addCaption = (config, containerEl, imageEl, el, index) => {
-    const getCaptionData = triggerEl => {
-      const {
-        captionsAttribute,
-        captionsSelector,
-        captionsIdAttribute = 'data-caption-id'
-      } = config;
+    const getCaptionData = (triggerEl) => {
+      const { captionsAttribute, captionsSelector, captionsIdAttribute = 'data-caption-id' } = config;
 
       // Check for an ID reference on the trigger element
       // This allows the caption to be anywhere on the page
       const CAPTION_ID = triggerEl.getAttribute(captionsIdAttribute);
+
       if (CAPTION_ID) {
         const CAPTION_EL = document.getElementById(CAPTION_ID);
+
         if (CAPTION_EL) {
-          return CAPTION_EL.innerHTML;
+          return CAPTION_EL.innerHTML
         }
       }
 
       // Check for a direct caption attribute on the trigger element
       const DIRECT_CAPTION = triggerEl.getAttribute(captionsAttribute);
+
       if (DIRECT_CAPTION) {
-        return DIRECT_CAPTION;
+        return DIRECT_CAPTION
       }
 
       // Query for a selector inside the trigger element
       if (captionsSelector !== 'self') {
         const CAPTION_EL = triggerEl.querySelector(captionsSelector);
+
         if (CAPTION_EL) {
           // Prefer a direct attribute on the found element, otherwise use its content
-          return CAPTION_EL.getAttribute(captionsAttribute) || CAPTION_EL.innerHTML;
+          return CAPTION_EL.getAttribute(captionsAttribute) || CAPTION_EL.innerHTML
         }
       }
-      return null;
+
+      return null
     };
+
     const CAPTION_DATA = getCaptionData(el);
+
     if (CAPTION_DATA) {
       const CAPTION_CONTAINER = document.createElement('div');
       const CAPTION_ID = `parvus__caption-${index}`;
+
       CAPTION_CONTAINER.className = 'parvus__caption';
       CAPTION_CONTAINER.id = CAPTION_ID;
       CAPTION_CONTAINER.innerHTML = `<p>${CAPTION_DATA}</p>`;
+
       containerEl.appendChild(CAPTION_CONTAINER);
-      imageEl.setAttribute('aria-describedby', CAPTION_ID);
+
+      // If image already has aria-describedby (from copyright), append caption ID
+      const HAS_ARIA_DESCRIBEDBY = imageEl.getAttribute('aria-describedby');
+
+      if (HAS_ARIA_DESCRIBEDBY) {
+        imageEl.setAttribute('aria-describedby', `${HAS_ARIA_DESCRIBEDBY} ${CAPTION_ID}`);
+      } else {
+        imageEl.setAttribute('aria-describedby', CAPTION_ID);
+      }
     }
   };
 
@@ -1257,46 +1339,51 @@
    * @returns {void}
    */
   const addCopyright = (config, imageContainer, imageEl, el, index) => {
-    const getCopyrightData = triggerEl => {
-      const {
-        copyrightAttribute,
-        copyrightSelector,
-        copyrightIdAttribute = 'data-copyright-id'
-      } = config;
+    const getCopyrightData = (triggerEl) => {
+      const { copyrightAttribute, copyrightSelector, copyrightIdAttribute = 'data-copyright-id' } = config;
 
       // Check for an ID reference on the trigger element
       // This allows the copyright to be anywhere on the page
       const COPYRIGHT_ID = triggerEl.getAttribute(copyrightIdAttribute);
+
       if (COPYRIGHT_ID) {
         const COPYRIGHT_EL = document.getElementById(COPYRIGHT_ID);
+
         if (COPYRIGHT_EL) {
-          return COPYRIGHT_EL.innerHTML;
+          return COPYRIGHT_EL.innerHTML
         }
       }
 
       // Check for a direct copyright attribute on the trigger element
       const DIRECT_COPYRIGHT = triggerEl.getAttribute(copyrightAttribute);
+
       if (DIRECT_COPYRIGHT) {
-        return DIRECT_COPYRIGHT;
+        return DIRECT_COPYRIGHT
       }
 
       // Query for a selector inside the trigger element
       if (copyrightSelector !== 'self') {
         const COPYRIGHT_EL = triggerEl.querySelector(copyrightSelector);
+
         if (COPYRIGHT_EL) {
           // Prefer a direct attribute on the found element, otherwise use its content
-          return COPYRIGHT_EL.getAttribute(copyrightAttribute) || COPYRIGHT_EL.innerHTML;
+          return COPYRIGHT_EL.getAttribute(copyrightAttribute) || COPYRIGHT_EL.innerHTML
         }
       }
-      return null;
+
+      return null
     };
+
     const COPYRIGHT_DATA = getCopyrightData(el);
+
     if (COPYRIGHT_DATA) {
       const COPYRIGHT_CONTAINER = document.createElement('div');
       const COPYRIGHT_ID = `parvus__copyright-${index}`;
+
       COPYRIGHT_CONTAINER.className = 'parvus__copyright';
       COPYRIGHT_CONTAINER.id = COPYRIGHT_ID;
       COPYRIGHT_CONTAINER.innerHTML = `<small>${COPYRIGHT_DATA}</small>`;
+
       imageContainer.appendChild(COPYRIGHT_CONTAINER);
 
       // If image already has aria-describedby (from caption), append copyright ID
@@ -1319,21 +1406,21 @@
    * @returns {void}
    */
   const createImage = (state, el, index, callback) => {
-    const {
-      contentElements,
-      sliderElements
-    } = state.GROUPS[state.activeGroup];
+    const { contentElements, sliderElements } = state.GROUPS[state.activeGroup];
+
     if (contentElements[index] !== undefined) {
       if (callback && typeof callback === 'function') {
         callback();
       }
-      return;
+      return
     }
+
     const CONTENT_CONTAINER_EL = sliderElements[index].querySelector('div');
     const IMAGE = new Image();
     const IMAGE_CONTAINER = document.createElement('div');
     const THUMBNAIL = el.querySelector('img');
     const LOADING_INDICATOR = document.createElement('div');
+
     IMAGE_CONTAINER.className = 'parvus__content';
 
     // Create loading indicator
@@ -1343,45 +1430,58 @@
 
     // Add loading indicator to content container
     CONTENT_CONTAINER_EL.appendChild(LOADING_INDICATOR);
+
     const checkImagePromise = new Promise((resolve, reject) => {
       IMAGE.onload = () => resolve(IMAGE);
-      IMAGE.onerror = error => reject(error);
+      IMAGE.onerror = (error) => reject(error);
     });
-    checkImagePromise.then(loadedImage => {
-      loadedImage.style.opacity = 0;
-      IMAGE_CONTAINER.appendChild(loadedImage);
 
-      // Add copyright if available (inside IMAGE_CONTAINER)
-      if (state.config.copyright) {
-        addCopyright(state.config, IMAGE_CONTAINER, IMAGE, el, index);
-      }
-      CONTENT_CONTAINER_EL.appendChild(IMAGE_CONTAINER);
+    checkImagePromise
+      .then((loadedImage) => {
+        loadedImage.style.opacity = 0;
 
-      // Add caption if available
-      if (state.config.captions) {
-        addCaption(state.config, CONTENT_CONTAINER_EL, IMAGE, el, index);
-      }
-      contentElements[index] = loadedImage;
+        IMAGE_CONTAINER.appendChild(loadedImage);
 
-      // Set image width and height
-      loadedImage.setAttribute('width', loadedImage.naturalWidth);
-      loadedImage.setAttribute('height', loadedImage.naturalHeight);
+        // Add copyright if available (inside IMAGE_CONTAINER)
+        if (state.config.copyright) {
+          addCopyright(state.config, IMAGE_CONTAINER, IMAGE, el, index);
+        }
 
-      // Set image dimension
-      setImageDimension(sliderElements[index], loadedImage);
-    }).catch(() => {
-      const ERROR_CONTAINER = document.createElement('div');
-      ERROR_CONTAINER.classList.add('parvus__content');
-      ERROR_CONTAINER.classList.add('parvus__content--error');
-      ERROR_CONTAINER.textContent = state.config.l10n.lightboxLoadingError;
-      CONTENT_CONTAINER_EL.appendChild(ERROR_CONTAINER);
-      contentElements[index] = ERROR_CONTAINER;
-    }).finally(() => {
-      CONTENT_CONTAINER_EL.removeChild(LOADING_INDICATOR);
-      if (callback && typeof callback === 'function') {
-        callback();
-      }
-    });
+        CONTENT_CONTAINER_EL.appendChild(IMAGE_CONTAINER);
+
+        // Add caption if available
+        if (state.config.captions) {
+          addCaption(state.config, CONTENT_CONTAINER_EL, IMAGE, el, index);
+        }
+
+        contentElements[index] = loadedImage;
+
+        // Set image width and height
+        loadedImage.setAttribute('width', loadedImage.naturalWidth);
+        loadedImage.setAttribute('height', loadedImage.naturalHeight);
+
+        // Set image dimension
+        setImageDimension(sliderElements[index], loadedImage);
+      })
+      .catch(() => {
+        const ERROR_CONTAINER = document.createElement('div');
+
+        ERROR_CONTAINER.classList.add('parvus__content');
+        ERROR_CONTAINER.classList.add('parvus__content--error');
+
+        ERROR_CONTAINER.textContent = state.config.l10n.lightboxLoadingError;
+
+        CONTENT_CONTAINER_EL.appendChild(ERROR_CONTAINER);
+
+        contentElements[index] = ERROR_CONTAINER;
+      })
+      .finally(() => {
+        CONTENT_CONTAINER_EL.removeChild(LOADING_INDICATOR);
+
+        if (callback && typeof callback === 'function') {
+          callback();
+        }
+      });
 
     // Add `sizes` attribute
     if (el.hasAttribute('data-sizes') && el.getAttribute('data-sizes') !== '') {
@@ -1420,15 +1520,20 @@
    */
   const loadImage = (state, index, animate) => {
     const IMAGE = state.GROUPS[state.activeGroup].contentElements[index];
+
     if (IMAGE && IMAGE.tagName === 'IMG') {
       const THUMBNAIL = state.GROUPS[state.activeGroup].triggerElements[index];
+
       if (animate && document.startViewTransition) {
         THUMBNAIL.style.viewTransitionName = 'lightboximage';
+
         const transition = document.startViewTransition(() => {
           IMAGE.style.opacity = '';
           THUMBNAIL.style.viewTransitionName = null;
+
           IMAGE.style.viewTransitionName = 'lightboximage';
         });
+
         transition.finished.finally(() => {
           IMAGE.style.viewTransitionName = null;
         });
@@ -1449,24 +1554,34 @@
    */
   const setImageDimension = (slideEl, contentEl) => {
     if (contentEl.tagName !== 'IMG') {
-      return;
+      return
     }
+
     const SRC_HEIGHT = contentEl.getAttribute('height');
     const SRC_WIDTH = contentEl.getAttribute('width');
+
     if (!SRC_HEIGHT || !SRC_WIDTH) {
-      return;
+      return
     }
+
     const SLIDE_EL_STYLES = getComputedStyle(slideEl);
+
     const HORIZONTAL_PADDING = parseFloat(SLIDE_EL_STYLES.paddingLeft) + parseFloat(SLIDE_EL_STYLES.paddingRight);
     const VERTICAL_PADDING = parseFloat(SLIDE_EL_STYLES.paddingTop) + parseFloat(SLIDE_EL_STYLES.paddingBottom);
+
     const CAPTION_EL = slideEl.querySelector('.parvus__caption');
     const CAPTION_HEIGHT = CAPTION_EL ? CAPTION_EL.getBoundingClientRect().height : 0;
+
     const MAX_WIDTH = slideEl.offsetWidth - HORIZONTAL_PADDING;
     const MAX_HEIGHT = slideEl.offsetHeight - VERTICAL_PADDING - CAPTION_HEIGHT;
+
     const RATIO = Math.min(MAX_WIDTH / SRC_WIDTH || 0, MAX_HEIGHT / SRC_HEIGHT || 0);
+
     const NEW_WIDTH = SRC_WIDTH * RATIO;
     const NEW_HEIGHT = SRC_HEIGHT * RATIO;
-    const USE_ORIGINAL_SIZE = SRC_WIDTH <= MAX_WIDTH && SRC_HEIGHT <= MAX_HEIGHT;
+
+    const USE_ORIGINAL_SIZE = (SRC_WIDTH <= MAX_WIDTH && SRC_HEIGHT <= MAX_HEIGHT);
+
     contentEl.style.width = USE_ORIGINAL_SIZE ? '' : `${NEW_WIDTH}px`;
     contentEl.style.height = USE_ORIGINAL_SIZE ? '' : `${NEW_HEIGHT}px`;
   };
@@ -1482,15 +1597,18 @@
     return () => {
       if (!state.resizeTicking) {
         state.resizeTicking = true;
+
         window.requestAnimationFrame(() => {
           state.GROUPS[state.activeGroup].sliderElements.forEach((slide, index) => {
             setImageDimension(slide, state.GROUPS[state.activeGroup].contentElements[index]);
           });
+
           updateOffset();
+
           state.resizeTicking = false;
         });
       }
-    };
+    }
   };
 
   // Helper modules
@@ -1501,7 +1619,7 @@
    * @param {Object} userOptions - User configuration options
    * @returns {Object} Parvus instance
    */
-  function Parvus(userOptions) {
+  function Parvus (userOptions) {
     const BROWSER_WINDOW = window;
     const STATE = new ParvusState();
     const MOTIONQUERY = BROWSER_WINDOW.matchMedia('(prefers-reduced-motion)');
@@ -1515,8 +1633,9 @@
      *
      * @param {Event} event - The click event object
      */
-    const triggerParvus = function triggerParvus(event) {
+    const triggerParvus = function triggerParvus (event) {
       event.preventDefault();
+
       open(this);
     };
 
@@ -1525,12 +1644,13 @@
      *
      * @param {HTMLElement} el - The element to be added
      */
-    const add = el => {
+    const add = (el) => {
       // Check element type and attributes
       const IS_VALID_LINK = el.tagName === 'A' && el.hasAttribute('href');
       const IS_VALID_BUTTON = el.tagName === 'BUTTON' && el.hasAttribute('data-target');
+
       if (!IS_VALID_LINK && !IS_VALID_BUTTON) {
-        throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must contain a path to the image file.');
+        throw new Error('Use a link with the \'href\' attribute or a button with the \'data-target\' attribute. Both attributes must contain a path to the image file.')
       }
 
       // Check if the lightbox already exists
@@ -1538,25 +1658,31 @@
         createLightbox(STATE);
 
         // Execute afterInit hook when lightbox is first created
-        PLUGIN_MANAGER.executeHook('afterInit', {
-          state: STATE
-        });
+        PLUGIN_MANAGER.executeHook('afterInit', { state: STATE });
       }
+
       STATE.newGroup = getGroup(STATE, el);
+
       if (!STATE.GROUPS[STATE.newGroup]) {
         STATE.GROUPS[STATE.newGroup] = structuredClone(STATE.GROUP_ATTRIBUTES);
       }
+
       if (STATE.GROUPS[STATE.newGroup].triggerElements.includes(el)) {
-        throw new Error('Ups, element already added.');
+        throw new Error('Ups, element already added.')
       }
+
       STATE.GROUPS[STATE.newGroup].triggerElements.push(el);
+
       if (STATE.config.zoomIndicator) {
         addZoomIndicator(el, STATE.config);
       }
+
       el.classList.add('parvus-trigger');
       el.addEventListener('click', triggerParvus);
+
       if (isOpen() && STATE.newGroup === STATE.activeGroup) {
         const EL_INDEX = STATE.GROUPS[STATE.newGroup].triggerElements.indexOf(el);
+
         createSlide(STATE, EL_INDEX);
         createImage(STATE, el, EL_INDEX, () => {
           loadImage(STATE, EL_INDEX);
@@ -1572,26 +1698,31 @@
      *
      * @param {HTMLElement} el - The element to be removed
      */
-    const remove = el => {
+    const remove = (el) => {
       if (!el || !el.hasAttribute('data-group')) {
-        return;
+        return
       }
+
       const EL_GROUP = getGroup(STATE, el);
       const GROUP = STATE.GROUPS[EL_GROUP];
 
       // Check if element exists
       if (!GROUP) {
-        return;
+        return
       }
+
       const EL_INDEX = GROUP.triggerElements.indexOf(el);
+
       if (EL_INDEX === -1) {
-        return;
+        return
       }
+
       const IS_CURRENT_EL = isOpen() && EL_GROUP === STATE.activeGroup && EL_INDEX === STATE.currentIndex;
 
       // Remove group data
       if (GROUP.contentElements[EL_INDEX]) {
         const content = GROUP.contentElements[EL_INDEX];
+
         if (content.tagName === 'IMG') {
           content.src = '';
           content.srcset = '';
@@ -1600,6 +1731,7 @@
 
       // Remove DOM element
       const sliderElement = GROUP.sliderElements[EL_INDEX];
+
       if (sliderElement && sliderElement.parentNode) {
         sliderElement.parentNode.removeChild(sliderElement);
       }
@@ -1608,9 +1740,11 @@
       GROUP.triggerElements.splice(EL_INDEX, 1);
       GROUP.sliderElements.splice(EL_INDEX, 1);
       GROUP.contentElements.splice(EL_INDEX, 1);
+
       if (STATE.config.zoomIndicator) {
         removeZoomIndicator(el);
       }
+
       if (isOpen() && EL_GROUP === STATE.activeGroup) {
         if (IS_CURRENT_EL) {
           if (GROUP.triggerElements.length === 0) {
@@ -1636,6 +1770,7 @@
 
       // Unbind click event handler
       el.removeEventListener('click', triggerParvus);
+
       el.classList.remove('parvus-trigger');
     };
 
@@ -1644,47 +1779,56 @@
      *
      * @param {HTMLElement} el
      */
-    const open = el => {
+    const open = (el) => {
       if (!STATE.lightbox || !el || !el.classList.contains('parvus-trigger') || isOpen()) {
-        return;
+        return
       }
+
       STATE.activeGroup = getGroup(STATE, el);
+
       const GROUP = STATE.GROUPS[STATE.activeGroup];
       const EL_INDEX = GROUP.triggerElements.indexOf(el);
+
       if (EL_INDEX === -1) {
-        throw new Error('Ups, element not found in group.');
+        throw new Error('Ups, element not found in group.')
       }
+
       STATE.currentIndex = EL_INDEX;
-      history.pushState({
-        parvus: 'close'
-      }, 'Image', window.location.href);
+
+      history.pushState({ parvus: 'close' }, 'Image', window.location.href);
+
       bindEvents();
+
       if (STATE.config.hideScrollbar) {
         document.body.style.marginInlineEnd = `${getScrollbarWidth()}px`;
         document.body.style.overflow = 'hidden';
       }
+
       STATE.lightbox.classList.add('parvus--is-opening');
       STATE.lightbox.showModal();
+
       createSlider(STATE);
       createSlide(STATE, STATE.currentIndex);
+
       updateOffset(STATE);
       updateAttributes(STATE);
       updateSliderNavigationStatus(STATE);
       updateCounter(STATE);
+
       loadSlide(STATE, STATE.currentIndex);
+
       createImage(STATE, el, STATE.currentIndex, () => {
         loadImage(STATE, STATE.currentIndex, true);
         STATE.lightbox.classList.remove('parvus--is-opening');
+
         GROUP.slider.classList.add('parvus__slider--animate');
       });
+
       preload(STATE, createSlide, createImage, loadImage, STATE.currentIndex + 1);
       preload(STATE, createSlide, createImage, loadImage, STATE.currentIndex - 1);
 
       // Execute afterOpen hook
-      PLUGIN_MANAGER.executeHook('afterOpen', {
-        element: el,
-        state: STATE
-      });
+      PLUGIN_MANAGER.executeHook('afterOpen', { element: el, state: STATE });
 
       // Create and dispatch a new event
       dispatchCustomEvent(STATE.lightbox, 'open');
@@ -1695,59 +1839,76 @@
      */
     const close = () => {
       if (!isOpen()) {
-        return;
+        return
       }
+
       const IMAGE = STATE.GROUPS[STATE.activeGroup].contentElements[STATE.currentIndex];
       const THUMBNAIL = STATE.GROUPS[STATE.activeGroup].triggerElements[STATE.currentIndex];
+
       unbindEvents();
       STATE.clearDrag();
+
       if (history.state?.parvus === 'close') {
         history.back();
       }
+
       STATE.lightbox.classList.add('parvus--is-closing');
+
       const transitionendHandler = () => {
         // Reset the image zoom (if ESC was pressed or went back in the browser history)
         // after the ViewTransition (otherwise it looks bad)
         if (STATE.isPinching) {
           resetZoom(STATE, IMAGE);
         }
+
         leaveSlide(STATE, STATE.currentIndex);
+
         STATE.lightbox.close();
         STATE.lightbox.classList.remove('parvus--is-closing');
         STATE.lightbox.classList.remove('parvus--is-vertical-closing');
+
         STATE.GROUPS[STATE.activeGroup].slider.remove();
         STATE.GROUPS[STATE.activeGroup].slider = null;
         STATE.GROUPS[STATE.activeGroup].sliderElements = [];
         STATE.GROUPS[STATE.activeGroup].contentElements = [];
+
         STATE.counter.removeAttribute('aria-hidden');
+
         STATE.previousButton.removeAttribute('aria-hidden');
         STATE.previousButton.removeAttribute('aria-disabled');
+
         STATE.nextButton.removeAttribute('aria-hidden');
+
         STATE.nextButton.removeAttribute('aria-disabled');
+
         if (STATE.config.hideScrollbar) {
           document.body.style.marginInlineEnd = '';
           document.body.style.overflow = '';
         }
 
         // Execute afterClose hook
-        PLUGIN_MANAGER.executeHook('afterClose', {
-          state: STATE
-        });
+        PLUGIN_MANAGER.executeHook('afterClose', { state: STATE });
       };
+
       if (IMAGE && IMAGE.tagName === 'IMG') {
         if (document.startViewTransition) {
           IMAGE.style.viewTransitionName = 'lightboximage';
+
           const transition = document.startViewTransition(() => {
             IMAGE.style.opacity = '0';
             IMAGE.style.viewTransitionName = null;
+
             THUMBNAIL.style.viewTransitionName = 'lightboximage';
           });
+
           transition.finished.finally(() => {
             transitionendHandler();
+
             THUMBNAIL.style.viewTransitionName = null;
           });
         } else {
           IMAGE.style.opacity = '0';
+
           requestAnimationFrame(transitionendHandler);
         }
       } else {
@@ -1760,23 +1921,30 @@
      *
      * @param {number} index - Index of the slide to select
      */
-    const select = index => {
+    const select = (index) => {
       if (!isOpen()) {
-        throw new Error("Oops, I'm closed.");
+        throw new Error("Oops, I'm closed.")
       }
+
       if (typeof index !== 'number' || isNaN(index)) {
-        throw new Error('Oops, no slide specified.');
+        throw new Error('Oops, no slide specified.')
       }
+
       const GROUP = STATE.GROUPS[STATE.activeGroup];
       const triggerElements = GROUP.triggerElements;
+
       if (index === STATE.currentIndex) {
-        throw new Error(`Oops, slide ${index} is already selected.`);
+        throw new Error(`Oops, slide ${index} is already selected.`)
       }
+
       if (index < 0 || index >= triggerElements.length) {
-        throw new Error(`Oops, I can't find slide ${index}.`);
+        throw new Error(`Oops, I can't find slide ${index}.`)
       }
+
       const OLD_INDEX = STATE.currentIndex;
+
       STATE.currentIndex = index;
+
       if (GROUP.sliderElements[index]) {
         loadSlide(STATE, index);
       } else {
@@ -1786,21 +1954,20 @@
         });
         loadSlide(STATE, index);
       }
+
       updateOffset(STATE);
       updateSliderNavigationStatus(STATE);
       updateCounter(STATE);
 
       // Execute slideChange hook
-      PLUGIN_MANAGER.executeHook('slideChange', {
-        index,
-        oldIndex: OLD_INDEX,
-        state: STATE
-      });
+      PLUGIN_MANAGER.executeHook('slideChange', { index, oldIndex: OLD_INDEX, state: STATE });
+
       if (index < OLD_INDEX) {
         preload(STATE, createSlide, createImage, loadImage, index - 1);
       } else {
         preload(STATE, createSlide, createImage, loadImage, index + 1);
       }
+
       leaveSlide(STATE, OLD_INDEX);
 
       // Create and dispatch a new event
@@ -1820,9 +1987,8 @@
      * Select the next slide
      */
     const next = () => {
-      const {
-        triggerElements
-      } = STATE.GROUPS[STATE.activeGroup];
+      const { triggerElements } = STATE.GROUPS[STATE.activeGroup];
+
       if (STATE.currentIndex < triggerElements.length - 1) {
         select(STATE.currentIndex + 1);
       }
@@ -1843,13 +2009,16 @@
       keydownHandler = createKeydownHandler(STATE, actions);
       clickHandler = createClickHandler(STATE, actions);
       resizeHandler = createResizeHandler(STATE, () => updateOffset(STATE));
+
       const updateAfterDragHandler = () => updateAfterDrag(STATE, actions);
-      const pinchZoomHandler = img => pinchZoom(STATE, img);
+      const pinchZoomHandler = (img) => pinchZoom(STATE, img);
       const doSwipeHandler = () => doSwipe(STATE);
-      const resetZoomHandler = img => resetZoom(STATE, img);
+      const resetZoomHandler = (img) => resetZoom(STATE, img);
+
       pointerdownHandler = createPointerdownHandler(STATE);
       pointermoveHandler = createPointermoveHandler(STATE, pinchZoomHandler, doSwipeHandler);
       pointerupHandler = createPointerupHandler(STATE, resetZoomHandler, updateAfterDragHandler);
+
       BROWSER_WINDOW.addEventListener('keydown', keydownHandler);
       BROWSER_WINDOW.addEventListener('resize', resizeHandler);
 
@@ -1863,15 +2032,9 @@
       STATE.lightbox.addEventListener('click', clickHandler);
 
       // Pointer events
-      STATE.lightbox.addEventListener('pointerdown', pointerdownHandler, {
-        passive: false
-      });
-      STATE.lightbox.addEventListener('pointerup', pointerupHandler, {
-        passive: true
-      });
-      STATE.lightbox.addEventListener('pointermove', pointermoveHandler, {
-        passive: false
-      });
+      STATE.lightbox.addEventListener('pointerdown', pointerdownHandler, { passive: false });
+      STATE.lightbox.addEventListener('pointerup', pointerupHandler, { passive: true });
+      STATE.lightbox.addEventListener('pointermove', pointermoveHandler, { passive: false });
     };
 
     /**
@@ -1901,8 +2064,9 @@
      */
     const destroy = () => {
       if (!STATE.lightbox) {
-        return;
+        return
       }
+
       if (isOpen()) {
         close();
       }
@@ -1912,9 +2076,16 @@
         unbindEvents();
 
         // Remove all registered event listeners for custom events
-        const eventTypes = ['open', 'close', 'select', 'destroy'];
+        const eventTypes = [
+          'open',
+          'close',
+          'select',
+          'destroy'
+        ];
+
         eventTypes.forEach(eventType => {
           const listeners = STATE.lightbox._listeners?.[eventType] || [];
+
           listeners.forEach(listener => {
             STATE.lightbox.removeEventListener(eventType, listener);
           });
@@ -1922,12 +2093,15 @@
 
         // Remove event listeners from trigger elements
         const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll('.parvus-trigger');
+
         LIGHTBOX_TRIGGER_ELS.forEach(el => {
           el.removeEventListener('click', triggerParvus);
           el.classList.remove('parvus-trigger');
+
           if (STATE.config.zoomIndicator) {
             removeZoomIndicator(el);
           }
+
           if (el.dataset.group) {
             delete el.dataset.group;
           }
@@ -1935,6 +2109,7 @@
 
         // Create and dispatch a new event
         dispatchCustomEvent(STATE.lightbox, 'destroy');
+
         STATE.lightbox.remove();
 
         // Remove references
@@ -1952,6 +2127,7 @@
         // Remove group data
         Object.keys(STATE.GROUPS).forEach(groupKey => {
           const group = STATE.GROUPS[groupKey];
+
           if (group && group.contentElements) {
             group.contentElements.forEach(content => {
               if (content && content.tagName === 'IMG') {
@@ -1977,7 +2153,7 @@
      * @returns {boolean} - True if Parvus is open, otherwise false
      */
     const isOpen = () => {
-      return STATE.lightbox?.hasAttribute('open');
+      return STATE.lightbox?.hasAttribute('open')
     };
 
     /**
@@ -1986,7 +2162,7 @@
      * @returns {number} - The current index
      */
     const getCurrentIndex = () => {
-      return STATE.currentIndex;
+      return STATE.currentIndex
     };
 
     /**
@@ -2035,7 +2211,7 @@
      * @returns {Array} Array of plugin names
      */
     const getPlugins = () => {
-      return PLUGIN_MANAGER.getPlugins();
+      return PLUGIN_MANAGER.getPlugins()
     };
 
     /**
@@ -2044,6 +2220,7 @@
     const init = () => {
       // Merge user options into defaults
       STATE.config = mergeOptions(userOptions);
+
       reducedMotionCheck(STATE, MOTIONQUERY);
 
       // Install plugins with context
@@ -2054,6 +2231,7 @@
         config: STATE.config
       };
       PLUGIN_MANAGER.install(pluginContext);
+
       if (STATE.config.gallerySelector !== null) {
         // Get a list of all `gallerySelector` elements within the document
         const GALLERY_ELS = document.querySelectorAll(STATE.config.gallerySelector);
@@ -2065,7 +2243,7 @@
           const LIGHTBOX_TRIGGER_GALLERY_ELS = galleryEl.querySelectorAll(STATE.config.selector);
 
           // Execute a few things once per element
-          LIGHTBOX_TRIGGER_GALLERY_ELS.forEach(lightboxTriggerEl => {
+          LIGHTBOX_TRIGGER_GALLERY_ELS.forEach((lightboxTriggerEl) => {
             lightboxTriggerEl.setAttribute('data-group', `parvus-gallery-${GALLERY_INDEX}`);
             add(lightboxTriggerEl);
           });
@@ -2074,9 +2252,12 @@
 
       // Get a list of all `selector` elements outside or without the `gallerySelector`
       const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(`${STATE.config.selector}:not(.parvus-trigger)`);
+
       LIGHTBOX_TRIGGER_ELS.forEach(add);
     };
+
     init();
+
     return {
       init,
       open,
@@ -2094,7 +2275,7 @@
       use,
       addHook,
       getPlugins
-    };
+    }
   }
 
   return Parvus;
