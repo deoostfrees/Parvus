@@ -6,6 +6,15 @@
   "main": "./dist/js/parvus.js",
   "module": "./dist/js/parvus.esm.js",
   "style": "./dist/css/parvus.css",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "files": [
+    "dist",
+    "src",
+    "CHANGELOG.md"
+  ],
   "devDependencies": {
     "@rollup/plugin-terser": "^1.0.0",
     "postcss": "^8.5.28",
@@ -32,14 +41,14 @@
     ]
   },
   "scripts": {
-    "build": "npm run testCss && npm run buildCss && npm run testJs && npm run buildJs",
+    "build": "npm run test && rollup -c --environment BUILDCSS,BUILDJS --bundleConfigAsCjs",
     "buildCss": "rollup -c --environment BUILDCSS --bundleConfigAsCjs",
     "buildJs": "rollup -c --environment BUILDJS --bundleConfigAsCjs",
-    "buildWatch": "npm run buildWatchJs && npm run buildWatchCss",
+    "buildWatch": "rollup -c -w --environment BUILDCSS,BUILDJS --bundleConfigAsCjs",
     "buildWatchCss": "rollup -c -w --environment BUILDCSS --bundleConfigAsCjs",
     "buildWatchJs": "rollup -c -w --environment BUILDJS --bundleConfigAsCjs",
     "testCss": "stylelint \"src/scss/parvus.scss\"",
-    "testJs": "standard \"src/js/parvus.js\"",
+    "testJs": "standard \"src/js/**/*.js\"",
     "test": "npm run testCss && npm run testJs"
   },
   "exports": {
@@ -52,7 +61,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/deoostfrees/parvus.git"
+    "url": "git+https://github.com/deoostfrees/parvus.git"
   },
   "keywords": [
     "lightbox",
