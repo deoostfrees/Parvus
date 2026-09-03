@@ -153,22 +153,15 @@ export default function Parvus (userOptions) {
     }
 
     if (isOpen() && EL_GROUP === STATE.activeGroup) {
-      if (IS_CURRENT_EL) {
-        if (GROUP.triggerElements.length === 0) {
-          close()
-        } else if (STATE.currentIndex >= GROUP.triggerElements.length) {
-          select(GROUP.triggerElements.length - 1)
-        } else {
-          updateAttributes(STATE)
-          updateSliderNavigationStatus(STATE)
-          updateCounter(STATE)
-        }
-      } else if (EL_INDEX < STATE.currentIndex) {
-        STATE.currentIndex--
-        updateAttributes(STATE)
-        updateSliderNavigationStatus(STATE)
-        updateCounter(STATE)
+      if (IS_CURRENT_EL && GROUP.triggerElements.length === 0) {
+        close()
+      } else if (IS_CURRENT_EL && STATE.currentIndex >= GROUP.triggerElements.length) {
+        select(GROUP.triggerElements.length - 1)
       } else {
+        if (!IS_CURRENT_EL && EL_INDEX < STATE.currentIndex) {
+          STATE.currentIndex--
+        }
+
         updateAttributes(STATE)
         updateSliderNavigationStatus(STATE)
         updateCounter(STATE)
