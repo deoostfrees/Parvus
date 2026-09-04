@@ -72,8 +72,7 @@ export const createPointermoveHandler = (state, pinchZoom, panZoom, doSwipe) => 
     // Zoom
     if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG') {
       if (state.activePointers.size === 2) {
-        // A finger was added/removed, next single-pointer move should
-        // establish a fresh pan baseline instead of using a stale one
+        // Finger count changed, so the next single-pointer move needs a fresh pan baseline
         state.lastPanPointerX = null
         state.lastPanPointerY = null
 

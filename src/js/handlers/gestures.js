@@ -36,8 +36,7 @@ const clampPan = (state, currentImg) => {
   const SLIDE_RECT = state.GROUPS[state.activeGroup].sliderElements[state.currentIndex].getBoundingClientRect()
   const SCALE = state.currentScale
 
-  // A pinch anchors the scale at its own origin, not the center, which
-  // shifts the valid pan range off zero by this much
+  // A pinch anchors the scale at its own origin, not the center, shifting the valid pan range off zero
   const clampAxis = (size, slideSize, originFraction, pan) => {
     const HALF_OVERFLOW = Math.max(0, (size * SCALE - slideSize) / 2)
     const ORIGIN_SHIFT = (originFraction * size - size / 2) * (SCALE - 1)
@@ -105,8 +104,7 @@ export const pinchZoom = (state, currentImg) => {
   // Limit scaling to 1 - 3
   state.currentScale = Math.min(Math.max(1, SCALE_FACTOR), 3)
 
-  // Re-clamp on every scale change so panning while zooming out near an edge
-  // doesn't leave a growing gap between the image and the slide
+  // Re-clamp on every scale change so zooming out near an edge doesn't leave a gap
   clampPan(state, currentImg)
 
   currentImg.style.willChange = 'transform'
@@ -123,13 +121,11 @@ export const pinchZoom = (state, currentImg) => {
 export const panZoom = (state, currentImg) => {
   const POINTER = Array.from(state.activePointers.values())[0]
 
-  // Track real movement so pointerup's tap detection (based on state.drag)
-  // doesn't mistake a pan gesture for a tap and reset the zoom
+  // Track movement so pointerup's tap detection doesn't mistake this pan for a tap
   state.drag.endX = POINTER.pageX
   state.drag.endY = POINTER.pageY
 
-  // First move after a pinch or a new touch only establishes the baseline,
-  // so the next move can compute a delta instead of jumping to this position
+  // First move after a pinch/touch only sets the baseline, avoiding a jump on the next one
   if (state.lastPanPointerX === null) {
     state.lastPanPointerX = POINTER.clientX
     state.lastPanPointerY = POINTER.clientY
