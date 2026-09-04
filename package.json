@@ -21,7 +21,7 @@
     "rollup": "^4.63.1",
     "rollup-plugin-license": "^3.7.1",
     "rollup-plugin-postcss": "^4.0.2",
-    "sass": "^1.103.1",
+    "sass": "^1.104.0",
     "standard": "^17.1.2",
     "stylelint": "^17.14.1",
     "stylelint-config-standard-scss": "^17.0.0",
