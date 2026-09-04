@@ -610,6 +610,16 @@ export default function Parvus (userOptions) {
   }
 
   /**
+   * Remove a hook callback
+   *
+   * @param {String} hookName - Hook name
+   * @param {Function} callback - Callback function
+   */
+  const removeHook = (hookName, callback) => {
+    PLUGIN_MANAGER.removeHook(hookName, callback)
+  }
+
+  /**
    * Get registered plugins
    *
    * @returns {Array} Array of plugin names
@@ -645,6 +655,7 @@ export default function Parvus (userOptions) {
       state: STATE,
       on: addEventListener,
       addHook: PLUGIN_MANAGER.addHook.bind(PLUGIN_MANAGER),
+      removeHook: PLUGIN_MANAGER.removeHook.bind(PLUGIN_MANAGER),
       config: STATE.config
     }
     PLUGIN_MANAGER.install(pluginContext)
@@ -691,6 +702,7 @@ export default function Parvus (userOptions) {
     off,
     use,
     addHook,
+    removeHook,
     getPlugins
   }
 }
