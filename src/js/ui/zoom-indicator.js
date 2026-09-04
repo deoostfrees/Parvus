@@ -5,7 +5,7 @@
  * @param {Object} config - Options object
  */
 export const addZoomIndicator = (el, config) => {
-  if (el.querySelector('img') && el.querySelector('.parvus-zoom__indicator') === null) {
+  if (el.querySelector('img') && !el.querySelector('.parvus-zoom__indicator')) {
     const LIGHTBOX_INDICATOR_ICON = document.createElement('div')
 
     LIGHTBOX_INDICATOR_ICON.className = 'parvus-zoom__indicator'
@@ -21,9 +21,9 @@ export const addZoomIndicator = (el, config) => {
  * @param {HTMLElement} el - The element to remove the zoom indicator to
  */
 export const removeZoomIndicator = (el) => {
-  if (el.querySelector('img') && el.querySelector('.parvus-zoom__indicator') !== null) {
-    const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator')
+  const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator')
 
+  if (el.querySelector('img') && LIGHTBOX_INDICATOR_ICON) {
     el.removeChild(LIGHTBOX_INDICATOR_ICON)
   }
 }

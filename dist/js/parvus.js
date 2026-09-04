@@ -425,7 +425,7 @@
         plugin.install(this.context, options);
 
         // Run only this plugin's new afterInit hooks, not already-fired ones from earlier plugins
-        if (this.context && this.context.state && this.context.state.lightbox) {
+        if (this.context?.state?.lightbox) {
           const NEW_AFTER_INIT_HOOKS = (this.hooks.afterInit || []).slice(PREVIOUS_AFTER_INIT_HOOK_COUNT);
 
           this.runCallbacks('afterInit', NEW_AFTER_INIT_HOOKS, { state: this.context.state });
@@ -756,14 +756,8 @@
     const SLIDER = state.GROUPS[state.activeGroup].slider;
     const SLIDER_ELEMENTS = state.GROUPS[state.activeGroup].sliderElements;
 
-    const IS_DRAGGABLE = SLIDER.classList.contains('parvus__slider--is-draggable');
-
     // Add draggable class if necessary
-    if ((state.config.simulateTouch && state.config.swipeClose && !IS_DRAGGABLE) || (state.config.simulateTouch && TOTAL_TRIGGER_ELEMENTS > 1 && !IS_DRAGGABLE)) {
-      SLIDER.classList.add('parvus__slider--is-draggable');
-    } else {
-      SLIDER.classList.remove('parvus__slider--is-draggable');
-    }
+    SLIDER.classList.toggle('parvus__slider--is-draggable', state.config.simulateTouch && (state.config.swipeClose || TOTAL_TRIGGER_ELEMENTS > 1));
 
     // Add extra output for screen reader if there is more than one slide
     if (TOTAL_TRIGGER_ELEMENTS > 1) {
@@ -846,7 +840,7 @@
    * @param {Object} config - Options object
    */
   const addZoomIndicator = (el, config) => {
-    if (el.querySelector('img') && el.querySelector('.parvus-zoom__indicator') === null) {
+    if (el.querySelector('img') && !el.querySelector('.parvus-zoom__indicator')) {
       const LIGHTBOX_INDICATOR_ICON = document.createElement('div');
 
       LIGHTBOX_INDICATOR_ICON.className = 'parvus-zoom__indicator';
@@ -862,9 +856,9 @@
    * @param {HTMLElement} el - The element to remove the zoom indicator to
    */
   const removeZoomIndicator = (el) => {
-    if (el.querySelector('img') && el.querySelector('.parvus-zoom__indicator') !== null) {
-      const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator');
+    const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator');
 
+    if (el.querySelector('img') && LIGHTBOX_INDICATOR_ICON) {
       el.removeChild(LIGHTBOX_INDICATOR_ICON);
     }
   };
@@ -2268,22 +2262,6 @@
 
         // Check for any OS level changes to the prefers reduced motion preference
         MOTIONQUERY.removeEventListener('change', motionQueryChangeHandler);
-
-        // Remove all registered event listeners for custom events
-        const eventTypes = [
-          'open',
-          'close',
-          'select',
-          'destroy'
-        ];
-
-        eventTypes.forEach(eventType => {
-          const listeners = STATE.lightbox._listeners?.[eventType] || [];
-
-          listeners.forEach(listener => {
-            STATE.lightbox.removeEventListener(eventType, listener);
-          });
-        });
 
         // Remove event listeners from trigger elements
         const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll('.parvus-trigger');
