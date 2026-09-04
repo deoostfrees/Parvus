@@ -55,7 +55,7 @@ export class PluginManager {
       plugin.install(this.context, options)
 
       // Run only this plugin's new afterInit hooks, not already-fired ones from earlier plugins
-      if (this.context && this.context.state && this.context.state.lightbox) {
+      if (this.context?.state?.lightbox) {
         const NEW_AFTER_INIT_HOOKS = (this.hooks.afterInit || []).slice(PREVIOUS_AFTER_INIT_HOOK_COUNT)
 
         this.runCallbacks('afterInit', NEW_AFTER_INIT_HOOKS, { state: this.context.state })

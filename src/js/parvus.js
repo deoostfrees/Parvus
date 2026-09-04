@@ -493,22 +493,6 @@ export default function Parvus (userOptions) {
       // Check for any OS level changes to the prefers reduced motion preference
       MOTIONQUERY.removeEventListener('change', motionQueryChangeHandler)
 
-      // Remove all registered event listeners for custom events
-      const eventTypes = [
-        'open',
-        'close',
-        'select',
-        'destroy'
-      ]
-
-      eventTypes.forEach(eventType => {
-        const listeners = STATE.lightbox._listeners?.[eventType] || []
-
-        listeners.forEach(listener => {
-          STATE.lightbox.removeEventListener(eventType, listener)
-        })
-      })
-
       // Remove event listeners from trigger elements
       const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll('.parvus-trigger')
 

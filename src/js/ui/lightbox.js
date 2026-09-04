@@ -243,14 +243,8 @@ export const updateAttributes = (state) => {
   const SLIDER = state.GROUPS[state.activeGroup].slider
   const SLIDER_ELEMENTS = state.GROUPS[state.activeGroup].sliderElements
 
-  const IS_DRAGGABLE = SLIDER.classList.contains('parvus__slider--is-draggable')
-
   // Add draggable class if necessary
-  if ((state.config.simulateTouch && state.config.swipeClose && !IS_DRAGGABLE) || (state.config.simulateTouch && TOTAL_TRIGGER_ELEMENTS > 1 && !IS_DRAGGABLE)) {
-    SLIDER.classList.add('parvus__slider--is-draggable')
-  } else {
-    SLIDER.classList.remove('parvus__slider--is-draggable')
-  }
+  SLIDER.classList.toggle('parvus__slider--is-draggable', state.config.simulateTouch && (state.config.swipeClose || TOTAL_TRIGGER_ELEMENTS > 1))
 
   // Add extra output for screen reader if there is more than one slide
   if (TOTAL_TRIGGER_ELEMENTS > 1) {
