@@ -5,6 +5,7 @@
 ### Added
 
 - Add panning for zoomed images 73143ea @deoostfrees #68
+- Add `root` option to scope instances to a container a647d22 @deoostfrees #71
 
 ### Fixed
 
