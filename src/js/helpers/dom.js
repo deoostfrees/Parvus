@@ -22,5 +22,5 @@ const FOCUSABLE_ELEMENTS = [
  */
 export const getFocusableChildren = (targetEl) => {
   return Array.from(targetEl.querySelectorAll(FOCUSABLE_ELEMENTS.join(', ')))
-    .filter((child) => child.offsetParent !== null)
+    .filter((child) => child.checkVisibility())
 }
