@@ -43,6 +43,12 @@ export class ParvusState {
 
     // Zoom state
     this.currentScale = 1
+    this.panX = 0
+    this.panY = 0
+    this.lastPanPointerX = null
+    this.lastPanPointerY = null
+    this.zoomOriginX = 0.5
+    this.zoomOriginY = 0.5
     this.isPinching = false
     this.isTap = false
     this.pinchStartDistance = 0
@@ -83,6 +89,12 @@ export class ParvusState {
     this.isPinching = false
     this.isTap = false
     this.currentScale = 1
+    this.panX = 0
+    this.panY = 0
+    this.lastPanPointerX = null
+    this.lastPanPointerY = null
+    this.zoomOriginX = 0.5
+    this.zoomOriginY = 0.5
     this.pinchStartDistance = 0
     this.lastPointersId = ''
   }

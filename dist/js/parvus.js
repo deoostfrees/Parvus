@@ -145,6 +145,12 @@
 
       // Zoom state
       this.currentScale = 1;
+      this.panX = 0;
+      this.panY = 0;
+      this.lastPanPointerX = null;
+      this.lastPanPointerY = null;
+      this.zoomOriginX = 0.5;
+      this.zoomOriginY = 0.5;
       this.isPinching = false;
       this.isTap = false;
       this.pinchStartDistance = 0;
@@ -185,6 +191,12 @@
       this.isPinching = false;
       this.isTap = false;
       this.currentScale = 1;
+      this.panX = 0;
+      this.panY = 0;
+      this.lastPanPointerX = null;
+      this.lastPanPointerY = null;
+      this.zoomOriginX = 0.5;
+      this.zoomOriginY = 0.5;
       this.pinchStartDistance = 0;
       this.lastPointersId = '';
     }
@@ -916,6 +928,10 @@
       state.isDraggingX = false;
       state.isDraggingY = false;
 
+      // Reset the pan baseline so the next move computes a delta instead of jumping
+      state.lastPanPointerX = null;
+      state.lastPanPointerY = null;
+
       state.pointerDown = true;
 
       state.activePointers.set(event.pointerId, event);
@@ -946,7 +962,7 @@
    * @param {Function} doSwipe - Swipe function
    * @returns {Function} Pointermove event handler
    */
-  const createPointermoveHandler = (state, pinchZoom, doSwipe) => {
+  const createPointermoveHandler = (state, pinchZoom, panZoom, doSwipe) => {
     return (event) => {
       event.preventDefault();
 
@@ -962,12 +978,19 @@
       // Zoom
       if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG') {
         if (state.activePointers.size === 2) {
+          // A finger was added/removed, next single-pointer move should
+          // establish a fresh pan baseline instead of using a stale one
+          state.lastPanPointerX = null;
+          state.lastPanPointerY = null;
+
           pinchZoom(CURRENT_IMAGE);
 
           return
         }
 
         if (state.currentScale > 1) {
+          panZoom(CURRENT_IMAGE);
+
           return
         }
       }
@@ -1017,7 +1040,7 @@
           resetZoom(CURRENT_IMAGE);
         } else {
           CURRENT_IMAGE.style.transform = `
-          scale(${state.currentScale})
+          translate(${state.panX}px, ${state.panY}px) scale(${state.currentScale})
         `;
         }
       } else {
@@ -1085,6 +1108,30 @@
   };
 
   /**
+   * Clamp the pan offset so the zoomed image can't expose a gap next to the slide
+   *
+   * @param {Object} state - The application state
+   * @param {HTMLImageElement} currentImg - The zoomed image
+   * @returns {void}
+   */
+  const clampPan = (state, currentImg) => {
+    const SLIDE_RECT = state.GROUPS[state.activeGroup].sliderElements[state.currentIndex].getBoundingClientRect();
+    const SCALE = state.currentScale;
+
+    // A pinch anchors the scale at its own origin, not the center, which
+    // shifts the valid pan range off zero by this much
+    const clampAxis = (size, slideSize, originFraction, pan) => {
+      const HALF_OVERFLOW = Math.max(0, (size * SCALE - slideSize) / 2);
+      const ORIGIN_SHIFT = (originFraction * size - size / 2) * (SCALE - 1);
+
+      return Math.min(ORIGIN_SHIFT + HALF_OVERFLOW, Math.max(ORIGIN_SHIFT - HALF_OVERFLOW, pan))
+    };
+
+    state.panX = clampAxis(currentImg.offsetWidth, SLIDE_RECT.width, state.zoomOriginX, state.panX);
+    state.panY = clampAxis(currentImg.offsetHeight, SLIDE_RECT.height, state.zoomOriginY, state.panY);
+  };
+
+  /**
    * Pinch zoom gesture
    *
    * @param {Object} state - The application state
@@ -1127,6 +1174,8 @@
         (state.currentScale === 1 && IS_NEW_POINTER_COMBINATION)) {
         // Set the transform origin to the pinch midpoint
         currentImg.style.transformOrigin = `${RELATIVE_X * 100}% ${RELATIVE_Y * 100}%`;
+        state.zoomOriginX = RELATIVE_X;
+        state.zoomOriginY = RELATIVE_Y;
       }
 
       state.lightbox.classList.add('parvus--is-zooming');
@@ -1138,8 +1187,51 @@
     // Limit scaling to 1 - 3
     state.currentScale = Math.min(Math.max(1, SCALE_FACTOR), 3);
 
+    // Re-clamp on every scale change so panning while zooming out near an edge
+    // doesn't leave a growing gap between the image and the slide
+    clampPan(state, currentImg);
+
     currentImg.style.willChange = 'transform';
-    currentImg.style.transform = `scale(${state.currentScale})`;
+    currentImg.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.currentScale})`;
+  };
+
+  /**
+   * Pan the zoomed image with a single pointer
+   *
+   * @param {Object} state - The application state
+   * @param {HTMLImageElement} currentImg - The zoomed image to pan
+   * @returns {void}
+   */
+  const panZoom = (state, currentImg) => {
+    const POINTER = Array.from(state.activePointers.values())[0];
+
+    // Track real movement so pointerup's tap detection (based on state.drag)
+    // doesn't mistake a pan gesture for a tap and reset the zoom
+    state.drag.endX = POINTER.pageX;
+    state.drag.endY = POINTER.pageY;
+
+    // First move after a pinch or a new touch only establishes the baseline,
+    // so the next move can compute a delta instead of jumping to this position
+    if (state.lastPanPointerX === null) {
+      state.lastPanPointerX = POINTER.clientX;
+      state.lastPanPointerY = POINTER.clientY;
+
+      return
+    }
+
+    const DELTA_X = POINTER.clientX - state.lastPanPointerX;
+    const DELTA_Y = POINTER.clientY - state.lastPanPointerY;
+
+    state.lastPanPointerX = POINTER.clientX;
+    state.lastPanPointerY = POINTER.clientY;
+
+    state.panX += DELTA_X;
+    state.panY += DELTA_Y;
+
+    clampPan(state, currentImg);
+
+    currentImg.style.willChange = 'transform';
+    currentImg.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.currentScale})`;
   };
 
   /**
@@ -1952,6 +2044,11 @@
 
       const OLD_INDEX = STATE.currentIndex;
 
+      // A zoom/pan on the previous slide must not carry over to the next one
+      if (STATE.isPinching) {
+        resetZoom(STATE, GROUP.contentElements[OLD_INDEX]);
+      }
+
       STATE.currentIndex = index;
 
       if (GROUP.sliderElements[index]) {
@@ -2017,15 +2114,26 @@
       // Create handlers with state and actions
       keydownHandler = createKeydownHandler(STATE, actions);
       clickHandler = createClickHandler(STATE, actions);
-      resizeHandler = createResizeHandler(STATE, () => updateOffset(STATE));
+
+      const dimensionResizeHandler = createResizeHandler(STATE, () => updateOffset(STATE));
+
+      resizeHandler = () => {
+        // A rotation or resize refits the image to a new size, so any active zoom/pan no longer applies
+        if (STATE.isPinching) {
+          resetZoom(STATE, STATE.GROUPS[STATE.activeGroup].contentElements[STATE.currentIndex]);
+        }
+
+        dimensionResizeHandler();
+      };
 
       const updateAfterDragHandler = () => updateAfterDrag(STATE, actions);
       const pinchZoomHandler = (img) => pinchZoom(STATE, img);
+      const panZoomHandler = (img) => panZoom(STATE, img);
       const doSwipeHandler = () => doSwipe(STATE);
       const resetZoomHandler = (img) => resetZoom(STATE, img);
 
       pointerdownHandler = createPointerdownHandler(STATE);
-      pointermoveHandler = createPointermoveHandler(STATE, pinchZoomHandler, doSwipeHandler);
+      pointermoveHandler = createPointermoveHandler(STATE, pinchZoomHandler, panZoomHandler, doSwipeHandler);
       pointerupHandler = createPointerupHandler(STATE, resetZoomHandler, updateAfterDragHandler);
 
       BROWSER_WINDOW.addEventListener('keydown', keydownHandler);
