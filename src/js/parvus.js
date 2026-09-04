@@ -139,8 +139,8 @@ export default function Parvus (userOptions) {
     // Remove DOM element
     const sliderElement = GROUP.sliderElements[EL_INDEX]
 
-    if (sliderElement && sliderElement.parentNode) {
-      sliderElement.parentNode.removeChild(sliderElement)
+    if (sliderElement) {
+      sliderElement.remove()
     }
 
     // Remove all array elements

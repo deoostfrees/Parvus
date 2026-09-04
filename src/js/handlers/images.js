@@ -179,10 +179,10 @@ export const createImage = (state, el, index, callback) => {
   // Add loading indicator to content container
   CONTENT_CONTAINER_EL.appendChild(LOADING_INDICATOR)
 
-  const checkImagePromise = new Promise((resolve, reject) => {
-    IMAGE.onload = () => resolve(IMAGE)
-    IMAGE.onerror = (error) => reject(error)
-  })
+  const { promise: checkImagePromise, resolve, reject } = Promise.withResolvers()
+
+  IMAGE.onload = () => resolve(IMAGE)
+  IMAGE.onerror = (error) => reject(error)
 
   checkImagePromise
     .then((loadedImage) => {
@@ -224,7 +224,7 @@ export const createImage = (state, el, index, callback) => {
       contentElements[index] = ERROR_CONTAINER
     })
     .finally(() => {
-      CONTENT_CONTAINER_EL.removeChild(LOADING_INDICATOR)
+      LOADING_INDICATOR.remove()
 
       if (callback && typeof callback === 'function') {
         callback()

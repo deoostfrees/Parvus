@@ -38,7 +38,7 @@
    */
   const getFocusableChildren = (targetEl) => {
     return Array.from(targetEl.querySelectorAll(FOCUSABLE_ELEMENTS.join(', ')))
-      .filter((child) => child.offsetParent !== null)
+      .filter((child) => child.checkVisibility())
   };
 
   var en = {
@@ -860,7 +860,7 @@
     const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator');
 
     if (el.querySelector('img') && LIGHTBOX_INDICATOR_ICON) {
-      el.removeChild(LIGHTBOX_INDICATOR_ICON);
+      LIGHTBOX_INDICATOR_ICON.remove();
     }
   };
 
@@ -1578,10 +1578,10 @@
     // Add loading indicator to content container
     CONTENT_CONTAINER_EL.appendChild(LOADING_INDICATOR);
 
-    const checkImagePromise = new Promise((resolve, reject) => {
-      IMAGE.onload = () => resolve(IMAGE);
-      IMAGE.onerror = (error) => reject(error);
-    });
+    const { promise: checkImagePromise, resolve, reject } = Promise.withResolvers();
+
+    IMAGE.onload = () => resolve(IMAGE);
+    IMAGE.onerror = (error) => reject(error);
 
     checkImagePromise
       .then((loadedImage) => {
@@ -1623,7 +1623,7 @@
         contentElements[index] = ERROR_CONTAINER;
       })
       .finally(() => {
-        CONTENT_CONTAINER_EL.removeChild(LOADING_INDICATOR);
+        LOADING_INDICATOR.remove();
 
         if (callback && typeof callback === 'function') {
           callback();
@@ -1910,8 +1910,8 @@
       // Remove DOM element
       const sliderElement = GROUP.sliderElements[EL_INDEX];
 
-      if (sliderElement && sliderElement.parentNode) {
-        sliderElement.parentNode.removeChild(sliderElement);
+      if (sliderElement) {
+        sliderElement.remove();
       }
 
       // Remove all array elements

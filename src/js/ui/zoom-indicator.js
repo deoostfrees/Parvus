@@ -24,6 +24,6 @@ export const removeZoomIndicator = (el) => {
   const LIGHTBOX_INDICATOR_ICON = el.querySelector('.parvus-zoom__indicator')
 
   if (el.querySelector('img') && LIGHTBOX_INDICATOR_ICON) {
-    el.removeChild(LIGHTBOX_INDICATOR_ICON)
+    LIGHTBOX_INDICATOR_ICON.remove()
   }
 }
