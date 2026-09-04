@@ -320,6 +320,29 @@
     </a>
   </div>
 
+  <h2>14. Scoped Instance with <code>root</code></h2>
+  <p>Two independent instances share the same <code>selector</code> class but are each scoped to their own container via the <code>root</code> option, so they don't pick up each other's triggers.</p>
+
+  <h3>Container A (<code>root</code> as element reference)</h3>
+  <div class="gallery" id="scope-a">
+    <a href="./images/1-1200.webp" class="lightbox-scoped">
+      <img src="./images/1-370.webp"
+           alt="Scoped instance A"
+           width="370"
+           height="208">
+    </a>
+  </div>
+
+  <h3>Container B (<code>root</code> as selector string)</h3>
+  <div class="gallery" id="scope-b">
+    <a href="./images/2-1200.webp" class="lightbox-scoped">
+      <img src="./images/2-370.webp"
+           alt="Scoped instance B"
+           width="370"
+           height="657">
+    </a>
+  </div>
+
   <script type="module">
     import Parvus from '../dist/js/parvus.esm.js'
     import de from '../src/l10n/de.js'
@@ -405,6 +428,17 @@
     const prvsGerman = new Parvus({
       selector: '.lightbox-german',
       l10n: de
+    })
+
+    // Initialize two independent instances scoped to separate containers via `root`
+    const prvsScopedA = new Parvus({
+      selector: '.lightbox-scoped',
+      root: document.querySelector('#scope-a')
+    })
+
+    const prvsScopedB = new Parvus({
+      selector: '.lightbox-scoped',
+      root: '#scope-b'
     })
 
     // Log registered plugins

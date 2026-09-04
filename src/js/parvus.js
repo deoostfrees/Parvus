@@ -494,7 +494,7 @@ export default function Parvus (userOptions) {
       MOTIONQUERY.removeEventListener('change', motionQueryChangeHandler)
 
       // Remove event listeners from trigger elements
-      const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll('.parvus-trigger')
+      const LIGHTBOX_TRIGGER_ELS = STATE.config.root.querySelectorAll('.parvus-trigger')
 
       LIGHTBOX_TRIGGER_ELS.forEach(el => {
         el.removeEventListener('click', triggerParvus)
@@ -625,6 +625,16 @@ export default function Parvus (userOptions) {
     // Merge user options into defaults
     STATE.config = mergeOptions(userOptions)
 
+    if (typeof STATE.config.root === 'string') {
+      const ROOT_EL = document.querySelector(STATE.config.root)
+
+      if (!ROOT_EL) {
+        throw new Error(`Ups, no element matches the 'root' selector '${STATE.config.root}'.`)
+      }
+
+      STATE.config.root = ROOT_EL
+    }
+
     reducedMotionCheck(STATE, MOTIONQUERY)
 
     // Check for any OS level changes to the prefers reduced motion preference
@@ -640,8 +650,8 @@ export default function Parvus (userOptions) {
     PLUGIN_MANAGER.install(pluginContext)
 
     if (STATE.config.gallerySelector !== null) {
-      // Get a list of all `gallerySelector` elements within the document
-      const GALLERY_ELS = document.querySelectorAll(STATE.config.gallerySelector)
+      // Get a list of all `gallerySelector` elements within `root`
+      const GALLERY_ELS = STATE.config.root.querySelectorAll(STATE.config.gallerySelector)
 
       // Execute a few things once per element
       GALLERY_ELS.forEach((galleryEl, index) => {
@@ -657,8 +667,8 @@ export default function Parvus (userOptions) {
       })
     }
 
-    // Get a list of all `selector` elements outside or without the `gallerySelector`
-    const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(`${STATE.config.selector}:not(.parvus-trigger)`)
+    // Get a list of all `selector` elements within `root`, outside or without the `gallerySelector`
+    const LIGHTBOX_TRIGGER_ELS = STATE.config.root.querySelectorAll(`${STATE.config.selector}:not(.parvus-trigger)`)
 
     LIGHTBOX_TRIGGER_ELS.forEach(add)
   }

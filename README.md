@@ -15,6 +15,7 @@ Overlays suck, but if you need one, consider using Parvus. Parvus is an open sou
   - [Captions](#captions)
   - [Copyright](#copyright)
   - [Gallery](#gallery)
+  - [Scoped Instances](#scoped-instances)
   - [Responsive Images](#responsive-images)
   - [Localization](#localization)
 - [Options](#options)
@@ -241,6 +242,24 @@ const prvs = new Parvus({
 })
 ```
 
+### Scoped Instances
+
+Set the `root` option (element or selector string) to scope an instance to a specific container instead of the whole document, e.g. to run independent instances per view in a single-page application:
+
+```js
+const prvsA = new Parvus({
+  selector: '.lightbox',
+  root: document.querySelector('#view-a'),
+})
+
+const prvsB = new Parvus({
+  selector: '.lightbox',
+  root: '#view-b',
+})
+```
+
+Call `destroy()` when a container is removed (e.g. on route change) to clean up its listeners.
+
 ### Responsive Images
 
 Specify different image sources and sizes using the `data-srcset` and `data-sizes` attributes:
@@ -291,6 +310,9 @@ Available options include:
 
   // Selector for a group of elements combined as a gallery, overrides the `data-group` attribute.
   gallerySelector: null,
+
+  // Element (or selector string) to search within for `selector`/`gallerySelector` matches, instead of the whole document
+  root: document,
 
   // Display zoom indicator
   zoomIndicator: true,
