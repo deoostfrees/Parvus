@@ -431,6 +431,8 @@ prvs.use(MyPlugin, {
 })
 ```
 
+A duplicate plugin `name` is ignored, with a warning logged to the console.
+
 ### Creating Plugins
 
 A plugin is an object with a `name` and an `install` function:
