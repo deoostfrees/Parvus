@@ -162,6 +162,9 @@ export const createImage = (state, el, index, callback) => {
 
   const CONTENT_CONTAINER_EL = sliderElements[index].querySelector('div')
   const IMAGE = new Image()
+
+  IMAGE.decoding = 'async'
+
   const IMAGE_CONTAINER = document.createElement('div')
   const THUMBNAIL = el.querySelector('img')
   const LOADING_INDICATOR = document.createElement('div')
@@ -291,22 +294,22 @@ export const loadImage = (state, index, animate) => {
 }
 
 /**
- * Set image dimension
+ * Measure the target size for a content element
  *
  * @param {HTMLElement} slideEl - The slide element
  * @param {HTMLElement} contentEl - The content element
- * @returns {void}
+ * @returns {Object|null} - Target width/height, or null
  */
-export const setImageDimension = (slideEl, contentEl) => {
-  if (contentEl.tagName !== 'IMG') {
-    return
+export const measureImageDimension = (slideEl, contentEl) => {
+  if (!contentEl || contentEl.tagName !== 'IMG') {
+    return null
   }
 
   const SRC_HEIGHT = contentEl.getAttribute('height')
   const SRC_WIDTH = contentEl.getAttribute('width')
 
   if (!SRC_HEIGHT || !SRC_WIDTH) {
-    return
+    return null
   }
 
   const SLIDE_EL_STYLES = getComputedStyle(slideEl)
@@ -322,13 +325,39 @@ export const setImageDimension = (slideEl, contentEl) => {
 
   const RATIO = Math.min(MAX_WIDTH / SRC_WIDTH || 0, MAX_HEIGHT / SRC_HEIGHT || 0)
 
-  const NEW_WIDTH = SRC_WIDTH * RATIO
-  const NEW_HEIGHT = SRC_HEIGHT * RATIO
-
   const USE_ORIGINAL_SIZE = (SRC_WIDTH <= MAX_WIDTH && SRC_HEIGHT <= MAX_HEIGHT)
 
-  contentEl.style.width = USE_ORIGINAL_SIZE ? '' : `${NEW_WIDTH}px`
-  contentEl.style.height = USE_ORIGINAL_SIZE ? '' : `${NEW_HEIGHT}px`
+  return {
+    width: USE_ORIGINAL_SIZE ? '' : `${SRC_WIDTH * RATIO}px`,
+    height: USE_ORIGINAL_SIZE ? '' : `${SRC_HEIGHT * RATIO}px`
+  }
+}
+
+/**
+ * Apply a dimension measured by `measureImageDimension`
+ *
+ * @param {HTMLElement} contentEl - The content element
+ * @param {Object|null} dimension - Target width/height, or null to skip
+ * @returns {void}
+ */
+export const applyImageDimension = (contentEl, dimension) => {
+  if (!dimension) {
+    return
+  }
+
+  contentEl.style.width = dimension.width
+  contentEl.style.height = dimension.height
+}
+
+/**
+ * Set image dimension
+ *
+ * @param {HTMLElement} slideEl - The slide element
+ * @param {HTMLElement} contentEl - The content element
+ * @returns {void}
+ */
+export const setImageDimension = (slideEl, contentEl) => {
+  applyImageDimension(contentEl, measureImageDimension(slideEl, contentEl))
 }
 
 /**
@@ -344,9 +373,13 @@ export const createResizeHandler = (state, updateOffset) => {
       state.resizeTicking = true
 
       window.requestAnimationFrame(() => {
-        state.GROUPS[state.activeGroup].sliderElements.forEach((slide, index) => {
-          setImageDimension(slide, state.GROUPS[state.activeGroup].contentElements[index])
-        })
+        state.lightboxWidth = state.lightbox.offsetWidth
+
+        const { sliderElements, contentElements } = state.GROUPS[state.activeGroup]
+
+        const DIMENSIONS = sliderElements.map((slide, index) => measureImageDimension(slide, contentElements[index]))
+
+        DIMENSIONS.forEach((dimension, index) => applyImageDimension(contentElements[index], dimension))
 
         updateOffset()
 

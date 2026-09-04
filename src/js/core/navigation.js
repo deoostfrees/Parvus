@@ -13,7 +13,7 @@
 export const updateOffset = (state) => {
   state.activeGroup = state.activeGroup !== null ? state.activeGroup : state.newGroup
 
-  state.offset = -state.currentIndex * state.lightbox.offsetWidth
+  state.offset = -state.currentIndex * state.lightboxWidth
 
   state.GROUPS[state.activeGroup].slider.style.transform = `translate3d(${state.offset}px, 0, 0)`
   state.offsetTmp = state.offset

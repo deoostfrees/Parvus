@@ -207,6 +207,8 @@ export default function Parvus (userOptions) {
     STATE.lightbox.classList.add('parvus--is-opening')
     STATE.lightbox.showModal()
 
+    STATE.lightboxWidth = STATE.lightbox.offsetWidth
+
     createSlider(STATE)
     createSlide(STATE, STATE.currentIndex)
 
@@ -447,6 +449,9 @@ export default function Parvus (userOptions) {
     STATE.lightbox.addEventListener('pointerdown', pointerdownHandler, { passive: false })
     STATE.lightbox.addEventListener('pointerup', pointerupHandler, { passive: true })
     STATE.lightbox.addEventListener('pointermove', pointermoveHandler, { passive: false })
+
+    // A native gesture (e.g. iOS's long-press callout) can steal the pointer without pointerup ever firing
+    STATE.lightbox.addEventListener('pointercancel', pointerupHandler, { passive: true })
   }
 
   /**
@@ -466,6 +471,7 @@ export default function Parvus (userOptions) {
     STATE.lightbox.removeEventListener('pointerdown', pointerdownHandler)
     STATE.lightbox.removeEventListener('pointerup', pointerupHandler)
     STATE.lightbox.removeEventListener('pointermove', pointermoveHandler)
+    STATE.lightbox.removeEventListener('pointercancel', pointerupHandler)
   }
 
   /**
