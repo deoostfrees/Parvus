@@ -138,6 +138,7 @@ class ParvusState {
     this.isDraggingY = false;
     this.pointerDown = false;
     this.activePointers = new Map();
+    this.primaryPointerId = null;
 
     // Zoom state
     this.currentScale = 1;
@@ -156,7 +157,10 @@ class ParvusState {
     this.offset = null;
     this.offsetTmp = null;
     this.resizeTicking = false;
+    this.dragTicking = false;
     this.isReducedMotion = true;
+
+    this.lightboxWidth = 0;
   }
 
   /**
@@ -169,6 +173,8 @@ class ParvusState {
       startY: 0,
       endY: 0
     };
+
+    this.primaryPointerId = null;
   }
 
   /**
@@ -262,7 +268,7 @@ const off = (lightbox, eventName, callback) => {
 const updateOffset = (state) => {
   state.activeGroup = state.activeGroup !== null ? state.activeGroup : state.newGroup;
 
-  state.offset = -state.currentIndex * state.lightbox.offsetWidth;
+  state.offset = -state.currentIndex * state.lightboxWidth;
 
   state.GROUPS[state.activeGroup].slider.style.transform = `translate3d(${state.offset}px, 0, 0)`;
   state.offsetTmp = state.offset;
@@ -931,15 +937,28 @@ const createKeydownHandler = (state, actions) => {
  */
 const createPointerdownHandler = (state) => {
   return (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
     if (event.pointerType === 'mouse' && !state.config.simulateTouch) {
       return
     }
 
-    state.isDraggingX = false;
-    state.isDraggingY = false;
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Only reset on a fresh gesture, not when a second finger joins an active swipe
+    if (state.activePointers.size === 0) {
+      state.isDraggingX = false;
+      state.isDraggingY = false;
+      state.primaryPointerId = event.pointerId;
+
+      state.drag.startX = event.pageX;
+      state.drag.startY = event.pageY;
+      state.drag.endX = event.pageX;
+      state.drag.endY = event.pageY;
+
+      if (state.config.swipeClose) {
+        state.lightboxOverlayOpacity = getComputedStyle(state.lightboxOverlay).opacity;
+      }
+    }
 
     // Reset the pan baseline so the next move computes a delta instead of jumping
     state.lastPanPointerX = null;
@@ -949,21 +968,12 @@ const createPointerdownHandler = (state) => {
 
     state.activePointers.set(event.pointerId, event);
 
-    state.drag.startX = event.pageX;
-    state.drag.startY = event.pageY;
-    state.drag.endX = event.pageX;
-    state.drag.endY = event.pageY;
-
     const { slider } = state.GROUPS[state.activeGroup];
 
     slider.classList.add('parvus__slider--is-dragging');
     slider.style.willChange = 'transform';
 
     state.isTap = state.activePointers.size === 1;
-
-    if (state.config.swipeClose) {
-      state.lightboxOverlayOpacity = getComputedStyle(state.lightboxOverlay).opacity;
-    }
   }
 };
 
@@ -977,40 +987,58 @@ const createPointerdownHandler = (state) => {
  */
 const createPointermoveHandler = (state, pinchZoom, panZoom, doSwipe) => {
   return (event) => {
-    event.preventDefault();
-
     if (!state.pointerDown) {
       return
     }
 
-    const CURRENT_IMAGE = state.GROUPS[state.activeGroup].contentElements[state.currentIndex];
+    event.preventDefault();
 
     // Update pointer position
     state.activePointers.set(event.pointerId, event);
 
-    // Zoom
-    if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG') {
-      if (state.activePointers.size === 2) {
-        // Finger count changed, so the next single-pointer move needs a fresh pan baseline
-        state.lastPanPointerX = null;
-        state.lastPanPointerY = null;
-
-        pinchZoom(CURRENT_IMAGE);
-
-        return
-      }
-
-      if (state.currentScale > 1) {
-        panZoom(CURRENT_IMAGE);
-
-        return
-      }
+    // Only the primary pointer may drive the swipe/close position
+    if (event.pointerId === state.primaryPointerId) {
+      state.drag.endX = event.pageX;
+      state.drag.endY = event.pageY;
     }
 
-    state.drag.endX = event.pageX;
-    state.drag.endY = event.pageY;
+    if (state.dragTicking) {
+      return
+    }
 
-    doSwipe();
+    state.dragTicking = true;
+
+    window.requestAnimationFrame(() => {
+      state.dragTicking = false;
+
+      // Pointerup may have ended the gesture while this callback was queued
+      if (!state.pointerDown) {
+        return
+      }
+
+      const CURRENT_IMAGE = state.GROUPS[state.activeGroup].contentElements[state.currentIndex];
+
+      // Zoom, unless a swipe is already in progress
+      if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG' && !state.isDraggingX && !state.isDraggingY) {
+        if (state.activePointers.size === 2) {
+          // Finger count changed, so the next single-pointer move needs a fresh pan baseline
+          state.lastPanPointerX = null;
+          state.lastPanPointerY = null;
+
+          pinchZoom(CURRENT_IMAGE);
+
+          return
+        }
+
+        if (state.currentScale > 1) {
+          panZoom(CURRENT_IMAGE);
+
+          return
+        }
+      }
+
+      doSwipe();
+    });
   }
 };
 
@@ -1532,6 +1560,9 @@ const createImage = (state, el, index, callback) => {
 
   const CONTENT_CONTAINER_EL = sliderElements[index].querySelector('div');
   const IMAGE = new Image();
+
+  IMAGE.decoding = 'async';
+
   const IMAGE_CONTAINER = document.createElement('div');
   const THUMBNAIL = el.querySelector('img');
   const LOADING_INDICATOR = document.createElement('div');
@@ -1661,22 +1692,22 @@ const loadImage = (state, index, animate) => {
 };
 
 /**
- * Set image dimension
+ * Measure the target size for a content element
  *
  * @param {HTMLElement} slideEl - The slide element
  * @param {HTMLElement} contentEl - The content element
- * @returns {void}
+ * @returns {Object|null} - Target width/height, or null
  */
-const setImageDimension = (slideEl, contentEl) => {
-  if (contentEl.tagName !== 'IMG') {
-    return
+const measureImageDimension = (slideEl, contentEl) => {
+  if (!contentEl || contentEl.tagName !== 'IMG') {
+    return null
   }
 
   const SRC_HEIGHT = contentEl.getAttribute('height');
   const SRC_WIDTH = contentEl.getAttribute('width');
 
   if (!SRC_HEIGHT || !SRC_WIDTH) {
-    return
+    return null
   }
 
   const SLIDE_EL_STYLES = getComputedStyle(slideEl);
@@ -1692,13 +1723,39 @@ const setImageDimension = (slideEl, contentEl) => {
 
   const RATIO = Math.min(MAX_WIDTH / SRC_WIDTH || 0, MAX_HEIGHT / SRC_HEIGHT || 0);
 
-  const NEW_WIDTH = SRC_WIDTH * RATIO;
-  const NEW_HEIGHT = SRC_HEIGHT * RATIO;
-
   const USE_ORIGINAL_SIZE = (SRC_WIDTH <= MAX_WIDTH && SRC_HEIGHT <= MAX_HEIGHT);
 
-  contentEl.style.width = USE_ORIGINAL_SIZE ? '' : `${NEW_WIDTH}px`;
-  contentEl.style.height = USE_ORIGINAL_SIZE ? '' : `${NEW_HEIGHT}px`;
+  return {
+    width: USE_ORIGINAL_SIZE ? '' : `${SRC_WIDTH * RATIO}px`,
+    height: USE_ORIGINAL_SIZE ? '' : `${SRC_HEIGHT * RATIO}px`
+  }
+};
+
+/**
+ * Apply a dimension measured by `measureImageDimension`
+ *
+ * @param {HTMLElement} contentEl - The content element
+ * @param {Object|null} dimension - Target width/height, or null to skip
+ * @returns {void}
+ */
+const applyImageDimension = (contentEl, dimension) => {
+  if (!dimension) {
+    return
+  }
+
+  contentEl.style.width = dimension.width;
+  contentEl.style.height = dimension.height;
+};
+
+/**
+ * Set image dimension
+ *
+ * @param {HTMLElement} slideEl - The slide element
+ * @param {HTMLElement} contentEl - The content element
+ * @returns {void}
+ */
+const setImageDimension = (slideEl, contentEl) => {
+  applyImageDimension(contentEl, measureImageDimension(slideEl, contentEl));
 };
 
 /**
@@ -1714,9 +1771,13 @@ const createResizeHandler = (state, updateOffset) => {
       state.resizeTicking = true;
 
       window.requestAnimationFrame(() => {
-        state.GROUPS[state.activeGroup].sliderElements.forEach((slide, index) => {
-          setImageDimension(slide, state.GROUPS[state.activeGroup].contentElements[index]);
-        });
+        state.lightboxWidth = state.lightbox.offsetWidth;
+
+        const { sliderElements, contentElements } = state.GROUPS[state.activeGroup];
+
+        const DIMENSIONS = sliderElements.map((slide, index) => measureImageDimension(slide, contentElements[index]));
+
+        DIMENSIONS.forEach((dimension, index) => applyImageDimension(contentElements[index], dimension));
 
         updateOffset();
 
@@ -1915,6 +1976,8 @@ function Parvus (userOptions) {
 
     STATE.lightbox.classList.add('parvus--is-opening');
     STATE.lightbox.showModal();
+
+    STATE.lightboxWidth = STATE.lightbox.offsetWidth;
 
     createSlider(STATE);
     createSlide(STATE, STATE.currentIndex);
@@ -2156,6 +2219,9 @@ function Parvus (userOptions) {
     STATE.lightbox.addEventListener('pointerdown', pointerdownHandler, { passive: false });
     STATE.lightbox.addEventListener('pointerup', pointerupHandler, { passive: true });
     STATE.lightbox.addEventListener('pointermove', pointermoveHandler, { passive: false });
+
+    // A native gesture (e.g. iOS's long-press callout) can steal the pointer without pointerup ever firing
+    STATE.lightbox.addEventListener('pointercancel', pointerupHandler, { passive: true });
   };
 
   /**
@@ -2175,6 +2241,7 @@ function Parvus (userOptions) {
     STATE.lightbox.removeEventListener('pointerdown', pointerdownHandler);
     STATE.lightbox.removeEventListener('pointerup', pointerupHandler);
     STATE.lightbox.removeEventListener('pointermove', pointermoveHandler);
+    STATE.lightbox.removeEventListener('pointercancel', pointerupHandler);
   };
 
   /**

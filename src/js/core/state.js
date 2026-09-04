@@ -41,6 +41,7 @@ export class ParvusState {
     this.isDraggingY = false
     this.pointerDown = false
     this.activePointers = new Map()
+    this.primaryPointerId = null
 
     // Zoom state
     this.currentScale = 1
@@ -59,7 +60,10 @@ export class ParvusState {
     this.offset = null
     this.offsetTmp = null
     this.resizeTicking = false
+    this.dragTicking = false
     this.isReducedMotion = true
+
+    this.lightboxWidth = 0
   }
 
   /**
@@ -72,6 +76,8 @@ export class ParvusState {
       startY: 0,
       endY: 0
     }
+
+    this.primaryPointerId = null
   }
 
   /**
