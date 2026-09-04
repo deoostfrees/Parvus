@@ -7,6 +7,11 @@
 - Add panning for zoomed images 73143ea @deoostfrees #68
 - Add `root` option to scope instances to a container a647d22 @deoostfrees #71
 
+### Changed
+
+- `getPlugins()` now only returns successfully installed plugins 85a3784 @deoostfrees
+- Expose `removeHook()` on the public API and plugin context 2df7094 @deoostfrees
+
 ### Fixed
 
 - Announce slide changes to screen readers d149e5f @deoostfrees
@@ -14,6 +19,7 @@
 - `afterInit` hook no longer re-fires for already-registered plugins when a new plugin is added 2c69b53 @deoostfrees
 - Fix reduced-motion listener leaking on every open/close f1c643a @deoostfrees
 - Prevents Safari's heuristic text autosizing from increasing the font size of captions and copyright notices 5faa1ab @deoostfrees
+- `on`/`off` now work correctly in the plugin context c5a6cea @deoostfrees
 
 ## [3.1.1] - 2026-06-27
 
