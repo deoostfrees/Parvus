@@ -16,7 +16,7 @@ import { addZoomIndicator, removeZoomIndicator } from './ui/zoom-indicator.js'
 // Handler modules
 import { createKeydownHandler } from './handlers/keyboard.js'
 import { createPointerdownHandler, createPointermoveHandler, createPointerupHandler, createClickHandler } from './handlers/pointer.js'
-import { resetZoom, pinchZoom, doSwipe, updateAfterDrag } from './handlers/gestures.js'
+import { resetZoom, pinchZoom, panZoom, doSwipe, updateAfterDrag } from './handlers/gestures.js'
 import { createImage, loadImage, createResizeHandler } from './handlers/images.js'
 
 /**
@@ -343,6 +343,11 @@ export default function Parvus (userOptions) {
 
     const OLD_INDEX = STATE.currentIndex
 
+    // A zoom/pan on the previous slide must not carry over to the next one
+    if (STATE.isPinching) {
+      resetZoom(STATE, GROUP.contentElements[OLD_INDEX])
+    }
+
     STATE.currentIndex = index
 
     if (GROUP.sliderElements[index]) {
@@ -408,15 +413,26 @@ export default function Parvus (userOptions) {
     // Create handlers with state and actions
     keydownHandler = createKeydownHandler(STATE, actions)
     clickHandler = createClickHandler(STATE, actions)
-    resizeHandler = createResizeHandler(STATE, () => updateOffset(STATE))
+
+    const dimensionResizeHandler = createResizeHandler(STATE, () => updateOffset(STATE))
+
+    resizeHandler = () => {
+      // A rotation or resize refits the image to a new size, so any active zoom/pan no longer applies
+      if (STATE.isPinching) {
+        resetZoom(STATE, STATE.GROUPS[STATE.activeGroup].contentElements[STATE.currentIndex])
+      }
+
+      dimensionResizeHandler()
+    }
 
     const updateAfterDragHandler = () => updateAfterDrag(STATE, actions)
     const pinchZoomHandler = (img) => pinchZoom(STATE, img)
+    const panZoomHandler = (img) => panZoom(STATE, img)
     const doSwipeHandler = () => doSwipe(STATE)
     const resetZoomHandler = (img) => resetZoom(STATE, img)
 
     pointerdownHandler = createPointerdownHandler(STATE)
-    pointermoveHandler = createPointermoveHandler(STATE, pinchZoomHandler, doSwipeHandler)
+    pointermoveHandler = createPointermoveHandler(STATE, pinchZoomHandler, panZoomHandler, doSwipeHandler)
     pointerupHandler = createPointerupHandler(STATE, resetZoomHandler, updateAfterDragHandler)
 
     BROWSER_WINDOW.addEventListener('keydown', keydownHandler)

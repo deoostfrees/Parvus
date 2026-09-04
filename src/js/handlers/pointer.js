@@ -22,6 +22,10 @@ export const createPointerdownHandler = (state) => {
     state.isDraggingX = false
     state.isDraggingY = false
 
+    // Reset the pan baseline so the next move computes a delta instead of jumping
+    state.lastPanPointerX = null
+    state.lastPanPointerY = null
+
     state.pointerDown = true
 
     state.activePointers.set(event.pointerId, event)
@@ -52,7 +56,7 @@ export const createPointerdownHandler = (state) => {
  * @param {Function} doSwipe - Swipe function
  * @returns {Function} Pointermove event handler
  */
-export const createPointermoveHandler = (state, pinchZoom, doSwipe) => {
+export const createPointermoveHandler = (state, pinchZoom, panZoom, doSwipe) => {
   return (event) => {
     event.preventDefault()
 
@@ -68,12 +72,19 @@ export const createPointermoveHandler = (state, pinchZoom, doSwipe) => {
     // Zoom
     if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG') {
       if (state.activePointers.size === 2) {
+        // A finger was added/removed, next single-pointer move should
+        // establish a fresh pan baseline instead of using a stale one
+        state.lastPanPointerX = null
+        state.lastPanPointerY = null
+
         pinchZoom(CURRENT_IMAGE)
 
         return
       }
 
       if (state.currentScale > 1) {
+        panZoom(CURRENT_IMAGE)
+
         return
       }
     }
@@ -123,7 +134,7 @@ export const createPointerupHandler = (state, resetZoom, updateAfterDrag) => {
         resetZoom(CURRENT_IMAGE)
       } else {
         CURRENT_IMAGE.style.transform = `
-          scale(${state.currentScale})
+          translate(${state.panX}px, ${state.panY}px) scale(${state.currentScale})
         `
       }
     } else {
