@@ -76,6 +76,8 @@ body:has(.parvus[open]) {
   overscroll-behavior: contain;
   padding: 0;
   position: fixed;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 .parvus::backdrop {
   display: none;
