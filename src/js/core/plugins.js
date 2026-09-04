@@ -35,25 +35,34 @@ export class PluginManager {
       return
     }
 
-    this.plugins.push({ plugin, options })
+    const entry = { plugin, options, installed: false }
+
+    this.plugins.push(entry)
 
     // If already initialized, install immediately
     if (this.isInitialized && this.context) {
-      this.installPlugin(plugin, options)
+      this.installPlugin(entry)
     }
   }
 
   /**
    * Install a single plugin
    *
-   * @param {Object} plugin - Plugin object
-   * @param {Object} options - Plugin options
+   * @param {Object} entry - Plugin entry ({ plugin, options, installed })
    */
-  installPlugin (plugin, options) {
+  installPlugin (entry) {
+    if (entry.installed) {
+      return
+    }
+
+    const { plugin, options } = entry
+
     try {
       const PREVIOUS_AFTER_INIT_HOOK_COUNT = (this.hooks.afterInit || []).length
 
       plugin.install(this.context, options)
+
+      entry.installed = true
 
       // Run only this plugin's new afterInit hooks, not already-fired ones from earlier plugins
       if (this.context?.state?.lightbox) {
@@ -75,8 +84,8 @@ export class PluginManager {
     this.context = context
     this.isInitialized = true
 
-    this.plugins.forEach(({ plugin, options }) => {
-      this.installPlugin(plugin, options)
+    this.plugins.forEach(entry => {
+      this.installPlugin(entry)
     })
   }
 
@@ -133,11 +142,11 @@ export class PluginManager {
   }
 
   /**
-   * Get all registered plugins
+   * Get all successfully installed plugins
    *
    * @returns {Array} Array of plugin names
    */
   getPlugins () {
-    return this.plugins.map(p => p.plugin.name)
+    return this.plugins.filter(p => p.installed).map(p => p.plugin.name)
   }
 }
