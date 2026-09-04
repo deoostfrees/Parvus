@@ -54,8 +54,7 @@ export class PluginManager {
 
       plugin.install(this.context, options)
 
-      // If lightbox already exists, run only this plugin's newly registered
-      // afterInit hooks, so other plugins' already-fired hooks don't run again
+      // Run only this plugin's new afterInit hooks, not already-fired ones from earlier plugins
       if (this.context && this.context.state && this.context.state.lightbox) {
         const NEW_AFTER_INIT_HOOKS = (this.hooks.afterInit || []).slice(PREVIOUS_AFTER_INIT_HOOK_COUNT)
 

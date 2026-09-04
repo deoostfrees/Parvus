@@ -44,7 +44,8 @@ var en = {
   nextButtonLabel: 'Next image',
   closeButtonLabel: 'Close dialog window',
   sliderLabel: 'Images',
-  slideLabel: 'Image'
+  slideLabel: 'Image',
+  counterLabel: 'Image {current} of {total}'
 };
 
 /**
@@ -129,6 +130,7 @@ class ParvusState {
     this.nextButton = null;
     this.closeButton = null;
     this.counter = null;
+    this.counterLabel = null;
 
     // Drag & interaction state
     this.drag = {};
@@ -410,8 +412,7 @@ class PluginManager {
 
       plugin.install(this.context, options);
 
-      // If lightbox already exists, run only this plugin's newly registered
-      // afterInit hooks, so other plugins' already-fired hooks don't run again
+      // Run only this plugin's new afterInit hooks, not already-fired ones from earlier plugins
       if (this.context && this.context.state && this.context.state.lightbox) {
         const NEW_AFTER_INIT_HOOKS = (this.hooks.afterInit || []).slice(PREVIOUS_AFTER_INIT_HOOK_COUNT);
 
@@ -565,6 +566,18 @@ const createLightbox = (state) => {
   // Create the counter
   state.counter = document.createElement('div');
   state.counter.className = 'parvus__counter';
+  // Announces slide changes, since previous/next clicks leave focus on the button, not the slide
+  state.counter.setAttribute('role', 'status');
+
+  // The "1/3" display is decorative; a screen reader reads "/" literally, so a
+  // visually hidden sibling carries the actual announced text
+  state.counterValue = document.createElement('span');
+  state.counterValue.setAttribute('aria-hidden', 'true');
+
+  state.counterLabel = document.createElement('span');
+  state.counterLabel.className = 'parvus-visually-hidden';
+
+  state.counter.append(state.counterValue, state.counterLabel);
 
   // Add the control buttons to the controls
   state.controls.append(state.closeButton, state.previousButton, state.nextButton);
@@ -709,7 +722,13 @@ const createSlide = (state, index) => {
  * @returns {void}
  */
 const updateCounter = (state) => {
-  state.counter.textContent = `${state.currentIndex + 1}/${state.GROUPS[state.activeGroup].triggerElements.length}`;
+  const CURRENT = state.currentIndex + 1;
+  const TOTAL = state.GROUPS[state.activeGroup].triggerElements.length;
+
+  state.counterValue.textContent = `${CURRENT}/${TOTAL}`;
+  state.counterLabel.textContent = state.config.l10n.counterLabel
+    .replace('{current}', CURRENT)
+    .replace('{total}', TOTAL);
 };
 
 /**
@@ -972,8 +991,7 @@ const createPointermoveHandler = (state, pinchZoom, panZoom, doSwipe) => {
     // Zoom
     if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG') {
       if (state.activePointers.size === 2) {
-        // A finger was added/removed, next single-pointer move should
-        // establish a fresh pan baseline instead of using a stale one
+        // Finger count changed, so the next single-pointer move needs a fresh pan baseline
         state.lastPanPointerX = null;
         state.lastPanPointerY = null;
 
@@ -1112,8 +1130,7 @@ const clampPan = (state, currentImg) => {
   const SLIDE_RECT = state.GROUPS[state.activeGroup].sliderElements[state.currentIndex].getBoundingClientRect();
   const SCALE = state.currentScale;
 
-  // A pinch anchors the scale at its own origin, not the center, which
-  // shifts the valid pan range off zero by this much
+  // A pinch anchors the scale at its own origin, not the center, shifting the valid pan range off zero
   const clampAxis = (size, slideSize, originFraction, pan) => {
     const HALF_OVERFLOW = Math.max(0, (size * SCALE - slideSize) / 2);
     const ORIGIN_SHIFT = (originFraction * size - size / 2) * (SCALE - 1);
@@ -1181,8 +1198,7 @@ const pinchZoom = (state, currentImg) => {
   // Limit scaling to 1 - 3
   state.currentScale = Math.min(Math.max(1, SCALE_FACTOR), 3);
 
-  // Re-clamp on every scale change so panning while zooming out near an edge
-  // doesn't leave a growing gap between the image and the slide
+  // Re-clamp on every scale change so zooming out near an edge doesn't leave a gap
   clampPan(state, currentImg);
 
   currentImg.style.willChange = 'transform';
@@ -1199,13 +1215,11 @@ const pinchZoom = (state, currentImg) => {
 const panZoom = (state, currentImg) => {
   const POINTER = Array.from(state.activePointers.values())[0];
 
-  // Track real movement so pointerup's tap detection (based on state.drag)
-  // doesn't mistake a pan gesture for a tap and reset the zoom
+  // Track movement so pointerup's tap detection doesn't mistake this pan for a tap
   state.drag.endX = POINTER.pageX;
   state.drag.endY = POINTER.pageY;
 
-  // First move after a pinch or a new touch only establishes the baseline,
-  // so the next move can compute a delta instead of jumping to this position
+  // First move after a pinch/touch only sets the baseline, avoiding a jump on the next one
   if (state.lastPanPointerX === null) {
     state.lastPanPointerX = POINTER.clientX;
     state.lastPanPointerY = POINTER.clientY;
@@ -1950,8 +1964,7 @@ function Parvus (userOptions) {
     STATE.lightbox.classList.add('parvus--is-closing');
 
     const transitionendHandler = () => {
-      // Reset the image zoom (if ESC was pressed or went back in the browser history)
-      // after the ViewTransition (otherwise it looks bad)
+      // Wait until the transition finishes to reset zoom, or it looks jarring
       if (STATE.isPinching) {
         resetZoom(STATE, IMAGE);
       }
@@ -2231,6 +2244,8 @@ function Parvus (userOptions) {
       STATE.nextButton = null;
       STATE.closeButton = null;
       STATE.counter = null;
+      STATE.counterValue = null;
+      STATE.counterLabel = null;
 
       // Remove group data
       Object.keys(STATE.GROUPS).forEach(groupKey => {

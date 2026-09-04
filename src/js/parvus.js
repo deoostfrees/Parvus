@@ -255,8 +255,7 @@ export default function Parvus (userOptions) {
     STATE.lightbox.classList.add('parvus--is-closing')
 
     const transitionendHandler = () => {
-      // Reset the image zoom (if ESC was pressed or went back in the browser history)
-      // after the ViewTransition (otherwise it looks bad)
+      // Wait until the transition finishes to reset zoom, or it looks jarring
       if (STATE.isPinching) {
         resetZoom(STATE, IMAGE)
       }
