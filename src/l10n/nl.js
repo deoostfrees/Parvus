@@ -7,5 +7,6 @@ export default {
   nextButtonLabel: 'Volgende afbeelding',
   closeButtonLabel: 'Sluit dialoogvenster',
   sliderLabel: 'Afbeeldingen',
-  slideLabel: 'Afbeelding'
+  slideLabel: 'Afbeelding',
+  counterLabel: 'Afbeelding {current} van {total}'
 }

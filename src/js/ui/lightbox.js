@@ -65,6 +65,18 @@ export const createLightbox = (state) => {
   // Create the counter
   state.counter = document.createElement('div')
   state.counter.className = 'parvus__counter'
+  // Announces slide changes, since previous/next clicks leave focus on the button, not the slide
+  state.counter.setAttribute('role', 'status')
+
+  // The "1/3" display is decorative; a screen reader reads "/" literally, so a
+  // visually hidden sibling carries the actual announced text
+  state.counterValue = document.createElement('span')
+  state.counterValue.setAttribute('aria-hidden', 'true')
+
+  state.counterLabel = document.createElement('span')
+  state.counterLabel.className = 'parvus-visually-hidden'
+
+  state.counter.append(state.counterValue, state.counterLabel)
 
   // Add the control buttons to the controls
   state.controls.append(state.closeButton, state.previousButton, state.nextButton)
@@ -209,7 +221,13 @@ export const createSlide = (state, index) => {
  * @returns {void}
  */
 export const updateCounter = (state) => {
-  state.counter.textContent = `${state.currentIndex + 1}/${state.GROUPS[state.activeGroup].triggerElements.length}`
+  const CURRENT = state.currentIndex + 1
+  const TOTAL = state.GROUPS[state.activeGroup].triggerElements.length
+
+  state.counterValue.textContent = `${CURRENT}/${TOTAL}`
+  state.counterLabel.textContent = state.config.l10n.counterLabel
+    .replace('{current}', CURRENT)
+    .replace('{total}', TOTAL)
 }
 
 /**

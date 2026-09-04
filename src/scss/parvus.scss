@@ -103,6 +103,15 @@ body:has(.parvus[open]) {
     box-sizing: border-box;
   }
 
+  &-visually-hidden {
+    block-size: 0.0625rem;
+    clip-path: inset(50%);
+    inline-size: 0.0625rem;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+  }
+
   &__overlay {
     background-color: var(--parvus-background-color);
     color: var(--parvus-color);

@@ -83,6 +83,14 @@ body:has(.parvus[open]) {
 .parvus *, .parvus *::before, .parvus *::after {
   box-sizing: border-box;
 }
+.parvus-visually-hidden {
+  block-size: 0.0625rem;
+  clip-path: inset(50%);
+  inline-size: 0.0625rem;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
 .parvus__overlay {
   background-color: var(--parvus-background-color);
   color: var(--parvus-color);
