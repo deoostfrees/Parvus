@@ -323,7 +323,7 @@ Available options include:
   simulateTouch: true,
 
   // Touch dragging threshold in pixels
-  threshold: 100,
+  threshold: 50,
 
   // Hide browser scrollbar
   hideScrollbar: true,
