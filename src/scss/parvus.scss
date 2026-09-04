@@ -93,6 +93,11 @@ body:has(.parvus[open]) {
   padding: 0;
   position: fixed;
 
+  // Prevents Safari's heuristic text autosizing from increasing the font size of captions and copyright notices
+  // stylelint-disable-next-line property-no-vendor-prefix -- no unprefixed support in Safari
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
   &::backdrop {
     display:none;
   }
