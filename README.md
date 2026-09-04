@@ -380,7 +380,7 @@ Parvus provides the following API functions:
 | `use(plugin, options)` | Register a plugin |
 | `addHook(hookName, callback)` | Add a hook callback |
 | `removeHook(hookName, callback)` | Remove a hook callback |
-| `getPlugins()` | Get list of registered plugins |
+| `getPlugins()` | Get list of successfully installed plugins |
 
 ## Events
 
