@@ -2,15 +2,17 @@
 
 ## [3.2.0] - 2026-09-
 
-### Changed
+### Added
 
-- Deduplicate update calls in remove() 91519ff @deoostfrees
+- Add panning for zoomed images 73143ea @deoostfrees #68
 
 ### Fixed
 
+- Announce slide changes to screen readers d149e5f @deoostfrees
 - Preserve copyright's aria-describedby when a caption is added 0dadb01 @deoostfrees
 - `afterInit` hook no longer re-fires for already-registered plugins when a new plugin is added 2c69b53 @deoostfrees
 - Fix reduced-motion listener leaking on every open/close f1c643a @deoostfrees
+- Prevents Safari's heuristic text autosizing from increasing the font size of captions and copyright notices 5faa1ab @deoostfrees
 
 ## [3.1.1] - 2026-06-27
 
