@@ -31,7 +31,11 @@ export class PluginManager {
     const existingPlugin = this.plugins.find(p => p.plugin.name === plugin.name)
 
     if (existingPlugin) {
-      console.warn(`Plugin "${plugin.name}" is already registered`)
+      console.warn(
+        existingPlugin.installed
+          ? `Plugin "${plugin.name}" is already registered`
+          : `Plugin "${plugin.name}" is already registered but failed to install, see previous error`
+      )
       return
     }
 
