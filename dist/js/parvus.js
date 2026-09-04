@@ -399,31 +399,45 @@
       }
 
       // Check if plugin is already registered
-      const existingPlugin = this.plugins.find(p => p.name === plugin.name);
+      const existingPlugin = this.plugins.find(p => p.plugin.name === plugin.name);
+
       if (existingPlugin) {
-        console.warn(`Plugin "${plugin.name}" is already registered`);
+        console.warn(
+          existingPlugin.installed
+            ? `Plugin "${plugin.name}" is already registered`
+            : `Plugin "${plugin.name}" is already registered but failed to install, see previous error`
+        );
         return
       }
 
-      this.plugins.push({ plugin, options });
+      const entry = { plugin, options, installed: false };
+
+      this.plugins.push(entry);
 
       // If already initialized, install immediately
       if (this.isInitialized && this.context) {
-        this.installPlugin(plugin, options);
+        this.installPlugin(entry);
       }
     }
 
     /**
      * Install a single plugin
      *
-     * @param {Object} plugin - Plugin object
-     * @param {Object} options - Plugin options
+     * @param {Object} entry - Plugin entry ({ plugin, options, installed })
      */
-    installPlugin (plugin, options) {
+    installPlugin (entry) {
+      if (entry.installed) {
+        return
+      }
+
+      const { plugin, options } = entry;
+
       try {
         const PREVIOUS_AFTER_INIT_HOOK_COUNT = (this.hooks.afterInit || []).length;
 
         plugin.install(this.context, options);
+
+        entry.installed = true;
 
         // Run only this plugin's new afterInit hooks, not already-fired ones from earlier plugins
         if (this.context?.state?.lightbox) {
@@ -445,8 +459,8 @@
       this.context = context;
       this.isInitialized = true;
 
-      this.plugins.forEach(({ plugin, options }) => {
-        this.installPlugin(plugin, options);
+      this.plugins.forEach(entry => {
+        this.installPlugin(entry);
       });
     }
 
@@ -503,12 +517,12 @@
     }
 
     /**
-     * Get all registered plugins
+     * Get all successfully installed plugins
      *
      * @returns {Array} Array of plugin names
      */
     getPlugins () {
-      return this.plugins.map(p => p.plugin.name)
+      return this.plugins.filter(p => p.installed).map(p => p.plugin.name)
     }
   }
 
@@ -2381,6 +2395,16 @@
     };
 
     /**
+     * Remove a hook callback
+     *
+     * @param {String} hookName - Hook name
+     * @param {Function} callback - Callback function
+     */
+    const removeHook = (hookName, callback) => {
+      PLUGIN_MANAGER.removeHook(hookName, callback);
+    };
+
+    /**
      * Get registered plugins
      *
      * @returns {Array} Array of plugin names
@@ -2414,8 +2438,10 @@
       // Install plugins with context
       const pluginContext = {
         state: STATE,
-        on: on,
+        on: on$1,
+        off: off$1,
         addHook: PLUGIN_MANAGER.addHook.bind(PLUGIN_MANAGER),
+        removeHook: PLUGIN_MANAGER.removeHook.bind(PLUGIN_MANAGER),
         config: STATE.config
       };
       PLUGIN_MANAGER.install(pluginContext);
@@ -2462,6 +2488,7 @@
       off: off$1,
       use,
       addHook,
+      removeHook,
       getPlugins
     }
   }
