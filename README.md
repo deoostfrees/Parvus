@@ -448,6 +448,17 @@ const MyPlugin = {
 export default MyPlugin
 ```
 
+`install` receives a context object (`parvus` in the example above), not the full Parvus instance:
+
+| Property | Description |
+| --- | --- |
+| `state` | The internal application state |
+| `config` | The merged configuration options |
+| `addHook(hookName, callback)` | Add a hook callback (see [Plugin Hooks](#plugin-hooks)) |
+| `removeHook(hookName, callback)` | Remove a hook callback |
+| `on(eventName, callback)` | Bind one of the [events](#events) (e.g. to clean up on `destroy`) |
+| `off(eventName, callback)` | Unbind an event bound with `on` |
+
 ### Plugin Hooks
 
 Plugins can hook into various lifecycle events:

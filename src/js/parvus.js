@@ -653,7 +653,8 @@ export default function Parvus (userOptions) {
     // Install plugins with context
     const pluginContext = {
       state: STATE,
-      on: addEventListener,
+      on,
+      off,
       addHook: PLUGIN_MANAGER.addHook.bind(PLUGIN_MANAGER),
       removeHook: PLUGIN_MANAGER.removeHook.bind(PLUGIN_MANAGER),
       config: STATE.config
