@@ -33,6 +33,7 @@ export class ParvusState {
     this.nextButton = null
     this.closeButton = null
     this.counter = null
+    this.counterLabel = null
 
     // Drag & interaction state
     this.drag = {}

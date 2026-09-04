@@ -7,5 +7,6 @@ export default {
   nextButtonLabel: 'Next image',
   closeButtonLabel: 'Close dialog window',
   sliderLabel: 'Images',
-  slideLabel: 'Image'
+  slideLabel: 'Image',
+  counterLabel: 'Image {current} of {total}'
 }

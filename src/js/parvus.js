@@ -536,6 +536,8 @@ export default function Parvus (userOptions) {
       STATE.nextButton = null
       STATE.closeButton = null
       STATE.counter = null
+      STATE.counterValue = null
+      STATE.counterLabel = null
 
       // Remove group data
       Object.keys(STATE.GROUPS).forEach(groupKey => {
