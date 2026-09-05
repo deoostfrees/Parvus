@@ -235,9 +235,12 @@ const dispatchCustomEvent = (lightbox, type) => {
  * @returns {void}
  */
 const on = (lightbox, eventName, callback) => {
-  if (lightbox) {
-    lightbox.addEventListener(eventName, callback);
+  if (!lightbox) {
+    console.warn(`Can't bind "${eventName}", the lightbox doesn't exist yet. Do this from the "afterInit" hook instead.`);
+    return
   }
+
+  lightbox.addEventListener(eventName, callback);
 };
 
 /**
@@ -249,9 +252,12 @@ const on = (lightbox, eventName, callback) => {
  * @returns {void}
  */
 const off = (lightbox, eventName, callback) => {
-  if (lightbox) {
-    lightbox.removeEventListener(eventName, callback);
+  if (!lightbox) {
+    console.warn(`Can't unbind "${eventName}", the lightbox doesn't exist yet.`);
+    return
   }
+
+  lightbox.removeEventListener(eventName, callback);
 };
 
 /**
@@ -307,9 +313,10 @@ const leaveSlide = (state, index) => {
  * @param {Function} createImage - Create image function
  * @param {Function} loadImage - Load image function
  * @param {Number} index - The index of the slide to be preloaded
+ * @param {Function} onImageSettled - Called once the preloaded image settles (loaded or errored)
  * @returns {void}
  */
-const preload = (state, createSlide, createImage, loadImage, index) => {
+const preload = (state, createSlide, createImage, loadImage, index, onImageSettled) => {
   if (index < 0 || index >= state.GROUPS[state.activeGroup].triggerElements.length || state.GROUPS[state.activeGroup].sliderElements[index] !== undefined) {
     return
   }
@@ -317,7 +324,7 @@ const preload = (state, createSlide, createImage, loadImage, index) => {
   createSlide(state, index);
   createImage(state, state.GROUPS[state.activeGroup].triggerElements[index], index, () => {
     loadImage(state, index);
-  });
+  }, onImageSettled);
 };
 
 /**
@@ -486,6 +493,29 @@ class PluginManager {
   }
 
   /**
+   * Execute a hook, canceling on the first callback that returns false
+   *
+   * @param {String} hookName - Name of the hook
+   * @param {*} data - Data to pass to hook callbacks
+   * @returns {Boolean} False if a callback canceled the action, otherwise true
+   */
+  executeCancelableHook (hookName, data) {
+    const callbacks = this.hooks[hookName] || [];
+
+    for (const callback of callbacks) {
+      try {
+        if (callback(data) === false) {
+          return false
+        }
+      } catch (error) {
+        console.error(`Error in hook "${hookName}":`, error);
+      }
+    }
+
+    return true
+  }
+
+  /**
    * Register a hook callback
    *
    * @param {String} hookName - Name of the hook
@@ -505,7 +535,9 @@ class PluginManager {
    * @param {Function} callback - Callback function to remove
    */
   removeHook (hookName, callback) {
-    if (!this.hooks[hookName]) return
+    if (!this.hooks[hookName]) {
+      return
+    }
 
     this.hooks[hookName] = this.hooks[hookName].filter(cb => cb !== callback);
   }
@@ -1555,12 +1587,17 @@ const addCopyright = (config, imageContainer, imageEl, el, index) => {
  * @param {HTMLElement} el - The trigger element
  * @param {Number} index - The index
  * @param {Function} callback - Callback function
+ * @param {Function} onSettled - Called with the resulting content element once it settles (loaded or errored)
  * @returns {void}
  */
-const createImage = (state, el, index, callback) => {
+const createImage = (state, el, index, callback, onSettled) => {
   const { contentElements, sliderElements } = state.GROUPS[state.activeGroup];
 
   if (contentElements[index] !== undefined) {
+    if (onSettled && typeof onSettled === 'function') {
+      onSettled(contentElements[index]);
+    }
+
     if (callback && typeof callback === 'function') {
       callback();
     }
@@ -1632,6 +1669,10 @@ const createImage = (state, el, index, callback) => {
     })
     .finally(() => {
       LOADING_INDICATOR.remove();
+
+      if (onSettled && typeof onSettled === 'function') {
+        onSettled(contentElements[index]);
+      }
 
       if (callback && typeof callback === 'function') {
         callback();
@@ -1812,7 +1853,7 @@ function Parvus (userOptions) {
   const PLUGIN_MANAGER = new PluginManager();
 
   // Event handlers will be created after actions are defined
-  let keydownHandler, clickHandler, pointerdownHandler, pointermoveHandler, pointerupHandler, resizeHandler;
+  let keydownHandler, clickHandler, pointerdownHandler, pointermoveHandler, pointerupHandler, resizeHandler, popstateHandler;
 
   /**
    * Click event handler to trigger Parvus
@@ -1823,6 +1864,22 @@ function Parvus (userOptions) {
     event.preventDefault();
 
     open(this);
+  };
+
+  /**
+   * Execute the imageLoad hook for a slide once its content settles
+   *
+   * @param {Number} index - Index of the slide
+   * @returns {Function} Callback for createImage's/preload's onSettled parameter
+   */
+  const notifyImageLoad = (index) => (element) => {
+    PLUGIN_MANAGER.executeHook('imageLoad', {
+      index,
+      element,
+      success: element.tagName === 'IMG',
+      group: STATE.activeGroup,
+      state: STATE
+    });
   };
 
   /**
@@ -1844,7 +1901,9 @@ function Parvus (userOptions) {
       createLightbox(STATE);
 
       // Execute afterInit hook when lightbox is first created
-      PLUGIN_MANAGER.executeHook('afterInit', { state: STATE });
+      PLUGIN_MANAGER.executeHook('afterInit', {
+        state: STATE
+      });
     }
 
     STATE.newGroup = getGroup(STATE, el);
@@ -1866,13 +1925,21 @@ function Parvus (userOptions) {
     el.classList.add('parvus-trigger');
     el.addEventListener('click', triggerParvus);
 
+    // Execute elementAdded hook
+    PLUGIN_MANAGER.executeHook('elementAdded', {
+      element: el,
+      group: STATE.newGroup,
+      index: STATE.GROUPS[STATE.newGroup].triggerElements.length - 1,
+      state: STATE
+    });
+
     if (isOpen() && STATE.newGroup === STATE.activeGroup) {
       const EL_INDEX = STATE.GROUPS[STATE.newGroup].triggerElements.indexOf(el);
 
       createSlide(STATE, EL_INDEX);
       createImage(STATE, el, EL_INDEX, () => {
         loadImage(STATE, EL_INDEX);
-      });
+      }, notifyImageLoad(EL_INDEX));
       updateAttributes(STATE);
       updateSliderNavigationStatus(STATE);
       updateCounter(STATE);
@@ -1931,11 +1998,24 @@ function Parvus (userOptions) {
       removeZoomIndicator(el);
     }
 
+    // Unbind click event handler
+    el.removeEventListener('click', triggerParvus);
+
+    el.classList.remove('parvus-trigger');
+
+    // Execute elementRemoved hook
+    PLUGIN_MANAGER.executeHook('elementRemoved', {
+      element: el,
+      group: EL_GROUP,
+      index: EL_INDEX,
+      state: STATE
+    });
+
     if (isOpen() && EL_GROUP === STATE.activeGroup) {
       if (IS_CURRENT_EL && GROUP.triggerElements.length === 0) {
-        close();
+        performClose();
       } else if (IS_CURRENT_EL && STATE.currentIndex >= GROUP.triggerElements.length) {
-        select(GROUP.triggerElements.length - 1);
+        performSelect(GROUP.triggerElements.length - 1);
       } else {
         if (!IS_CURRENT_EL && EL_INDEX < STATE.currentIndex) {
           STATE.currentIndex--;
@@ -1946,11 +2026,6 @@ function Parvus (userOptions) {
         updateCounter(STATE);
       }
     }
-
-    // Unbind click event handler
-    el.removeEventListener('click', triggerParvus);
-
-    el.classList.remove('parvus-trigger');
   };
 
   /**
@@ -1963,15 +2038,25 @@ function Parvus (userOptions) {
       return
     }
 
-    STATE.activeGroup = getGroup(STATE, el);
-
-    const GROUP = STATE.GROUPS[STATE.activeGroup];
+    const EL_GROUP = getGroup(STATE, el);
+    const GROUP = STATE.GROUPS[EL_GROUP];
     const EL_INDEX = GROUP.triggerElements.indexOf(el);
 
     if (EL_INDEX === -1) {
       throw new Error('Ups, element not found in group.')
     }
 
+    // Execute beforeOpen hook
+    if (!PLUGIN_MANAGER.executeCancelableHook('beforeOpen', {
+      element: el,
+      group: EL_GROUP,
+      index: EL_INDEX,
+      state: STATE
+    })) {
+      return
+    }
+
+    STATE.activeGroup = EL_GROUP;
     STATE.currentIndex = EL_INDEX;
 
     history.pushState({ parvus: 'close' }, 'Image', window.location.href);
@@ -2003,26 +2088,27 @@ function Parvus (userOptions) {
       STATE.lightbox.classList.remove('parvus--is-opening');
 
       GROUP.slider.classList.add('parvus__slider--animate');
-    });
+    }, notifyImageLoad(STATE.currentIndex));
 
-    preload(STATE, createSlide, createImage, loadImage, STATE.currentIndex + 1);
-    preload(STATE, createSlide, createImage, loadImage, STATE.currentIndex - 1);
+    preload(STATE, createSlide, createImage, loadImage, STATE.currentIndex + 1, notifyImageLoad(STATE.currentIndex + 1));
+    preload(STATE, createSlide, createImage, loadImage, STATE.currentIndex - 1, notifyImageLoad(STATE.currentIndex - 1));
 
     // Execute afterOpen hook
-    PLUGIN_MANAGER.executeHook('afterOpen', { element: el, state: STATE });
+    PLUGIN_MANAGER.executeHook('afterOpen', {
+      element: el,
+      group: STATE.activeGroup,
+      index: STATE.currentIndex,
+      state: STATE
+    });
 
     // Create and dispatch a new event
     dispatchCustomEvent(STATE.lightbox, 'open');
   };
 
   /**
-   * Close Parvus
+   * Close Parvus, bypassing the beforeClose hook
    */
-  const close = () => {
-    if (!isOpen()) {
-      return
-    }
-
+  const performClose = () => {
     const IMAGE = STATE.GROUPS[STATE.activeGroup].contentElements[STATE.currentIndex];
     const THUMBNAIL = STATE.GROUPS[STATE.activeGroup].triggerElements[STATE.currentIndex];
 
@@ -2067,7 +2153,11 @@ function Parvus (userOptions) {
       }
 
       // Execute afterClose hook
-      PLUGIN_MANAGER.executeHook('afterClose', { state: STATE });
+      PLUGIN_MANAGER.executeHook('afterClose', {
+        group: STATE.activeGroup,
+        index: STATE.currentIndex,
+        state: STATE
+      });
     };
 
     if (IMAGE && IMAGE.tagName === 'IMG') {
@@ -2097,30 +2187,36 @@ function Parvus (userOptions) {
   };
 
   /**
-   * Select a specific slide by index
+   * Close Parvus
+   *
+   * @returns {Boolean} True if Parvus closed, false if it was already closed or a beforeClose hook canceled it
+   */
+  const close = () => {
+    if (!isOpen()) {
+      return false
+    }
+
+    // Execute beforeClose hook
+    if (!PLUGIN_MANAGER.executeCancelableHook('beforeClose', {
+      group: STATE.activeGroup,
+      index: STATE.currentIndex,
+      state: STATE
+    })) {
+      return false
+    }
+
+    performClose();
+
+    return true
+  };
+
+  /**
+   * Select a specific slide by index, bypassing the beforeSlideChange hook
    *
    * @param {number} index - Index of the slide to select
    */
-  const select = (index) => {
-    if (!isOpen()) {
-      throw new Error("Oops, I'm closed.")
-    }
-
-    if (typeof index !== 'number' || isNaN(index)) {
-      throw new Error('Oops, no slide specified.')
-    }
-
+  const performSelect = (index) => {
     const GROUP = STATE.GROUPS[STATE.activeGroup];
-    const triggerElements = GROUP.triggerElements;
-
-    if (index === STATE.currentIndex) {
-      throw new Error(`Oops, slide ${index} is already selected.`)
-    }
-
-    if (index < 0 || index >= triggerElements.length) {
-      throw new Error(`Oops, I can't find slide ${index}.`)
-    }
-
     const OLD_INDEX = STATE.currentIndex;
 
     // A zoom/pan on the previous slide must not carry over to the next one
@@ -2136,7 +2232,7 @@ function Parvus (userOptions) {
       createSlide(STATE, index);
       createImage(STATE, GROUP.triggerElements[index], index, () => {
         loadImage(STATE, index);
-      });
+      }, notifyImageLoad(index));
       loadSlide(STATE, index);
     }
 
@@ -2145,18 +2241,60 @@ function Parvus (userOptions) {
     updateCounter(STATE);
 
     // Execute slideChange hook
-    PLUGIN_MANAGER.executeHook('slideChange', { index, oldIndex: OLD_INDEX, state: STATE });
+    PLUGIN_MANAGER.executeHook('slideChange', {
+      index,
+      oldIndex: OLD_INDEX,
+      group: STATE.activeGroup,
+      state: STATE
+    });
 
     if (index < OLD_INDEX) {
-      preload(STATE, createSlide, createImage, loadImage, index - 1);
+      preload(STATE, createSlide, createImage, loadImage, index - 1, notifyImageLoad(index - 1));
     } else {
-      preload(STATE, createSlide, createImage, loadImage, index + 1);
+      preload(STATE, createSlide, createImage, loadImage, index + 1, notifyImageLoad(index + 1));
     }
 
     leaveSlide(STATE, OLD_INDEX);
 
     // Create and dispatch a new event
     dispatchCustomEvent(STATE.lightbox, 'select');
+  };
+
+  /**
+   * Select a specific slide by index
+   *
+   * @param {number} index - Index of the slide to select
+   */
+  const select = (index) => {
+    if (!isOpen()) {
+      throw new Error("Oops, I'm closed.")
+    }
+
+    if (typeof index !== 'number' || isNaN(index)) {
+      throw new Error('Oops, no slide specified.')
+    }
+
+    const triggerElements = STATE.GROUPS[STATE.activeGroup].triggerElements;
+
+    if (index === STATE.currentIndex) {
+      throw new Error(`Oops, slide ${index} is already selected.`)
+    }
+
+    if (index < 0 || index >= triggerElements.length) {
+      throw new Error(`Oops, I can't find slide ${index}.`)
+    }
+
+    // Execute beforeSlideChange hook
+    if (!PLUGIN_MANAGER.executeCancelableHook('beforeSlideChange', {
+      index,
+      oldIndex: STATE.currentIndex,
+      group: STATE.activeGroup,
+      state: STATE
+    })) {
+      return
+    }
+
+    performSelect(index);
   };
 
   /**
@@ -2215,11 +2353,18 @@ function Parvus (userOptions) {
     pointermoveHandler = createPointermoveHandler(STATE, pinchZoomHandler, panZoomHandler, doSwipeHandler);
     pointerupHandler = createPointerupHandler(STATE, resetZoomHandler, updateAfterDragHandler);
 
+    popstateHandler = () => {
+      // The browser already navigated back; if beforeClose canceled the close, restore the history entry
+      if (!close()) {
+        history.pushState({ parvus: 'close' }, 'Image', window.location.href);
+      }
+    };
+
     BROWSER_WINDOW.addEventListener('keydown', keydownHandler);
     BROWSER_WINDOW.addEventListener('resize', resizeHandler);
 
     // Popstate event
-    BROWSER_WINDOW.addEventListener('popstate', close);
+    BROWSER_WINDOW.addEventListener('popstate', popstateHandler);
 
     // Click event
     STATE.lightbox.addEventListener('click', clickHandler);
@@ -2241,7 +2386,7 @@ function Parvus (userOptions) {
     BROWSER_WINDOW.removeEventListener('resize', resizeHandler);
 
     // Popstate event
-    BROWSER_WINDOW.removeEventListener('popstate', close);
+    BROWSER_WINDOW.removeEventListener('popstate', popstateHandler);
 
     // Click event
     STATE.lightbox.removeEventListener('click', clickHandler);
@@ -2262,7 +2407,7 @@ function Parvus (userOptions) {
     }
 
     if (isOpen()) {
-      close();
+      performClose();
     }
 
     // Add setTimeout to ensure all possible close transitions are completed
@@ -2436,7 +2581,16 @@ function Parvus (userOptions) {
       off: off$1,
       addHook: PLUGIN_MANAGER.addHook.bind(PLUGIN_MANAGER),
       removeHook: PLUGIN_MANAGER.removeHook.bind(PLUGIN_MANAGER),
-      config: STATE.config
+      config: STATE.config,
+      select,
+      previous,
+      next,
+      currentIndex: getCurrentIndex,
+      add,
+      remove,
+      open,
+      close,
+      isOpen
     };
     PLUGIN_MANAGER.install(pluginContext);
 

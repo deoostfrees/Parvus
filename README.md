@@ -368,10 +368,10 @@ Parvus provides the following API functions:
 | Function | Description |
 | --- | --- |
 | `open(element)` | Open the specified `element` (DOM element) |
-| `close()` | Close Parvus |
+| `close()` | Close Parvus, returns `false` if it was already closed or a `beforeClose` hook canceled it |
 | `previous()` | Show the previous image |
 | `next()` | Show the next image |
-| `select(index)` | Select a slide with the specified `index` (integer) |
+| `select(index)` | Select a slide with the specified `index` (integer); throws if closed, already selected, or out of range |
 | `add(element)` | Add the specified `element` (DOM element) |
 | `remove(element)` | Remove the specified `element` (DOM element) |
 | `destroy()` | Destroy Parvus |
@@ -460,6 +460,30 @@ export default MyPlugin
 | `removeHook(hookName, callback)` | Remove a hook callback |
 | `on(eventName, callback)` | Bind one of the [events](#events) (e.g. to clean up on `destroy`) |
 | `off(eventName, callback)` | Unbind an event bound with `on` |
+| `select(index)` | Select a slide with the specified `index` (integer); throws if closed, already selected, or out of range |
+| `previous()` | Show the previous slide |
+| `next()` | Show the next slide |
+| `currentIndex()` | Get the index of the currently displayed slide |
+| `add(element)` | Add the specified `element` (DOM element) |
+| `remove(element)` | Remove the specified `element` (DOM element) |
+| `open(element)` | Open the specified `element` (DOM element) |
+| `close()` | Close Parvus, returns `false` if it was already closed or a `beforeClose` hook canceled it |
+| `isOpen()` | Check if Parvus is currently open |
+
+`state` exposes the full internal state, but only the following fields are considered part of the plugin API and are kept stable across minor versions. Everything else on `state` is an implementation detail and may change without notice:
+
+| Field | Description |
+| --- | --- |
+| `state.lightbox` | The lightbox `<dialog>` element |
+| `state.toolbar` / `state.toolbarLeft` / `state.toolbarRight` | The toolbar and its left/right item containers |
+| `state.controls` | The controls container (close/previous/next buttons) |
+| `state.previousButton` / `state.nextButton` / `state.closeButton` | The control buttons |
+| `state.counter` | The slide counter element |
+| `state.currentIndex` | The index of the currently displayed slide |
+| `state.activeGroup` | The ID of the currently active group |
+| `state.GROUPS[groupId]` | A group's `triggerElements`, `sliderElements` and `contentElements` arrays, keyed by group ID (e.g. `state.activeGroup`, or a hook's `group` field) |
+
+`triggerElements` are the elements documented in [Usage](#usage) — read `href`/`data-target` for the full image, and the `<img>`/`data-alt`/`data-caption*`/`data-copyright*` attributes for anything else about them.
 
 ### Plugin Hooks
 
@@ -468,9 +492,21 @@ Plugins can hook into various lifecycle events:
 | Hook Name | When Triggered | Provided Data |
 | --- | --- | --- |
 | `afterInit` | After lightbox DOM is created (once) | `{ state }` |
-| `afterOpen` | After lightbox opens | `{ element, state }` |
-| `afterClose` | After lightbox closes | `{ state }` |
-| `slideChange` | When slide changes | `{ index, oldIndex, state }` |
+| `beforeOpen` | Before Parvus opens | `{ element, group, index, state }` |
+| `afterOpen` | After lightbox opens | `{ element, group, index, state }` |
+| `beforeClose` | Before Parvus closes | `{ group, index, state }` |
+| `afterClose` | After lightbox closes | `{ group, index, state }` |
+| `beforeSlideChange` | Before slide changes | `{ index, oldIndex, group, state }` |
+| `slideChange` | When slide changes | `{ index, oldIndex, group, state }` |
+| `elementAdded` | After an element is added via `add()` (also once per element during init) | `{ element, group, index, state }` |
+| `elementRemoved` | After an element is removed via `remove()` | `{ element, group, index, state }` |
+| `imageLoad` | After a slide's image finished loading or failed (including preloaded slides) | `{ index, element, success, group, state }` |
+
+For the `before*` hooks, a callback returning `false` cancels the action. These hooks are synchronous — a returned `Promise` does not cancel anything.
+
+Internal corrections bypass the `before*` hooks: `remove()` always closes when a group's last slide is removed, and always re-indexes when the displayed slide is removed.
+
+`elementAdded`/`elementRemoved` only fire for calls made after the hook is registered. For the current membership, read `state.GROUPS` directly during `install()`.
 
 Example using hooks:
 

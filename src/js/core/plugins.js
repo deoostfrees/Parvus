@@ -121,6 +121,29 @@ export class PluginManager {
   }
 
   /**
+   * Execute a hook, canceling on the first callback that returns false
+   *
+   * @param {String} hookName - Name of the hook
+   * @param {*} data - Data to pass to hook callbacks
+   * @returns {Boolean} False if a callback canceled the action, otherwise true
+   */
+  executeCancelableHook (hookName, data) {
+    const callbacks = this.hooks[hookName] || []
+
+    for (const callback of callbacks) {
+      try {
+        if (callback(data) === false) {
+          return false
+        }
+      } catch (error) {
+        console.error(`Error in hook "${hookName}":`, error)
+      }
+    }
+
+    return true
+  }
+
+  /**
    * Register a hook callback
    *
    * @param {String} hookName - Name of the hook
@@ -140,7 +163,9 @@ export class PluginManager {
    * @param {Function} callback - Callback function to remove
    */
   removeHook (hookName, callback) {
-    if (!this.hooks[hookName]) return
+    if (!this.hooks[hookName]) {
+      return
+    }
 
     this.hooks[hookName] = this.hooks[hookName].filter(cb => cb !== callback)
   }

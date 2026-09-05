@@ -148,12 +148,17 @@ export const addCopyright = (config, imageContainer, imageEl, el, index) => {
  * @param {HTMLElement} el - The trigger element
  * @param {Number} index - The index
  * @param {Function} callback - Callback function
+ * @param {Function} onSettled - Called with the resulting content element once it settles (loaded or errored)
  * @returns {void}
  */
-export const createImage = (state, el, index, callback) => {
+export const createImage = (state, el, index, callback, onSettled) => {
   const { contentElements, sliderElements } = state.GROUPS[state.activeGroup]
 
   if (contentElements[index] !== undefined) {
+    if (onSettled && typeof onSettled === 'function') {
+      onSettled(contentElements[index])
+    }
+
     if (callback && typeof callback === 'function') {
       callback()
     }
@@ -225,6 +230,10 @@ export const createImage = (state, el, index, callback) => {
     })
     .finally(() => {
       LOADING_INDICATOR.remove()
+
+      if (onSettled && typeof onSettled === 'function') {
+        onSettled(contentElements[index])
+      }
 
       if (callback && typeof callback === 'function') {
         callback()

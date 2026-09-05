@@ -28,9 +28,12 @@ export const dispatchCustomEvent = (lightbox, type) => {
  * @returns {void}
  */
 export const on = (lightbox, eventName, callback) => {
-  if (lightbox) {
-    lightbox.addEventListener(eventName, callback)
+  if (!lightbox) {
+    console.warn(`Can't bind "${eventName}", the lightbox doesn't exist yet. Do this from the "afterInit" hook instead.`)
+    return
   }
+
+  lightbox.addEventListener(eventName, callback)
 }
 
 /**
@@ -42,7 +45,10 @@ export const on = (lightbox, eventName, callback) => {
  * @returns {void}
  */
 export const off = (lightbox, eventName, callback) => {
-  if (lightbox) {
-    lightbox.removeEventListener(eventName, callback)
+  if (!lightbox) {
+    console.warn(`Can't unbind "${eventName}", the lightbox doesn't exist yet.`)
+    return
   }
+
+  lightbox.removeEventListener(eventName, callback)
 }
