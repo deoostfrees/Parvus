@@ -9,8 +9,7 @@
 
 ### Changed
 
-- `getPlugins()` now only returns successfully installed plugins 85a3784 @deoostfrees
-- Expose `removeHook()` on the public API and plugin context 2df7094 @deoostfrees
+- Extend plugin context with more actions and lifecycle hooks 85a3784 2df7094 2ee442c @deoostfrees
 
 ### Fixed
 
@@ -20,6 +19,7 @@
 - Fix reduced-motion listener leaking on every open/close f1c643a @deoostfrees
 - Prevents Safari's heuristic text autosizing from increasing the font size of captions and copyright notices 5faa1ab @deoostfrees
 - `on`/`off` now work correctly in the plugin context c5a6cea @deoostfrees
+- Use dvh units to fix nav button misalignment when mobile address bar toggles 996b7cb @deoostfrees
 
 ## [3.1.1] - 2026-06-27
 
