@@ -78,7 +78,7 @@ body:has(.parvus[open]) {
  */
 .parvus {
   background-color: transparent;
-  block-size: 100%;
+  block-size: 100dvh;
   border: 0;
   box-sizing: border-box;
   color: var(--parvus-color);
@@ -265,14 +265,14 @@ body:has(.parvus[open]) {
     &--previous {
       inset-inline-start: 0;
       position: absolute;
-      inset-block-start: calc(50svh - 1rem); // 50svh - paddingTop from .parvus__slide
+      inset-block-start: calc(50dvh - 1rem); // 50dvh - paddingTop from .parvus__slide
       transform: translateY(-50%);
     }
 
     &--next {
       position: absolute;
       inset-inline-end: 0;
-      inset-block-start: calc(50svh - 1rem); // 50svh - paddingTop from .parvus__slide
+      inset-block-start: calc(50dvh - 1rem); // 50dvh - paddingTop from .parvus__slide
       transform: translateY(-50%);
     }
 
