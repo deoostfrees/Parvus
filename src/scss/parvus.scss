@@ -291,6 +291,7 @@ body:has(.parvus[open]) {
   }
 
   &__counter {
+    font-variant-numeric: tabular-nums;
     position: relative;
     z-index: 7;
 
