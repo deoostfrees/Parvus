@@ -238,6 +238,7 @@ body:has(.parvus[open]) {
   color: var(--parvus-btn-disabled-color);
 }
 .parvus__counter {
+  font-variant-numeric: tabular-nums;
   position: relative;
   z-index: 7;
 }
