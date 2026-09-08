@@ -62,7 +62,7 @@ body:has(.parvus[open]) {
  */
 .parvus {
   background-color: transparent;
-  block-size: 100%;
+  block-size: 100dvh;
   border: 0;
   box-sizing: border-box;
   color: var(--parvus-color);
