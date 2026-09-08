@@ -9,6 +9,7 @@
 
 ### Changed
 
+- **Breaking:** By default, captions and copyright are now inserted as plain text. Set `allowHTML: true` to keep the previous HTML rendering e3a23cd @deoostfrees
 - Extend plugin context with more actions and lifecycle hooks 85a3784 2df7094 2ee442c @deoostfrees
 
 ### Fixed
