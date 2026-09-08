@@ -62,7 +62,7 @@ body:has(.parvus[open]) {
  */
 .parvus {
   background-color: transparent;
-  block-size: 100%;
+  block-size: 100dvh;
   border: 0;
   box-sizing: border-box;
   color: var(--parvus-color);
@@ -76,12 +76,22 @@ body:has(.parvus[open]) {
   overscroll-behavior: contain;
   padding: 0;
   position: fixed;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 .parvus::backdrop {
   display: none;
 }
 .parvus *, .parvus *::before, .parvus *::after {
   box-sizing: border-box;
+}
+.parvus-visually-hidden {
+  block-size: 0.0625rem;
+  clip-path: inset(50%);
+  inline-size: 0.0625rem;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
 }
 .parvus__overlay {
   background-color: var(--parvus-background-color);
@@ -148,13 +158,13 @@ body:has(.parvus[open]) {
   position: absolute;
 }
 .parvus__loader {
-  display: inline-block;
   block-size: 6.25rem;
+  display: inline-block;
+  inline-size: 6.25rem;
+  inset-block-start: 50%;
   inset-inline-start: 50%;
   position: absolute;
-  inset-block-start: 50%;
   transform: translate(-50%, -50%);
-  inline-size: 6.25rem;
 }
 .parvus__loader::before {
   animation: spin 1s infinite linear;
@@ -208,13 +218,13 @@ body:has(.parvus[open]) {
 .parvus__btn--previous {
   inset-inline-start: 0;
   position: absolute;
-  inset-block-start: calc(50svh - 1rem);
+  inset-block-start: calc(50dvh - 1rem);
   transform: translateY(-50%);
 }
 .parvus__btn--next {
   position: absolute;
   inset-inline-end: 0;
-  inset-block-start: calc(50svh - 1rem);
+  inset-block-start: calc(50dvh - 1rem);
   transform: translateY(-50%);
 }
 .parvus__btn svg {
@@ -228,6 +238,7 @@ body:has(.parvus[open]) {
   color: var(--parvus-btn-disabled-color);
 }
 .parvus__counter {
+  font-variant-numeric: tabular-nums;
   position: relative;
   z-index: 7;
 }

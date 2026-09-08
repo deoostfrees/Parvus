@@ -1,8 +1,5 @@
-import resolve from '@rollup/plugin-node-resolve'
-import commonjs from '@rollup/plugin-commonjs'
 import terser from '@rollup/plugin-terser'
 import postcss from 'rollup-plugin-postcss'
-import babel from '@rollup/plugin-babel'
 import license from 'rollup-plugin-license'
 
 import pkg from './package.json'
@@ -64,20 +61,6 @@ if (process.env.BUILDJS) {
       }
     ],
     plugins: [
-      resolve({
-        browser: true
-      }),
-      commonjs(),
-      babel({
-        babelHelpers: 'bundled',
-        exclude: 'node_modules/**',
-        presets: [
-          ['@babel/preset-env', {
-            corejs: 3.15,
-            useBuiltIns: 'entry'
-          }]
-        ]
-      }),
       license({
         banner: {
           content: bannerContent
@@ -104,10 +87,6 @@ if (process.env.BUILDCSS) {
         }
       ],
       plugins: [
-        resolve({
-          browser: true
-        }),
-        commonjs(),
         postcss({
           extract: true
         }),
@@ -129,10 +108,6 @@ if (process.env.BUILDCSS) {
         }
       ],
       plugins: [
-        resolve({
-          browser: true
-        }),
-        commonjs(),
         postcss({
           extract: true,
           minimize: true

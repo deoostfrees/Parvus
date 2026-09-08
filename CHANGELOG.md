@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.2.0] - 2026-09-
+
+### Added
+
+- Add panning for zoomed images 73143ea @deoostfrees #68
+- Add `root` option to scope instances to a container a647d22 @deoostfrees #71
+
+### Changed
+
+- **Breaking:** By default, captions and copyright are now inserted as plain text. Set `allowHTML: true` to keep the previous HTML rendering e3a23cd @deoostfrees
+- Extend plugin context with more actions and lifecycle hooks 85a3784 2df7094 2ee442c @deoostfrees
+
+### Fixed
+
+- Announce slide changes to screen readers d149e5f @deoostfrees
+- Preserve copyright's aria-describedby when a caption is added 0dadb01 @deoostfrees
+- `afterInit` hook no longer re-fires for already-registered plugins when a new plugin is added 2c69b53 @deoostfrees
+- Fix reduced-motion listener leaking on every open/close f1c643a @deoostfrees
+- Prevents Safari's heuristic text autosizing from increasing the font size of captions and copyright notices 5faa1ab @deoostfrees
+- `on`/`off` now work correctly in the plugin context c5a6cea @deoostfrees
+- Use dvh units to fix nav button misalignment when mobile address bar toggles 996b7cb @deoostfrees
+
 ## [3.1.1] - 2026-06-27
 
 ### Fixed

@@ -6,6 +6,7 @@ import en from '../../l10n/en.js'
 export const DEFAULT_OPTIONS = {
   selector: '.lightbox',
   gallerySelector: null,
+  root: document,
   zoomIndicator: true,
   captions: true,
   captionsSelector: 'self',
@@ -13,6 +14,7 @@ export const DEFAULT_OPTIONS = {
   copyright: true,
   copyrightSelector: 'self',
   copyrightAttribute: 'data-copyright',
+  allowHTML: false,
   docClose: true,
   swipeClose: true,
   simulateTouch: true,

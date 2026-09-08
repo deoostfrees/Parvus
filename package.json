@@ -1,26 +1,29 @@
 {
   "name": "parvus",
   "type": "module",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "An open source, dependency free image lightbox with the goal of being accessible.",
   "main": "./dist/js/parvus.js",
   "module": "./dist/js/parvus.esm.js",
   "style": "./dist/css/parvus.css",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "files": [
+    "dist",
+    "src",
+    "CHANGELOG.md"
+  ],
   "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.2",
-    "@rollup/plugin-babel": "^7.1.0",
-    "@rollup/plugin-commonjs": "^29.0.3",
-    "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
-    "core-js": "^3.49.0",
-    "postcss": "^8.5.15",
-    "rollup": "^4.62.2",
+    "postcss": "^8.5.28",
+    "rollup": "^4.63.1",
     "rollup-plugin-license": "^3.7.1",
     "rollup-plugin-postcss": "^4.0.2",
-    "sass": "^1.101.0",
+    "sass": "^1.104.0",
     "standard": "^17.1.2",
-    "stylelint": "^17.14.0",
+    "stylelint": "^17.15.0",
     "stylelint-config-standard-scss": "^17.0.0",
     "stylelint-scss": "^7.2.0",
     "stylelint-use-logical": "^2.1.3"
@@ -38,14 +41,14 @@
     ]
   },
   "scripts": {
-    "build": "npm run testCss && npm run buildCss && npm run testJs && npm run buildJs",
+    "build": "npm run test && rollup -c --environment BUILDCSS,BUILDJS --bundleConfigAsCjs",
     "buildCss": "rollup -c --environment BUILDCSS --bundleConfigAsCjs",
     "buildJs": "rollup -c --environment BUILDJS --bundleConfigAsCjs",
-    "buildWatch": "npm run buildWatchJs && npm run buildWatchCss",
+    "buildWatch": "rollup -c -w --environment BUILDCSS,BUILDJS --bundleConfigAsCjs",
     "buildWatchCss": "rollup -c -w --environment BUILDCSS --bundleConfigAsCjs",
     "buildWatchJs": "rollup -c -w --environment BUILDJS --bundleConfigAsCjs",
     "testCss": "stylelint \"src/scss/parvus.scss\"",
-    "testJs": "standard \"src/js/parvus.js\"",
+    "testJs": "standard \"src/js/**/*.js\"",
     "test": "npm run testCss && npm run testJs"
   },
   "exports": {
@@ -58,7 +61,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/deoostfrees/parvus.git"
+    "url": "git+https://github.com/deoostfrees/parvus.git"
   },
   "keywords": [
     "lightbox",

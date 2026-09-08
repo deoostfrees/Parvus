@@ -9,7 +9,7 @@
 
   // Button
   --parvus-btn-background-color: hsl(228deg 24% 23%);
-  --parvus-btn-color:  hsl(0deg 0% 100%);
+  --parvus-btn-color: hsl(0deg 0% 100%);
   --parvus-btn-hover-background-color: hsl(229deg 24% 33%);
   --parvus-btn-hover-color: hsl(0deg 0% 100%);
   --parvus-btn-disabled-background-color: hsl(229deg 24% 33% / 60%);
@@ -39,7 +39,7 @@
 }
 
 ::view-transition-group(toolbar) {
-	z-index: 8;
+  z-index: 8;
 }
 
 body:has(.parvus[open]) {
@@ -53,7 +53,6 @@ body:has(.parvus[open]) {
 .parvus-trigger:has(img) {
   display: block;
   position: relative;
-
 
   & .parvus-zoom__indicator {
     align-items: center;
@@ -78,7 +77,7 @@ body:has(.parvus[open]) {
  */
 .parvus {
   background-color: transparent;
-  block-size: 100%;
+  block-size: 100dvh;
   border: 0;
   box-sizing: border-box;
   color: var(--parvus-color);
@@ -93,14 +92,28 @@ body:has(.parvus[open]) {
   padding: 0;
   position: fixed;
 
+  // Prevents Safari's heuristic text autosizing from increasing the font size of captions and copyright notices
+  // stylelint-disable-next-line property-no-vendor-prefix -- no unprefixed support in Safari
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
   &::backdrop {
-    display:none;
+    display: none;
   }
 
   & *,
   & *::before,
   & *::after {
     box-sizing: border-box;
+  }
+
+  &-visually-hidden {
+    block-size: 0.0625rem;
+    clip-path: inset(50%);
+    inline-size: 0.0625rem;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
   }
 
   &__overlay {
@@ -143,7 +156,6 @@ body:has(.parvus[open]) {
     padding-inline: 1rem;
     place-items: center;
 
-
     & img {
       block-size: auto;
       display: block;
@@ -155,7 +167,6 @@ body:has(.parvus[open]) {
 
   &__content {
     position: relative;
-
 
     &--error {
       background-color: var(--parvus-loading-error-background-color);
@@ -182,13 +193,13 @@ body:has(.parvus[open]) {
   }
 
   &__loader {
-    display: inline-block;
     block-size: 6.25rem;
+    display: inline-block;
+    inline-size: 6.25rem;
+    inset-block-start: 50%;
     inset-inline-start: 50%;
     position: absolute;
-    inset-block-start: 50%;
     transform: translate(-50%, -50%);
-    inline-size: 6.25rem;
 
     &::before {
       animation: spin 1s infinite linear;
@@ -212,7 +223,6 @@ body:has(.parvus[open]) {
     position: absolute;
     view-transition-name: toolbar;
     z-index: 8;
-
 
     & > * {
       pointer-events: auto;
@@ -247,18 +257,17 @@ body:has(.parvus[open]) {
       color: var(--parvus-btn-hover-color);
     }
 
-
     &--previous {
       inset-inline-start: 0;
       position: absolute;
-      inset-block-start: calc(50svh - 1rem); // 50svh - paddingTop from .parvus__slide
+      inset-block-start: calc(50dvh - 1rem); // 50dvh - paddingTop from .parvus__slide
       transform: translateY(-50%);
     }
 
     &--next {
       position: absolute;
       inset-inline-end: 0;
-      inset-block-start: calc(50svh - 1rem); // 50svh - paddingTop from .parvus__slide
+      inset-block-start: calc(50dvh - 1rem); // 50dvh - paddingTop from .parvus__slide
       transform: translateY(-50%);
     }
 
@@ -277,6 +286,7 @@ body:has(.parvus[open]) {
   }
 
   &__counter {
+    font-variant-numeric: tabular-nums;
     position: relative;
     z-index: 7;
 
@@ -310,8 +320,6 @@ body:has(.parvus[open]) {
     &--is-opening,
     &--is-closing {
 
-
-
       & .parvus__overlay,
       & .parvus__counter,
       & .parvus__btn,
@@ -323,8 +331,6 @@ body:has(.parvus[open]) {
 
     &--is-vertical-closing,
     &--is-zooming {
-
-
 
       & .parvus__counter,
       & .parvus__btn:not(.parvus__btn--previous, .parvus__btn--next) {

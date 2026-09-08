@@ -13,7 +13,7 @@
 export const updateOffset = (state) => {
   state.activeGroup = state.activeGroup !== null ? state.activeGroup : state.newGroup
 
-  state.offset = -state.currentIndex * state.lightbox.offsetWidth
+  state.offset = -state.currentIndex * state.lightboxWidth
 
   state.GROUPS[state.activeGroup].slider.style.transform = `translate3d(${state.offset}px, 0, 0)`
   state.offsetTmp = state.offset
@@ -51,9 +51,10 @@ export const leaveSlide = (state, index) => {
  * @param {Function} createImage - Create image function
  * @param {Function} loadImage - Load image function
  * @param {Number} index - The index of the slide to be preloaded
+ * @param {Function} onImageSettled - Called once the preloaded image settles (loaded or errored)
  * @returns {void}
  */
-export const preload = (state, createSlide, createImage, loadImage, index) => {
+export const preload = (state, createSlide, createImage, loadImage, index, onImageSettled) => {
   if (index < 0 || index >= state.GROUPS[state.activeGroup].triggerElements.length || state.GROUPS[state.activeGroup].sliderElements[index] !== undefined) {
     return
   }
@@ -61,5 +62,5 @@ export const preload = (state, createSlide, createImage, loadImage, index) => {
   createSlide(state, index)
   createImage(state, state.GROUPS[state.activeGroup].triggerElements[index], index, () => {
     loadImage(state, index)
-  })
+  }, onImageSettled)
 }

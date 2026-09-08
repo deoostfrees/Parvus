@@ -26,6 +26,29 @@ export const resetZoom = (state, currentImg) => {
 }
 
 /**
+ * Clamp the pan offset so the zoomed image can't expose a gap next to the slide
+ *
+ * @param {Object} state - The application state
+ * @param {HTMLImageElement} currentImg - The zoomed image
+ * @returns {void}
+ */
+const clampPan = (state, currentImg) => {
+  const SLIDE_RECT = state.GROUPS[state.activeGroup].sliderElements[state.currentIndex].getBoundingClientRect()
+  const SCALE = state.currentScale
+
+  // A pinch anchors the scale at its own origin, not the center, shifting the valid pan range off zero
+  const clampAxis = (size, slideSize, originFraction, pan) => {
+    const HALF_OVERFLOW = Math.max(0, (size * SCALE - slideSize) / 2)
+    const ORIGIN_SHIFT = (originFraction * size - size / 2) * (SCALE - 1)
+
+    return Math.min(ORIGIN_SHIFT + HALF_OVERFLOW, Math.max(ORIGIN_SHIFT - HALF_OVERFLOW, pan))
+  }
+
+  state.panX = clampAxis(currentImg.offsetWidth, SLIDE_RECT.width, state.zoomOriginX, state.panX)
+  state.panY = clampAxis(currentImg.offsetHeight, SLIDE_RECT.height, state.zoomOriginY, state.panY)
+}
+
+/**
  * Pinch zoom gesture
  *
  * @param {Object} state - The application state
@@ -68,6 +91,8 @@ export const pinchZoom = (state, currentImg) => {
       (state.currentScale === 1 && IS_NEW_POINTER_COMBINATION)) {
       // Set the transform origin to the pinch midpoint
       currentImg.style.transformOrigin = `${RELATIVE_X * 100}% ${RELATIVE_Y * 100}%`
+      state.zoomOriginX = RELATIVE_X
+      state.zoomOriginY = RELATIVE_Y
     }
 
     state.lightbox.classList.add('parvus--is-zooming')
@@ -79,8 +104,48 @@ export const pinchZoom = (state, currentImg) => {
   // Limit scaling to 1 - 3
   state.currentScale = Math.min(Math.max(1, SCALE_FACTOR), 3)
 
+  // Re-clamp on every scale change so zooming out near an edge doesn't leave a gap
+  clampPan(state, currentImg)
+
   currentImg.style.willChange = 'transform'
-  currentImg.style.transform = `scale(${state.currentScale})`
+  currentImg.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.currentScale})`
+}
+
+/**
+ * Pan the zoomed image with a single pointer
+ *
+ * @param {Object} state - The application state
+ * @param {HTMLImageElement} currentImg - The zoomed image to pan
+ * @returns {void}
+ */
+export const panZoom = (state, currentImg) => {
+  const POINTER = Array.from(state.activePointers.values())[0]
+
+  // Track movement so pointerup's tap detection doesn't mistake this pan for a tap
+  state.drag.endX = POINTER.pageX
+  state.drag.endY = POINTER.pageY
+
+  // First move after a pinch/touch only sets the baseline, avoiding a jump on the next one
+  if (state.lastPanPointerX === null) {
+    state.lastPanPointerX = POINTER.clientX
+    state.lastPanPointerY = POINTER.clientY
+
+    return
+  }
+
+  const DELTA_X = POINTER.clientX - state.lastPanPointerX
+  const DELTA_Y = POINTER.clientY - state.lastPanPointerY
+
+  state.lastPanPointerX = POINTER.clientX
+  state.lastPanPointerY = POINTER.clientY
+
+  state.panX += DELTA_X
+  state.panY += DELTA_Y
+
+  clampPan(state, currentImg)
+
+  currentImg.style.willChange = 'transform'
+  currentImg.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.currentScale})`
 }
 
 /**

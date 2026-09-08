@@ -65,6 +65,18 @@ export const createLightbox = (state) => {
   // Create the counter
   state.counter = document.createElement('div')
   state.counter.className = 'parvus__counter'
+  // Announces slide changes, since previous/next clicks leave focus on the button, not the slide
+  state.counter.setAttribute('role', 'status')
+
+  // The "1/3" display is decorative; a screen reader reads "/" literally, so a
+  // visually hidden sibling carries the actual announced text
+  state.counterValue = document.createElement('span')
+  state.counterValue.setAttribute('aria-hidden', 'true')
+
+  state.counterLabel = document.createElement('span')
+  state.counterLabel.className = 'parvus-visually-hidden'
+
+  state.counter.append(state.counterValue, state.counterLabel)
 
   // Add the control buttons to the controls
   state.controls.append(state.closeButton, state.previousButton, state.nextButton)
@@ -209,7 +221,13 @@ export const createSlide = (state, index) => {
  * @returns {void}
  */
 export const updateCounter = (state) => {
-  state.counter.textContent = `${state.currentIndex + 1}/${state.GROUPS[state.activeGroup].triggerElements.length}`
+  const CURRENT = state.currentIndex + 1
+  const TOTAL = state.GROUPS[state.activeGroup].triggerElements.length
+
+  state.counterValue.textContent = `${CURRENT}/${TOTAL}`
+  state.counterLabel.textContent = state.config.l10n.counterLabel
+    .replace('{current}', CURRENT)
+    .replace('{total}', TOTAL)
 }
 
 /**
@@ -225,14 +243,8 @@ export const updateAttributes = (state) => {
   const SLIDER = state.GROUPS[state.activeGroup].slider
   const SLIDER_ELEMENTS = state.GROUPS[state.activeGroup].sliderElements
 
-  const IS_DRAGGABLE = SLIDER.classList.contains('parvus__slider--is-draggable')
-
   // Add draggable class if necessary
-  if ((state.config.simulateTouch && state.config.swipeClose && !IS_DRAGGABLE) || (state.config.simulateTouch && TOTAL_TRIGGER_ELEMENTS > 1 && !IS_DRAGGABLE)) {
-    SLIDER.classList.add('parvus__slider--is-draggable')
-  } else {
-    SLIDER.classList.remove('parvus__slider--is-draggable')
-  }
+  SLIDER.classList.toggle('parvus__slider--is-draggable', state.config.simulateTouch && (state.config.swipeClose || TOTAL_TRIGGER_ELEMENTS > 1))
 
   // Add extra output for screen reader if there is more than one slide
   if (TOTAL_TRIGGER_ELEMENTS > 1) {

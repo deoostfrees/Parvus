@@ -16,7 +16,7 @@
  */
 export const addCaption = (config, containerEl, imageEl, el, index) => {
   const getCaptionData = (triggerEl) => {
-    const { captionsAttribute, captionsSelector, captionsIdAttribute = 'data-caption-id' } = config
+    const { captionsAttribute, captionsSelector, captionsIdAttribute = 'data-caption-id', allowHTML } = config
 
     // Check for an ID reference on the trigger element
     // This allows the caption to be anywhere on the page
@@ -26,7 +26,7 @@ export const addCaption = (config, containerEl, imageEl, el, index) => {
       const CAPTION_EL = document.getElementById(CAPTION_ID)
 
       if (CAPTION_EL) {
-        return CAPTION_EL.innerHTML
+        return allowHTML ? CAPTION_EL.innerHTML : CAPTION_EL.textContent
       }
     }
 
@@ -43,7 +43,7 @@ export const addCaption = (config, containerEl, imageEl, el, index) => {
 
       if (CAPTION_EL) {
         // Prefer a direct attribute on the found element, otherwise use its content
-        return CAPTION_EL.getAttribute(captionsAttribute) || CAPTION_EL.innerHTML
+        return CAPTION_EL.getAttribute(captionsAttribute) || (allowHTML ? CAPTION_EL.innerHTML : CAPTION_EL.textContent)
       }
     }
 
@@ -55,13 +55,29 @@ export const addCaption = (config, containerEl, imageEl, el, index) => {
   if (CAPTION_DATA) {
     const CAPTION_CONTAINER = document.createElement('div')
     const CAPTION_ID = `parvus__caption-${index}`
+    const CAPTION_TEXT = document.createElement('p')
 
     CAPTION_CONTAINER.className = 'parvus__caption'
     CAPTION_CONTAINER.id = CAPTION_ID
-    CAPTION_CONTAINER.innerHTML = `<p>${CAPTION_DATA}</p>`
+
+    if (config.allowHTML) {
+      CAPTION_TEXT.innerHTML = CAPTION_DATA
+    } else {
+      CAPTION_TEXT.textContent = CAPTION_DATA
+    }
+
+    CAPTION_CONTAINER.appendChild(CAPTION_TEXT)
 
     containerEl.appendChild(CAPTION_CONTAINER)
-    imageEl.setAttribute('aria-describedby', CAPTION_ID)
+
+    // If image already has aria-describedby (from copyright), append caption ID
+    const HAS_ARIA_DESCRIBEDBY = imageEl.getAttribute('aria-describedby')
+
+    if (HAS_ARIA_DESCRIBEDBY) {
+      imageEl.setAttribute('aria-describedby', `${HAS_ARIA_DESCRIBEDBY} ${CAPTION_ID}`)
+    } else {
+      imageEl.setAttribute('aria-describedby', CAPTION_ID)
+    }
   }
 }
 
@@ -77,7 +93,7 @@ export const addCaption = (config, containerEl, imageEl, el, index) => {
  */
 export const addCopyright = (config, imageContainer, imageEl, el, index) => {
   const getCopyrightData = (triggerEl) => {
-    const { copyrightAttribute, copyrightSelector, copyrightIdAttribute = 'data-copyright-id' } = config
+    const { copyrightAttribute, copyrightSelector, copyrightIdAttribute = 'data-copyright-id', allowHTML } = config
 
     // Check for an ID reference on the trigger element
     // This allows the copyright to be anywhere on the page
@@ -87,7 +103,7 @@ export const addCopyright = (config, imageContainer, imageEl, el, index) => {
       const COPYRIGHT_EL = document.getElementById(COPYRIGHT_ID)
 
       if (COPYRIGHT_EL) {
-        return COPYRIGHT_EL.innerHTML
+        return allowHTML ? COPYRIGHT_EL.innerHTML : COPYRIGHT_EL.textContent
       }
     }
 
@@ -104,7 +120,7 @@ export const addCopyright = (config, imageContainer, imageEl, el, index) => {
 
       if (COPYRIGHT_EL) {
         // Prefer a direct attribute on the found element, otherwise use its content
-        return COPYRIGHT_EL.getAttribute(copyrightAttribute) || COPYRIGHT_EL.innerHTML
+        return COPYRIGHT_EL.getAttribute(copyrightAttribute) || (allowHTML ? COPYRIGHT_EL.innerHTML : COPYRIGHT_EL.textContent)
       }
     }
 
@@ -116,10 +132,18 @@ export const addCopyright = (config, imageContainer, imageEl, el, index) => {
   if (COPYRIGHT_DATA) {
     const COPYRIGHT_CONTAINER = document.createElement('div')
     const COPYRIGHT_ID = `parvus__copyright-${index}`
+    const COPYRIGHT_TEXT = document.createElement('small')
 
     COPYRIGHT_CONTAINER.className = 'parvus__copyright'
     COPYRIGHT_CONTAINER.id = COPYRIGHT_ID
-    COPYRIGHT_CONTAINER.innerHTML = `<small>${COPYRIGHT_DATA}</small>`
+
+    if (config.allowHTML) {
+      COPYRIGHT_TEXT.innerHTML = COPYRIGHT_DATA
+    } else {
+      COPYRIGHT_TEXT.textContent = COPYRIGHT_DATA
+    }
+
+    COPYRIGHT_CONTAINER.appendChild(COPYRIGHT_TEXT)
 
     imageContainer.appendChild(COPYRIGHT_CONTAINER)
 
@@ -140,12 +164,17 @@ export const addCopyright = (config, imageContainer, imageEl, el, index) => {
  * @param {HTMLElement} el - The trigger element
  * @param {Number} index - The index
  * @param {Function} callback - Callback function
+ * @param {Function} onSettled - Called with the resulting content element once it settles (loaded or errored)
  * @returns {void}
  */
-export const createImage = (state, el, index, callback) => {
+export const createImage = (state, el, index, callback, onSettled) => {
   const { contentElements, sliderElements } = state.GROUPS[state.activeGroup]
 
   if (contentElements[index] !== undefined) {
+    if (onSettled && typeof onSettled === 'function') {
+      onSettled(contentElements[index])
+    }
+
     if (callback && typeof callback === 'function') {
       callback()
     }
@@ -154,6 +183,9 @@ export const createImage = (state, el, index, callback) => {
 
   const CONTENT_CONTAINER_EL = sliderElements[index].querySelector('div')
   const IMAGE = new Image()
+
+  IMAGE.decoding = 'async'
+
   const IMAGE_CONTAINER = document.createElement('div')
   const THUMBNAIL = el.querySelector('img')
   const LOADING_INDICATOR = document.createElement('div')
@@ -168,10 +200,10 @@ export const createImage = (state, el, index, callback) => {
   // Add loading indicator to content container
   CONTENT_CONTAINER_EL.appendChild(LOADING_INDICATOR)
 
-  const checkImagePromise = new Promise((resolve, reject) => {
-    IMAGE.onload = () => resolve(IMAGE)
-    IMAGE.onerror = (error) => reject(error)
-  })
+  const { promise: checkImagePromise, resolve, reject } = Promise.withResolvers()
+
+  IMAGE.onload = () => resolve(IMAGE)
+  IMAGE.onerror = (error) => reject(error)
 
   checkImagePromise
     .then((loadedImage) => {
@@ -213,7 +245,11 @@ export const createImage = (state, el, index, callback) => {
       contentElements[index] = ERROR_CONTAINER
     })
     .finally(() => {
-      CONTENT_CONTAINER_EL.removeChild(LOADING_INDICATOR)
+      LOADING_INDICATOR.remove()
+
+      if (onSettled && typeof onSettled === 'function') {
+        onSettled(contentElements[index])
+      }
 
       if (callback && typeof callback === 'function') {
         callback()
@@ -283,22 +319,22 @@ export const loadImage = (state, index, animate) => {
 }
 
 /**
- * Set image dimension
+ * Measure the target size for a content element
  *
  * @param {HTMLElement} slideEl - The slide element
  * @param {HTMLElement} contentEl - The content element
- * @returns {void}
+ * @returns {Object|null} - Target width/height, or null
  */
-export const setImageDimension = (slideEl, contentEl) => {
-  if (contentEl.tagName !== 'IMG') {
-    return
+export const measureImageDimension = (slideEl, contentEl) => {
+  if (!contentEl || contentEl.tagName !== 'IMG') {
+    return null
   }
 
   const SRC_HEIGHT = contentEl.getAttribute('height')
   const SRC_WIDTH = contentEl.getAttribute('width')
 
   if (!SRC_HEIGHT || !SRC_WIDTH) {
-    return
+    return null
   }
 
   const SLIDE_EL_STYLES = getComputedStyle(slideEl)
@@ -314,13 +350,39 @@ export const setImageDimension = (slideEl, contentEl) => {
 
   const RATIO = Math.min(MAX_WIDTH / SRC_WIDTH || 0, MAX_HEIGHT / SRC_HEIGHT || 0)
 
-  const NEW_WIDTH = SRC_WIDTH * RATIO
-  const NEW_HEIGHT = SRC_HEIGHT * RATIO
-
   const USE_ORIGINAL_SIZE = (SRC_WIDTH <= MAX_WIDTH && SRC_HEIGHT <= MAX_HEIGHT)
 
-  contentEl.style.width = USE_ORIGINAL_SIZE ? '' : `${NEW_WIDTH}px`
-  contentEl.style.height = USE_ORIGINAL_SIZE ? '' : `${NEW_HEIGHT}px`
+  return {
+    width: USE_ORIGINAL_SIZE ? '' : `${SRC_WIDTH * RATIO}px`,
+    height: USE_ORIGINAL_SIZE ? '' : `${SRC_HEIGHT * RATIO}px`
+  }
+}
+
+/**
+ * Apply a dimension measured by `measureImageDimension`
+ *
+ * @param {HTMLElement} contentEl - The content element
+ * @param {Object|null} dimension - Target width/height, or null to skip
+ * @returns {void}
+ */
+export const applyImageDimension = (contentEl, dimension) => {
+  if (!dimension) {
+    return
+  }
+
+  contentEl.style.width = dimension.width
+  contentEl.style.height = dimension.height
+}
+
+/**
+ * Set image dimension
+ *
+ * @param {HTMLElement} slideEl - The slide element
+ * @param {HTMLElement} contentEl - The content element
+ * @returns {void}
+ */
+export const setImageDimension = (slideEl, contentEl) => {
+  applyImageDimension(contentEl, measureImageDimension(slideEl, contentEl))
 }
 
 /**
@@ -336,9 +398,13 @@ export const createResizeHandler = (state, updateOffset) => {
       state.resizeTicking = true
 
       window.requestAnimationFrame(() => {
-        state.GROUPS[state.activeGroup].sliderElements.forEach((slide, index) => {
-          setImageDimension(slide, state.GROUPS[state.activeGroup].contentElements[index])
-        })
+        state.lightboxWidth = state.lightbox.offsetWidth
+
+        const { sliderElements, contentElements } = state.GROUPS[state.activeGroup]
+
+        const DIMENSIONS = sliderElements.map((slide, index) => measureImageDimension(slide, contentElements[index]))
+
+        DIMENSIONS.forEach((dimension, index) => applyImageDimension(contentElements[index], dimension))
 
         updateOffset()
 

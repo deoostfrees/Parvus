@@ -33,6 +33,7 @@ export class ParvusState {
     this.nextButton = null
     this.closeButton = null
     this.counter = null
+    this.counterLabel = null
 
     // Drag & interaction state
     this.drag = {}
@@ -40,9 +41,16 @@ export class ParvusState {
     this.isDraggingY = false
     this.pointerDown = false
     this.activePointers = new Map()
+    this.primaryPointerId = null
 
     // Zoom state
     this.currentScale = 1
+    this.panX = 0
+    this.panY = 0
+    this.lastPanPointerX = null
+    this.lastPanPointerY = null
+    this.zoomOriginX = 0.5
+    this.zoomOriginY = 0.5
     this.isPinching = false
     this.isTap = false
     this.pinchStartDistance = 0
@@ -52,7 +60,10 @@ export class ParvusState {
     this.offset = null
     this.offsetTmp = null
     this.resizeTicking = false
+    this.dragTicking = false
     this.isReducedMotion = true
+
+    this.lightboxWidth = 0
   }
 
   /**
@@ -65,6 +76,8 @@ export class ParvusState {
       startY: 0,
       endY: 0
     }
+
+    this.primaryPointerId = null
   }
 
   /**
@@ -83,6 +96,12 @@ export class ParvusState {
     this.isPinching = false
     this.isTap = false
     this.currentScale = 1
+    this.panX = 0
+    this.panY = 0
+    this.lastPanPointerX = null
+    this.lastPanPointerY = null
+    this.zoomOriginX = 0.5
+    this.zoomOriginY = 0.5
     this.pinchStartDistance = 0
     this.lastPointersId = ''
   }

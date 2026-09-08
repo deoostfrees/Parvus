@@ -12,24 +12,36 @@
  */
 export const createPointerdownHandler = (state) => {
   return (event) => {
-    event.preventDefault()
-    event.stopPropagation()
-
     if (event.pointerType === 'mouse' && !state.config.simulateTouch) {
       return
     }
 
-    state.isDraggingX = false
-    state.isDraggingY = false
+    event.preventDefault()
+    event.stopPropagation()
+
+    // Only reset on a fresh gesture, not when a second finger joins an active swipe
+    if (state.activePointers.size === 0) {
+      state.isDraggingX = false
+      state.isDraggingY = false
+      state.primaryPointerId = event.pointerId
+
+      state.drag.startX = event.pageX
+      state.drag.startY = event.pageY
+      state.drag.endX = event.pageX
+      state.drag.endY = event.pageY
+
+      if (state.config.swipeClose) {
+        state.lightboxOverlayOpacity = getComputedStyle(state.lightboxOverlay).opacity
+      }
+    }
+
+    // Reset the pan baseline so the next move computes a delta instead of jumping
+    state.lastPanPointerX = null
+    state.lastPanPointerY = null
 
     state.pointerDown = true
 
     state.activePointers.set(event.pointerId, event)
-
-    state.drag.startX = event.pageX
-    state.drag.startY = event.pageY
-    state.drag.endX = event.pageX
-    state.drag.endY = event.pageY
 
     const { slider } = state.GROUPS[state.activeGroup]
 
@@ -37,10 +49,6 @@ export const createPointerdownHandler = (state) => {
     slider.style.willChange = 'transform'
 
     state.isTap = state.activePointers.size === 1
-
-    if (state.config.swipeClose) {
-      state.lightboxOverlayOpacity = getComputedStyle(state.lightboxOverlay).opacity
-    }
   }
 }
 
@@ -52,36 +60,60 @@ export const createPointerdownHandler = (state) => {
  * @param {Function} doSwipe - Swipe function
  * @returns {Function} Pointermove event handler
  */
-export const createPointermoveHandler = (state, pinchZoom, doSwipe) => {
+export const createPointermoveHandler = (state, pinchZoom, panZoom, doSwipe) => {
   return (event) => {
-    event.preventDefault()
-
     if (!state.pointerDown) {
       return
     }
 
-    const CURRENT_IMAGE = state.GROUPS[state.activeGroup].contentElements[state.currentIndex]
+    event.preventDefault()
 
     // Update pointer position
     state.activePointers.set(event.pointerId, event)
 
-    // Zoom
-    if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG') {
-      if (state.activePointers.size === 2) {
-        pinchZoom(CURRENT_IMAGE)
-
-        return
-      }
-
-      if (state.currentScale > 1) {
-        return
-      }
+    // Only the primary pointer may drive the swipe/close position
+    if (event.pointerId === state.primaryPointerId) {
+      state.drag.endX = event.pageX
+      state.drag.endY = event.pageY
     }
 
-    state.drag.endX = event.pageX
-    state.drag.endY = event.pageY
+    if (state.dragTicking) {
+      return
+    }
 
-    doSwipe()
+    state.dragTicking = true
+
+    window.requestAnimationFrame(() => {
+      state.dragTicking = false
+
+      // Pointerup may have ended the gesture while this callback was queued
+      if (!state.pointerDown) {
+        return
+      }
+
+      const CURRENT_IMAGE = state.GROUPS[state.activeGroup].contentElements[state.currentIndex]
+
+      // Zoom, unless a swipe is already in progress
+      if (CURRENT_IMAGE && CURRENT_IMAGE.tagName === 'IMG' && !state.isDraggingX && !state.isDraggingY) {
+        if (state.activePointers.size === 2) {
+          // Finger count changed, so the next single-pointer move needs a fresh pan baseline
+          state.lastPanPointerX = null
+          state.lastPanPointerY = null
+
+          pinchZoom(CURRENT_IMAGE)
+
+          return
+        }
+
+        if (state.currentScale > 1) {
+          panZoom(CURRENT_IMAGE)
+
+          return
+        }
+      }
+
+      doSwipe()
+    })
   }
 }
 
@@ -123,7 +155,7 @@ export const createPointerupHandler = (state, resetZoom, updateAfterDrag) => {
         resetZoom(CURRENT_IMAGE)
       } else {
         CURRENT_IMAGE.style.transform = `
-          scale(${state.currentScale})
+          translate(${state.panX}px, ${state.panY}px) scale(${state.currentScale})
         `
       }
     } else {
