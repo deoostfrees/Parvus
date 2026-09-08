@@ -62,7 +62,7 @@ body:has(.parvus[open]) {
  */
 .parvus {
   background-color: transparent;
-  block-size: 100dvh;
+  block-size: 100%;
   border: 0;
   box-sizing: border-box;
   color: var(--parvus-color);
@@ -158,13 +158,13 @@ body:has(.parvus[open]) {
   position: absolute;
 }
 .parvus__loader {
-  display: inline-block;
   block-size: 6.25rem;
+  display: inline-block;
+  inline-size: 6.25rem;
+  inset-block-start: 50%;
   inset-inline-start: 50%;
   position: absolute;
-  inset-block-start: 50%;
   transform: translate(-50%, -50%);
-  inline-size: 6.25rem;
 }
 .parvus__loader::before {
   animation: spin 1s infinite linear;
