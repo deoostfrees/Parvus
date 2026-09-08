@@ -14,6 +14,7 @@ export const DEFAULT_OPTIONS = {
   copyright: true,
   copyrightSelector: 'self',
   copyrightAttribute: 'data-copyright',
+  allowHTML: false,
   docClose: true,
   swipeClose: true,
   simulateTouch: true,
