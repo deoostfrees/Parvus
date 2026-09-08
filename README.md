@@ -100,8 +100,8 @@ const prvs = new Parvus()
 
 ### Captions
 
-> [!WARNING]
-> Captions are inserted as HTML, not plain text. If any of the content is user-generated (e.g., CMS fields, uploads, comments), sanitize it on the server before it reaches these attributes/elements; otherwise, you risk XSS.
+> [!CAUTION]
+> By default, captions are inserted as plain text. Set the `allowHTML` option to `true` to render them as HTML. If you do this and any of the content is user-generated (e.g., CMS fields or uploads), sanitize it on the server before it reaches these attributes or elements. Otherwise, you risk cross-site scripting (XSS).
 
 There are three ways to add a caption to an image:
 
@@ -155,8 +155,8 @@ const prvs = new Parvus({
 
 ### Copyright
 
-> [!WARNING]
-> Copyright is inserted as HTML, not plain text. If any of the content is user-generated (e.g., CMS fields, uploads, comments), sanitize it on the server before it reaches these attributes/elements; otherwise, you risk XSS.
+> [!CAUTION]
+> By default, copyright is inserted as plain text. Set the `allowHTML` option to `true` to render them as HTML. If you do this and any of the content is user-generated (e.g., CMS fields or uploads), sanitize it on the server before it reaches these attributes or elements. Otherwise, you risk cross-site scripting (XSS).
 
 There are three ways to add copyright information to an image:
 
@@ -340,6 +340,9 @@ Available options include:
 
   // Attribute to get the copyright from
   copyrightAttribute: 'data-copyright',
+
+  // Render captions/copyright as HTML instead of plain text; only enable this for trusted content
+  allowHTML: false,
 
   // Clicking outside closes Parvus
   docClose: true,

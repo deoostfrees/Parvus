@@ -68,6 +68,7 @@
     copyright: true,
     copyrightSelector: 'self',
     copyrightAttribute: 'data-copyright',
+    allowHTML: false,
     docClose: true,
     swipeClose: true,
     simulateTouch: true,
@@ -1461,7 +1462,7 @@
    */
   const addCaption = (config, containerEl, imageEl, el, index) => {
     const getCaptionData = (triggerEl) => {
-      const { captionsAttribute, captionsSelector, captionsIdAttribute = 'data-caption-id' } = config;
+      const { captionsAttribute, captionsSelector, captionsIdAttribute = 'data-caption-id', allowHTML } = config;
 
       // Check for an ID reference on the trigger element
       // This allows the caption to be anywhere on the page
@@ -1471,7 +1472,7 @@
         const CAPTION_EL = document.getElementById(CAPTION_ID);
 
         if (CAPTION_EL) {
-          return CAPTION_EL.innerHTML
+          return allowHTML ? CAPTION_EL.innerHTML : CAPTION_EL.textContent
         }
       }
 
@@ -1488,7 +1489,7 @@
 
         if (CAPTION_EL) {
           // Prefer a direct attribute on the found element, otherwise use its content
-          return CAPTION_EL.getAttribute(captionsAttribute) || CAPTION_EL.innerHTML
+          return CAPTION_EL.getAttribute(captionsAttribute) || (allowHTML ? CAPTION_EL.innerHTML : CAPTION_EL.textContent)
         }
       }
 
@@ -1500,10 +1501,18 @@
     if (CAPTION_DATA) {
       const CAPTION_CONTAINER = document.createElement('div');
       const CAPTION_ID = `parvus__caption-${index}`;
+      const CAPTION_TEXT = document.createElement('p');
 
       CAPTION_CONTAINER.className = 'parvus__caption';
       CAPTION_CONTAINER.id = CAPTION_ID;
-      CAPTION_CONTAINER.innerHTML = `<p>${CAPTION_DATA}</p>`;
+
+      if (config.allowHTML) {
+        CAPTION_TEXT.innerHTML = CAPTION_DATA;
+      } else {
+        CAPTION_TEXT.textContent = CAPTION_DATA;
+      }
+
+      CAPTION_CONTAINER.appendChild(CAPTION_TEXT);
 
       containerEl.appendChild(CAPTION_CONTAINER);
 
@@ -1530,7 +1539,7 @@
    */
   const addCopyright = (config, imageContainer, imageEl, el, index) => {
     const getCopyrightData = (triggerEl) => {
-      const { copyrightAttribute, copyrightSelector, copyrightIdAttribute = 'data-copyright-id' } = config;
+      const { copyrightAttribute, copyrightSelector, copyrightIdAttribute = 'data-copyright-id', allowHTML } = config;
 
       // Check for an ID reference on the trigger element
       // This allows the copyright to be anywhere on the page
@@ -1540,7 +1549,7 @@
         const COPYRIGHT_EL = document.getElementById(COPYRIGHT_ID);
 
         if (COPYRIGHT_EL) {
-          return COPYRIGHT_EL.innerHTML
+          return allowHTML ? COPYRIGHT_EL.innerHTML : COPYRIGHT_EL.textContent
         }
       }
 
@@ -1557,7 +1566,7 @@
 
         if (COPYRIGHT_EL) {
           // Prefer a direct attribute on the found element, otherwise use its content
-          return COPYRIGHT_EL.getAttribute(copyrightAttribute) || COPYRIGHT_EL.innerHTML
+          return COPYRIGHT_EL.getAttribute(copyrightAttribute) || (allowHTML ? COPYRIGHT_EL.innerHTML : COPYRIGHT_EL.textContent)
         }
       }
 
@@ -1569,10 +1578,18 @@
     if (COPYRIGHT_DATA) {
       const COPYRIGHT_CONTAINER = document.createElement('div');
       const COPYRIGHT_ID = `parvus__copyright-${index}`;
+      const COPYRIGHT_TEXT = document.createElement('small');
 
       COPYRIGHT_CONTAINER.className = 'parvus__copyright';
       COPYRIGHT_CONTAINER.id = COPYRIGHT_ID;
-      COPYRIGHT_CONTAINER.innerHTML = `<small>${COPYRIGHT_DATA}</small>`;
+
+      if (config.allowHTML) {
+        COPYRIGHT_TEXT.innerHTML = COPYRIGHT_DATA;
+      } else {
+        COPYRIGHT_TEXT.textContent = COPYRIGHT_DATA;
+      }
+
+      COPYRIGHT_CONTAINER.appendChild(COPYRIGHT_TEXT);
 
       imageContainer.appendChild(COPYRIGHT_CONTAINER);
 
