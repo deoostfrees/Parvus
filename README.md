@@ -100,6 +100,9 @@ const prvs = new Parvus()
 
 ### Captions
 
+> [!WARNING]
+> Captions are inserted as HTML, not plain text. If any of the content is user-generated (e.g., CMS fields, uploads, comments), sanitize it on the server before it reaches these attributes/elements; otherwise, you risk XSS.
+
 There are three ways to add a caption to an image:
 
 #### Reference by ID
@@ -151,6 +154,9 @@ const prvs = new Parvus({
 ```
 
 ### Copyright
+
+> [!WARNING]
+> Copyright is inserted as HTML, not plain text. If any of the content is user-generated (e.g., CMS fields, uploads, comments), sanitize it on the server before it reaches these attributes/elements; otherwise, you risk XSS.
 
 There are three ways to add copyright information to an image:
 
